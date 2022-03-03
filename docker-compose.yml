@@ -1,0 +1,22 @@
+version: "3"
+services:
+  webserver:
+    build:
+      context: ./webserver
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    ports:
+        - "5001:80"
+  postgres:
+    build:
+        context: ./database
+        dockerfile: Dockerfile
+    environment:
+      - POSTGRES_USER=cardamom
+      - POSTGRES_PASSWORD=cardamom9867
+    volumes:
+        - ./database/postgres-data:/var/lib/postgresql/data
+#       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    ports:
+      - "54321:5432"
