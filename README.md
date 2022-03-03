@@ -29,3 +29,10 @@
 
 ### flask/ UI 
 ![flask_folders](docs/flask_folders.png)
+
+
+- api.py manages the access to the database and uses orm.py (which converts query results to python classes)
+
+- react_views/ is our react app to generate views 
+to build run `npm run build` inside of the react_views folder it will generate a index.html inside of templates/ and all static in static/
+to add a new route just follow the pattern as in react_views/src/index.js
