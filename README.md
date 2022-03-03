@@ -13,4 +13,10 @@
     docker-compose up
 ```
 
+## project structure
+
+
+- dockerized postgres
+![system design](system_design.png)
+
 
