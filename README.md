@@ -17,6 +17,6 @@
 
 
 - dockerized postgres
-![system design](system_design.png)
+![system design](docs/system_design.png)
 
 
