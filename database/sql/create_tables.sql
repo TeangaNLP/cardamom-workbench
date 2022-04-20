@@ -1,12 +1,31 @@
-CREATE DATABASE files; 
+CREATE DATABASE workbench; 
 
-\c files;
+\c workbench;
 
-CREATE TABLE IF NOT EXISTS uploaded_file (
-  file_id SERIAL NOT NULL,
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL NOT NULL,
+  name varchar(250) NOT NULL,
+  email varchar(250) NOT NULL,
+  password varchar NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS uploaded_files (
+  id SERIAL NOT NULL,
   name varchar(250) NOT NULL,
   content varchar NOT NULL,
-  PRIMARY KEY (file_id)
+  PRIMARY KEY (id)
+  user_id 
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+);
+
+CREATE TABLE IF NOT EXISTS annotations (
+  id SERIAL NOT NULL,
+  type varchar(250) NOT NULL,
+  value varchar(250) NOT NULL,
+  PRIMARY KEY (id)
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+  FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_file(id) ON DELETE CASCADE,
 );
 
 /*INSERT INTO uploaded_file (name, content) VALUES ('a-filename.pdf', 'this is a content');*/ 
