@@ -46,9 +46,9 @@ def cardamom_tokenize(string, language, indices=None):
     current_index = 0
     for token in token_list:
         tok_index = string[current_index:].find(token) + current_index
-        tok_indices = (tok_index, tok_index + len(token))
+        tok_indices = {"start": tok_index, "end": tok_index + len(token), "type": "token", "language": language}
         indexed_tokens.append(tok_indices)
-        current_index = tok_indices[1]
+        current_index = tok_indices.get("start")
 
     return indexed_tokens
 
