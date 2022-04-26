@@ -1,1 +1,2 @@
 webserver/react_views/node_modules/**
+/database/postgres-data/
