@@ -1,10 +1,16 @@
-from flask import Blueprint, render_template, jsonify 
+from urllib import request
+from flask import Blueprint, request, render_template, jsonify 
 import model
 import config
 import orm
+import docx
+import nltk
+nltk.download('punkt')
+from nltk.tokenize import word_tokenize
 from typing import List
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from config import get_api_url
 
 api = Blueprint('api', __name__,
                         template_folder='templates')
@@ -22,6 +28,43 @@ def get_all_files() -> List[model.UploadedFile]:
     data = [{"name":f.name,"file_id":f.file_id,"content":f.content} for f in files_]
 
     return  jsonify(data)
+
+@api.route('/fileUpload', methods = ['POST'])
+def fileUpload():
+    """
+    Route to add a file to the database
+    """
+    if 'file' not in request.files:
+        print('abort(400)') 
+
+    uploaded_file = request.files["file"]
+    name = uploaded_file.filename
+    name, extension = name.split('.')
+    if extension == 'txt':
+        uploaded_file = uploaded_file.read()
+        content = uploaded_file.decode("utf-8") 
+        # the idea behind file_id needs to be implemented
+        session = get_session()
+        session.add(model.UploadedFile(1, name, content))
+
+        content = word_tokenize(content)
+        response_body = {
+            "data": content
+        }
+    elif extension == 'docx':
+        uploaded_file = docx.Document(uploaded_file)
+        text = []
+        content = ''
+        for para in uploaded_file.paragraphs:
+            text.append(para.text)
+        content = '\n'.join(text)
+        session = get_session()
+        session.add(model.UploadedFile(1, name, content))
+        print(content)
+        response_body = {
+            "data": content
+        }
+    return response_body
 
 @api.route('/file/<file_id>', methods=["GET"])
 def get_file(file_id) -> model.UploadedFile:
