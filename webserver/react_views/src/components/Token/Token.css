@@ -1,0 +1,14 @@
+.token {
+    margin: 5px;
+  }
+  
+  .token:hover {
+    cursor: pointer;
+    color: black;
+  }
+  
+  .highlight {
+    background-color: rgb(255, 230, 0);
+    border-bottom: 5px solid gold;
+  }
+  
