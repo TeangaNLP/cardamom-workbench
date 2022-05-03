@@ -4,7 +4,7 @@ from nltk.tokenize import word_tokenize
 def cardamom_tokenise(string, text_language, reserved_toks=None):
     """Tokenises a string of text and returns a list containing data for each token in the in a dictionary:
 
-       [{'token': 'str', 'start': int, 'end': int, 'type': 'token',
+       [{'token': 'str', 'start': int, 'end': int, 'reserved_token': bool,
        'text_language': 'str', 'token_language': 'str'}, ...]
 
        A list of reserved tokens which have been manually annotated can be supplied as an argument, these will be
@@ -22,13 +22,13 @@ def cardamom_tokenise(string, text_language, reserved_toks=None):
         # Check that reserved tokens are in the correct format, if not raise error with informative message.
         if not isinstance(reserved_toks, list):
             raise RuntimeError(f"\nExpected array of reserved tokens where each token is of type 'dict',\neg. "
-                               f"[{{'token': 'Hello', 'start': 0, 'end': 5, 'type': 'token', "
+                               f"[{{'token': 'Hello', 'start': 0, 'end': 5, 'reserved_token': True, "
                                f"'text_language': 'english', 'token_language': 'english'}}, {{...}} ...].\n"
                                f"Instead, got {type(reserved_toks).__name__} class entry: {reserved_toks}.")
         for indset in reserved_toks:
             if not isinstance(indset, dict):
                 raise RuntimeError(f"\nExpected array of reserved tokens where each token is of type 'dict',\neg. "
-                                   f"[{{'token': 'Hello', 'start': 0, 'end': 5, 'type': 'token', "
+                                   f"[{{'token': 'Hello', 'start': 0, 'end': 5, 'reserved_token': True, "
                                    f"'text_language': 'english', 'token_language': 'english'}}, {{...}} ...].\n"
                                    f"Problem found in '{type(indset).__name__}' class entry: {indset}.")
         stringlist = list()
@@ -38,7 +38,7 @@ def cardamom_tokenise(string, text_language, reserved_toks=None):
             if reserved_toks.count(indset) > 1:
                 raise RuntimeError(f"Duplicate token found in reserved tokens' list: {indset}")
             # Check that reserved tokens contain the correct key-value pairs, if not raise error.
-            checklist = ["token", "start", "end", "type", "text_language", "token_language"]
+            checklist = ["token", "start", "end", "reserved_token", "text_language", "token_language"]
             if not all(data_type in checklist for data_type in indset):
                 problem_keys = [key for key in indset if key not in checklist]
                 if len(problem_keys) == 1:
@@ -47,7 +47,7 @@ def cardamom_tokenise(string, text_language, reserved_toks=None):
                 else:
                     plurality = "s"
                 raise RuntimeError(f"\nExpected array of reserved tokens where each token is of type 'dict',\neg. "
-                                   f"[{{'token': 'Hello', 'start': 0, 'end': 5, 'type': 'token', "
+                                   f"[{{'token': 'Hello', 'start': 0, 'end': 5, 'reserved_token': True, "
                                    f"'text_language': 'english', 'token_language': 'english'}}, {{...}} ...].\n"
                                    f"Problem found in key{plurality}: {problem_keys}.")
             if not all(data_type in indset for data_type in checklist):
@@ -58,7 +58,7 @@ def cardamom_tokenise(string, text_language, reserved_toks=None):
                 else:
                     plurality = "s"
                 raise RuntimeError(f"\nExpected array of reserved tokens where each token is of type 'dict',\neg. "
-                                   f"[{{'token': 'Hello', 'start': 0, 'end': 5, 'type': 'token', "
+                                   f"[{{'token': 'Hello', 'start': 0, 'end': 5, reserved_token': True, "
                                    f"'text_language': 'english', 'token_language': 'english'}}, {{...}} ...].\n"
                                    f"Key{plurality}, {problem_keys}, missing.")
             tok_form = indset.get("token")
@@ -75,6 +75,14 @@ def cardamom_tokenise(string, text_language, reserved_toks=None):
                 elif not isinstance(end, int):
                     raise RuntimeError(f"Expected value of class 'int' for key, 'end'. Got class "
                                        f"'{type(end).__name__}':\n{indset}")
+            reserved = indset.get("reserved_token")
+            # Check that all values for identifying reserved tokens are Boolean.
+            if not isinstance(reserved, bool):
+                raise RuntimeError(f"Expected of class 'bool' for key, 'reserved_token'. Got class "
+                                   f"'{type(reserved).__name__}':\n{indset}")
+            # Check that all tokens reserved tokens supplied are identified as reserved tokens.
+            if not reserved:
+                raise RuntimeError("Expected Boolean value True for key, 'reserved_token'. Got value False")
             # Check that reserved tokens are in order of occurrence and do not overlap in the string.
             # If they are out of order or overlap, raise an error.
             if start < current_index:
@@ -118,7 +126,7 @@ def cardamom_tokenise(string, text_language, reserved_toks=None):
         if isinstance(token, str):
             tok_index = string[current_index:].find(token) + current_index
             tok_dict = {"token": token, "start": tok_index, "end": tok_index + len(token),
-                        "type": "token", "text_language": text_language, "token_language": text_language}
+                        "reserved_token": False, "text_language": text_language, "token_language": text_language}
         # For reserved tokens, make no changes to token data and add it to indexed list.
         elif isinstance(token, dict):
             tok_dict = token
@@ -143,11 +151,11 @@ def cardamom_tokenise(string, text_language, reserved_toks=None):
 #               "als „überzeugter Atheist“, 44 Prozent nannten sich „nicht-religiös“ und 47 Prozent gaben an, eine " \
 #               "religiöse Person zu sein."
 #
-#     no_tok = [{"token": "very much", "start": 39, "end": 48, "type": "token",
+#     no_tok = [{"token": "very much", "start": 39, "end": 48, "reserved_token": True,
 #                "text_language": "english", "token_language": "english"},
-#               {"token": "time-waste", "start": 141, "end": 151, "type": "token",
+#               {"token": "time-waste", "start": 141, "end": 151, "reserved_token": True,
 #                "text_language": "english", "token_language": "english"},
-#               {"token": "Críoch", "start": 153, "end": 159, "type": "token",
+#               {"token": "Críoch", "start": 153, "end": 159, "reserved_token": True,
 #                "text_language": "english", "token_language": "irish"}]
 #
 #     # print(cardamom_tokenise(test_en, "english"))
