@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import axios from "axios";
 import "./FileUpload.css";
+import { NavBar } from "../../components";
 
 export default function FileUpload(props) {
   const [selectedFile, setSelectedFile] = useState();
@@ -25,7 +26,7 @@ export default function FileUpload(props) {
       .then(function (response) {
         console.log("Successfully uploaded!");
         console.log(response.data);
-        navigate("/tagging", {state: response.data});
+        navigate("/tokeniser", { state: response.data });
 
       })
       .catch(function () {
@@ -35,8 +36,9 @@ export default function FileUpload(props) {
 
   return (
     <div>
+      <NavBar />
+      <br />
       <h2> Cardamom Workbench</h2>
-      <p> </p>
       <div id="file-upload-form" className="uploader">
         <label htmlFor="file-upload" id="file-drag">
           <input

@@ -27,13 +27,14 @@ export default function Token(props) {
     // Update the tag of the selected token.
     let onUpdateTag = (tag, builtTag) => {
         updateTag(tag);
+        console.log(tag[0][0]);
         props.updateTagState(props.data, builtTag);
     };
 
     return (
         <span>
             <span
-                className={`token ${tag.length ? "highlight" : ""}`}
+                className={`token ${tag.length ? `highlight class${tag[0][0]}` : ""}`}
                 onClick={onClick}
             >
                 {props.data}

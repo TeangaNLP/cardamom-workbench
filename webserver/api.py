@@ -6,7 +6,7 @@ import orm
 import docx
 import nltk
 nltk.download('punkt')
-from nltk.tokenize import word_tokenize
+from Tokeniser import cardamom_tokenise
 from typing import List
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -40,14 +40,15 @@ def fileUpload():
     uploaded_file = request.files["file"]
     name = uploaded_file.filename
     name, extension = name.split('.')
+    user_id = 1
     if extension == 'txt':
         uploaded_file = uploaded_file.read()
         content = uploaded_file.decode("utf-8") 
         # the idea behind file_id needs to be implemented
         session = get_session()
-        session.add(model.UploadedFile(1, name, content))
+        session.add(model.UploadedFile(1, name, content, user_id))
 
-        content = word_tokenize(content)
+        content = cardamom_tokenise(content,"english")
         response_body = {
             "data": content
         }
@@ -59,7 +60,7 @@ def fileUpload():
             text.append(para.text)
         content = '\n'.join(text)
         session = get_session()
-        session.add(model.UploadedFile(1, name, content))
+        session.add(model.UploadedFile(1, name, content, user_id))
         print(content)
         response_body = {
             "data": content
