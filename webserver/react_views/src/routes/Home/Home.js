@@ -1,39 +1,61 @@
-import { useState } from 'react';
-import { useLocation, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLocation, Navigate, NavLink, navigate, useNavigate } from 'react-router-dom';
 import { ListGroup } from 'react-bootstrap';
 import { NavBar } from '../../components';
+import axios from "axios";
 
 import "./Home.css";
 
 const Home = () => {
 
+  const [documents, updateDocuments] = useState([]);
+  const navigate = useNavigate();
+
   const location = useLocation();
   const userAuthenticated = location.state;
 
-  const alertClicked = () => {
-    alert('You clicked the third ListGroupItem');
+  const buildDocuments = (docs) => {
+    console.log(docs);
+    let newDocs = [];
+    for (const doc of docs) {
+      console.log(doc);
+      newDocs.push(
+        <ListGroup key={doc.filename} className='list-item'>
+          <ListGroup.Item action onClick={() => navigate("/tokeniser", { state: { data: doc.content } })}>
+            {doc.filename}
+          </ListGroup.Item>
+        </ListGroup>
+      )
+    }
+    updateDocuments(newDocs)
   }
 
-  console.log(userAuthenticated);
+  useEffect(() => {
+    // Update the document title using the browser API
 
-  if (!userAuthenticated) {
-    return <Navigate to="/login" replace={true} />
-  }
+    console.log(userAuthenticated)
+    if (!userAuthenticated) {
+      navigate("/login", { replace: true });
+    }
+
+    const data = new FormData()
+    data.append("user", userAuthenticated)
+
+    axios
+      .get("http://127.0.0.1/api/file?user=" + userAuthenticated)
+      .then(function (response) {
+        console.log(response);
+        buildDocuments(response.data.file_contents);
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }, []);
 
   return (
     <div>
       <NavBar />
-      <ListGroup className='list-item'>
-        <ListGroup.Item action href="#link1">
-          Document 1
-        </ListGroup.Item>
-        <ListGroup.Item action href="#link2">
-          Document 2
-        </ListGroup.Item>
-        <ListGroup.Item action onClick={alertClicked}>
-          Document 3
-        </ListGroup.Item>
-      </ListGroup>
+      {documents.length > 0 ? documents : <div>No Documents Uploaded!</div>}
     </div>
   );
 }

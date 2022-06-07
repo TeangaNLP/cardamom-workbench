@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Content, FlexboxGrid, Panel, Form, ButtonToolbar, Button, Schema } from 'rsuite';
 import { Container, Navbar } from "react-bootstrap";
+import axios from "axios";
 
 import 'bootstrap/dist/css/bootstrap.css';
 import "./Login.css";
@@ -36,10 +37,25 @@ const Login = () => {
   let navigate = useNavigate();
 
   const authenticateUser = () => {
-    if (formValue.email === "admin@cardamom.com" && formValue.password === "cardamom123456") {
-      console.log("Go to Home");
-      return navigate("/", { state: formValue.email });
-    }
+
+    const data = new FormData()
+    data.append("user", formValue.email);
+    data.append("password", formValue.password);
+
+    axios
+      .post("http://127.0.0.1/api/login_user", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(function (response) {
+        if (response.data.accept) navigate("/", { state: formValue.email });
+        else console.log("User not authenticated");
+
+      })
+      .catch(function () {
+        console.log("User does not exist");
+      });
   }
 
   return (

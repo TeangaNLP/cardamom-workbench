@@ -21,6 +21,10 @@ const Tokeniser = () => {
     data += `${annoText[i]["token"]} `;
   }
 
+  const saveTokens = (event) => {
+    console.log(event);
+  }
+
   return (
     <div>
       <NavBar />
@@ -29,7 +33,7 @@ const Tokeniser = () => {
         </textarea>
       </div>
       <div className="tokenise-area save-button">
-        <Button variant="dark">Save</Button>
+        <Button onClick={saveTokens} variant="dark">Save</Button>
       </div>
     </div>
   );
