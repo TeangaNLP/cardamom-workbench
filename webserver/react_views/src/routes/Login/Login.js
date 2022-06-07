@@ -27,7 +27,7 @@ const TextField = forwardRef((props, ref) => {
   );
 });
 
-const Login = () => {
+const Login = (props) => {
 
   const formRef = useRef();
   const [formValue, setFormValue] = useState({
@@ -43,13 +43,15 @@ const Login = () => {
     data.append("password", formValue.password);
 
     axios
-      .post("http://127.0.0.1/api/login_user", data, {
+      .post("http://localhost:5001/api/login_user", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
       .then(function (response) {
-        if (response.data.accept) navigate("/", { state: formValue.email });
+        const userId = response.data.user
+        props.setUserId(userId);
+        if (userId) navigate("/");
         else console.log("User not authenticated");
 
       })

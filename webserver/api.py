@@ -17,39 +17,42 @@ from config import get_api_url
 api = Blueprint('api', __name__,
                         template_folder='templates')
 
-# orm.start_mappers()
-# get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
-
-db_manager = DbManager()
-db_manager.insert_user("admin@cardamom.com", ("admin@cardamom.com", "Johnny Became", "admin@cardamom.com", "cardamom123"))
-db_manager.insert_file("admin@cardamom.com", (1, "Lorem Ipsum the First", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu urna iaculis, consequat ex et, suscipit arcu. Duis laoreet consectetur viverra. Mauris odio mauris, tempus nec libero nec, commodo hendrerit eros. Nullam porta et elit eget fermentum. Fusce vehicula ac eros bibendum consectetur. Sed maximus, risus id vestibulum imperdiet, ligula mi accumsan tellus, eget blandit eros magna tincidunt dolor. Praesent lobortis non quam ac sodales. Donec a ligula eu leo consequat porta sit amet id mauris. Integer bibendum purus id orci posuere volutpat. In efficitur elit vitae mauris volutpat, non pellentesque quam consequat. Cras dui risus, condimentum a tortor quis, volutpat pellentesque diam. Vivamus feugiat posuere erat ut sollicitudin. Quisque sed ex ac turpis tincidunt porttitor id at lectus. Pellentesque feugiat magna ut elit bibendum faucibus.", "admin@cardamom.com"))
-db_manager.insert_file("admin@cardamom.com", (2, "Lorem Ipsum the Second", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu urna iaculis, consequat ex et, suscipit arcu. Duis laoreet consectetur viverra. Mauris odio mauris, tempus nec libero nec, commodo hendrerit eros. Nullam porta et elit eget fermentum. Fusce vehicula ac eros bibendum consectetur. Sed maximus, risus id vestibulum imperdiet, ligula mi accumsan tellus, eget blandit eros magna tincidunt dolor. Praesent lobortis non quam ac sodales. Donec a ligula eu leo consequat porta sit amet id mauris. Integer bibendum purus id orci posuere volutpat. In efficitur elit vitae mauris volutpat, non pellentesque quam consequat. Cras dui risus, condimentum a tortor quis, volutpat pellentesque diam. Vivamus feugiat posuere erat ut sollicitudin. Quisque sed ex ac turpis tincidunt porttitor id at lectus. Pellentesque feugiat magna ut elit bibendum faucibus.", "admin@cardamom.com"))
+orm.start_mappers()
+get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
 
 @api.route('/login_user', methods=["POST"])
 def login_user() -> Dict:
-    user = request.form.get("user")
-    password = request.form.get("password")
-    user = db_manager.get_user(user)
-    if user.password == password:
-        return jsonify({"accept": True})
+    """
+    User login
+    """
+    user_data = request.form.get("user")
+    password_data = request.form.get("password")
+    session = get_session()
+    user = session.query(model.User).filter(model.User.email==user_data).one_or_none()
+
+    if user:
+        return jsonify({"user": user.id})
     else:
-        return jsonify({"accept": False})
+        return jsonify({"user": None})
 
 @api.route('/file/', methods=["GET"])
 def get_all_files() -> List[model.UploadedFile]:
-    # session = get_session()
-    # files_ = session.query(model.UploadedFile).all()
-
-    user = request.args.get("user")
-    files = db_manager.get_files(user)
-    file_contents = [{"filename": file.name, "content": cardamom_tokenise(file.content, "english")} for file in files]
+    """
+    Get all files of the user
+    """
+    user_id = request.args.get("user")
+    
+    session = get_session()
+    files_ = session.query(model.UploadedFile).filter(model.UploadedFile.user_id == user_id).all()
+    
+    file_contents = [{"filename": file.name, "content": cardamom_tokenise(file.content, "english")} for file in files_]
     return  jsonify({"file_contents": file_contents})
 
 @api.route('/fileUpload', methods = ['POST'])
 def file_upload():
-    """
-    Route to add a file to the database
-    """
+
+    session = get_session()
+    
     if 'file' not in request.files:
         print('abort(400)') 
 
