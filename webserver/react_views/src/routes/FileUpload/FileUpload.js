@@ -20,6 +20,7 @@ export default function FileUpload(props) {
   const handleSubmission = () => {
     const data = new FormData();
     data.append("file", selectedFile);
+    data.append("user_id", userId);
     axios
       .post("http://localhost:5001/api/fileUpload", data, {
         headers: {
@@ -29,7 +30,7 @@ export default function FileUpload(props) {
       .then(function (response) {
         console.log("Successfully uploaded!");
         console.log(response.data);
-        navigate("/tokeniser", { state: response.data });
+        // navigate("/tokeniser", { state: response.data });
       })
       .catch(function () {
         console.log("Didn't upload");
