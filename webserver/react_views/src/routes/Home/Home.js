@@ -23,7 +23,7 @@ const Home = (props) => {
           <ListGroup.Item
             action
             onClick={() =>
-              navigate("/tokeniser", { state: { data: doc.content } })
+              navigate("/tokeniser", { state: { fileId: doc.file_id, content: doc.content } })
             }
           >
             {doc.filename}
@@ -42,11 +42,8 @@ const Home = (props) => {
       navigate("/login", { replace: true });
     }
 
-    const data = new FormData();
-    data.append("user", userId);
-
     axios
-      .get("http://localhost:5001/api/file?user=" + userId)
+      .get("http://localhost:5001/api/get_files?user=" + userId)
       .then(function (response) {
         console.log(response);
         buildDocuments(response.data.file_contents);

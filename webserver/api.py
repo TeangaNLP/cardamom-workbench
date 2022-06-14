@@ -5,9 +5,10 @@ import config
 from orm import Base
 from typing import List, Dict
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from Tokeniser import cardamom_tokenise
+from sqlalchemy.orm import sessionmaker, class_mapper
 from flask import Blueprint, request, render_template, jsonify 
+
+from Tokeniser import cardamom_tokenise
 
 nltk.download('punkt')
 
@@ -20,12 +21,19 @@ Base.metadata.create_all(engine)
 get_session = sessionmaker(bind=engine)
 
 
+def serialise(model):
+    columns = [c.key for c in class_mapper(model.__class__).columns]
+    return dict((c, getattr(model, c)) for c in columns)
+
 
 @api.route('/login_user', methods=["POST"])
 def login_user() -> Dict:
     """
-    User login
+    User login route
     """
+
+    # for now we are just checking if the user name exist
+    # we also need to check for password
     user_data = request.form.get("user")
     password_data = request.form.get("password")
     session = get_session()
@@ -35,23 +43,24 @@ def login_user() -> Dict:
     else:
         return jsonify({"user": None})
 
-@api.route('/file/', methods=["GET"])
+@api.route('/get_files/', methods=["GET"])
 def get_all_files() -> List[orm.UploadedFile]:
     """
-    Get all files of the user
+    Get user files route
     """
+    # for a user get all of their files
     user_id = request.args.get("user")
-
     session = get_session()
-    # files_ = session.query(orm.UploadedFile).filter(orm.UploadedFile.user_id == user_id).all()
     user_data = session.query(orm.User).filter(orm.User.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
-    file_contents = [{"filename": file.name, "content": cardamom_tokenise(file.content, "english")} for file in files_]
+    file_contents = [{"filename": file.name, "file_id": file.id, "content": cardamom_tokenise(file.content, "english")} for file in files_]
     return  jsonify({"file_contents": file_contents})
 
 @api.route('/fileUpload', methods = ['POST'])
 def file_upload():
-
+    """
+    Uploading a file
+    """
     session = get_session()
     if 'file' not in request.files:
         print('abort(400)') 
@@ -59,20 +68,21 @@ def file_upload():
     name = uploaded_file.filename
     name, extension = name.split('.')
     user_id = request.form['user_id']
-    print('TEST: ', user_id)
+
     if extension == 'txt':
+        # upload a txt file
         uploaded_file = uploaded_file.read()
         content = uploaded_file.decode("utf-8") 
         new_file = orm.UploadedFile(name = name, content = content, user_id = user_id)
         session.add(new_file)
         session.commit()
         session.flush()
-        print(dir(new_file))
         content = cardamom_tokenise(content,"english")
         response_body = {
             "data": content
         }
     elif extension == 'docx':
+        # upload a docx file
         uploaded_file = docx.Document(uploaded_file)
         text = []
         content = ''
@@ -88,11 +98,13 @@ def file_upload():
         }
     return response_body
 
-@api.route('/file/<file_id>', methods=["GET"])
-def get_file(file_id) -> orm.UploadedFile:
+@api.route('/annotations/<file_id>', methods=["GET"])
+def get_annotations(file_id) -> orm.UploadedFile:
+    print(file_id)
     session = get_session()
-    file_ = session.query(orm.UploadedFile).filter(orm.UploadedFile.file_id==file_id).one()
-    # TODO implement serializer for UploadedFile model
-    data = {"name":file_.name,"file_id":file_.file_id,"content":file_.content}
-    return jsonify(data) 
+    annots = session.query(orm.Annotation).filter(orm.Annotation.uploaded_file_id==file_id).all()
+    annotations = [serialise(annot) for annot in annots]
+    return jsonify({"annotations": annotations})
+
+
 
