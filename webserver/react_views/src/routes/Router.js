@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Login } from "./Login/";
 import { Home } from "./Home/";
 import { FileUpload } from "./FileUpload/";
-import { PosTagging } from "./PosTagging";
+import { POSTagging } from "./POSTagging";
 import { Tokeniser } from "./Tokeniser";
 import { useEffect, useState } from "react";
 
@@ -23,7 +23,7 @@ export default function Router() {
         <Route path="/" element={<Home userId={userId} />} />
         <Route path="/fileupload" element={<FileUpload userId={userId} />} />
         <Route path="/tokeniser" element={<Tokeniser userId={userId} />} />
-        <Route path="/postagging" element={<PosTagging userId={userId} />} />
+        <Route path="/postagging" element={<POSTagging userId={userId} />} />
       </Routes>
     </BrowserRouter>
   );

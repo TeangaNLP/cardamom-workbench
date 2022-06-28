@@ -1,3 +1,4 @@
+from __future__ import annotations
 import orm
 import docx
 import nltk
@@ -6,7 +7,7 @@ from orm import Base
 from typing import List, Dict
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, class_mapper
-from flask import Blueprint, request, render_template, jsonify 
+from flask import Blueprint, request, render_template, make_response, jsonify 
 
 from Tokeniser import cardamom_tokenise
 
@@ -31,7 +32,6 @@ def login_user() -> Dict:
     """
     User login route
     """
-
     # for now we are just checking if the user name exist
     # we also need to check for password
     user_data = request.form.get("user")
@@ -53,7 +53,7 @@ def get_all_files() -> List[orm.UploadedFile]:
     session = get_session()
     user_data = session.query(orm.User).filter(orm.User.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
-    file_contents = [{"filename": file.name, "file_id": file.id, "content": cardamom_tokenise(file.content, "english")} for file in files_]
+    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content} for file in files_]
     return  jsonify({"file_contents": file_contents})
 
 @api.route('/fileUpload', methods = ['POST'])
@@ -98,13 +98,57 @@ def file_upload():
         }
     return response_body
 
-@api.route('/annotations/<file_id>', methods=["GET"])
-def get_annotations(file_id) -> orm.UploadedFile:
-    print(file_id)
+def get_tokens(file_id):
     session = get_session()
     annots = session.query(orm.Annotation).filter(orm.Annotation.uploaded_file_id==file_id).all()
     annotations = [serialise(annot) for annot in annots]
+    return annotations
+
+@api.route('/annotations/<file_id>', methods=["GET"])
+def get_annotations(file_id) -> orm.UploadedFile:
+    annotations = get_tokens(file_id)
     return jsonify({"annotations": annotations})
 
 
+@api.route('/annotations', methods = ["POST"])
+def push_annotations():
+    # assuming the annotations come as a list of dictionaries
+    data = request.get_json()
+    annotations, file_id = data.get('tokens'), data.get("file_id")
+    session = get_session()
 
+    # Check for tokens to be deleted
+    update_tokens(file_id)
+
+    for annotation in annotations:
+        new_annotation = orm.Annotation(
+            token = 'IDK', 
+            reserved_token = False, 
+            start_index = annotation["start_index"],
+            end_index = annotation["end_index"],
+            text_language = 'IDK', 
+            token_language = 'IDK',
+            type = annotation["type"],
+            uploaded_file_id = file_id
+        )
+        session.add(new_annotation)
+    session.commit()
+    session.flush()
+    response_body = {
+            "response": "success"
+        }
+    return response_body
+
+def update_tokens(file_id):
+    # fetch the saved tokens
+    fetched_tokens = get_tokens(file_id)
+    print(fetched_tokens)
+
+
+@api.route('/auto_tokenise', methods=["POST"])
+def auto_tokenise():
+    text = request.form.get("data")
+    tokenised_text = cardamom_tokenise(text,"english")
+    return { "annotations": tokenised_text }
+
+    

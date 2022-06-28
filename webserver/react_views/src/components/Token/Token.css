@@ -1,23 +1,24 @@
 .token {
-  margin: 5px;
+    margin: 5px;
 }
 
-.token:hover {
-  cursor: pointer;
-  color: black;
+  
+  /* .highlight {
+    background-color: rgb(255, 230, 0);
+    border-bottom: 5px solid gold;
+  } */
+  
+.auto {
+    background-color: rgb(115, 200, 250);
+    border-bottom: 5px solid rgba(60, 100, 135);
+}
+  
+.manual {
+    background-color: rgb(0, 215, 45);
+    border-bottom: 5px solid rgb(5, 130, 15);
 }
 
-/* .highlight {
-  background-color: rgb(255, 230, 0);
-  border-bottom: 5px solid gold;
-} */
-
-.class1 {
-  background-color: rgb(115, 200, 250);
-  border-bottom: 5px solid rgba(60, 100, 135);
-}
-
-.class2 {
-  background-color: rgb(0, 215, 45);
-  border-bottom: 5px solid rgb(5, 130, 15);
+.gap {
+    background-color: rgb(123, 215, 145);
+    border-bottom: 5px solid rgb(152, 130, 15);
 }
