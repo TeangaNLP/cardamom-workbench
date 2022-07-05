@@ -1,1 +1,1 @@
-export { default as PosTagging } from './PosTagging';
+export { default as POSTagging } from './POSTagging';

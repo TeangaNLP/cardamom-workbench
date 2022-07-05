@@ -7,32 +7,13 @@ import axios from "axios";
 import "./Home.css";
 
 const Home = (props) => {
-  const [documents, updateDocuments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [documents, setDocuments] = useState([]);
   const navigate = useNavigate();
 
   const userId = props.userId;
   console.log(userId);
 
-  const buildDocuments = (docs) => {
-    console.log(docs);
-    let newDocs = [];
-    for (const doc of docs) {
-      console.log(doc);
-      newDocs.push(
-        <ListGroup key={doc.filename} className="list-item">
-          <ListGroup.Item
-            action
-            onClick={() =>
-              navigate("/tokeniser", { state: { fileId: doc.file_id, content: doc.content } })
-            }
-          >
-            {doc.filename}
-          </ListGroup.Item>
-        </ListGroup>
-      );
-    }
-    updateDocuments(newDocs);
-  };
 
   useEffect(() => {
     // Update the document title using the browser API
@@ -46,7 +27,8 @@ const Home = (props) => {
       .get("http://localhost:5001/api/get_files?user=" + userId)
       .then(function (response) {
         console.log(response);
-        buildDocuments(response.data.file_contents);
+        setDocuments(response.data.file_contents);
+        setIsLoading(false);
       })
       .catch(function (err) {
         console.log(err);
@@ -56,7 +38,21 @@ const Home = (props) => {
   return (
     <div>
       <NavBar />
-      {documents.length > 0 ? documents : <div>No Documents Uploaded!</div>}
+      {isLoading ? <div>Loading...</div> : documents.length > 0 ? (
+        documents.map(doc => {
+          return (
+            <ListGroup key={doc.filename} className="list-item">
+              <ListGroup.Item
+                action
+                onClick={() =>
+                  navigate("/tokeniser", { state: { fileId: doc.file_id, content: doc.content } })
+                }
+              >
+                {doc.filename}
+              </ListGroup.Item>
+            </ListGroup>);
+        })
+      ) : <div>No Documents Uploaded!</div>}
     </div>
   );
 };

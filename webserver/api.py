@@ -4,9 +4,9 @@ import nltk
 import config
 from orm import Base
 from typing import List, Dict
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
-from flask import Blueprint, request, render_template, jsonify 
+from flask import Blueprint, request, render_template, make_response, jsonify 
 
 from Tokeniser import cardamom_tokenise
 
@@ -25,13 +25,39 @@ def serialise(model):
     columns = [c.key for c in class_mapper(model.__class__).columns]
     return dict((c, getattr(model, c)) for c in columns)
 
+def get_tokens(file_id):
+    session = get_session()
+    annots = session.query(orm.Annotation).filter(orm.Annotation.uploaded_file_id==file_id).all()
+    # print('Inside get_tokens: ', annots)
+    annotations = [serialise(annot) for annot in annots]
+    return sorted(annotations, key=lambda a: a['start_index'])
+
+def get_replaced_tokens(start, end, annotations):
+    # fetch the saved tokens
+    i = 0
+    replace_tokens = []
+
+    while(i < len(annotations)):
+        # if the new start is greater than annotations start
+        new_set = set(range(start, end))
+        overlap_set = set(range(annotations[i]["start_index"], annotations[i]["end_index"]))
+
+        if(len(new_set & overlap_set) > 0):
+            while(i < len(annotations) and end > annotations[i]["end_index"]):
+                replace_tokens.append(annotations[i])
+                i = i + 1
+            replace_tokens.append(annotations[i])
+            break
+        
+        i = i + 1
+    print(replace_tokens)
+    return replace_tokens
 
 @api.route('/login_user', methods=["POST"])
 def login_user() -> Dict:
     """
     User login route
     """
-
     # for now we are just checking if the user name exist
     # we also need to check for password
     user_data = request.form.get("user")
@@ -53,7 +79,7 @@ def get_all_files() -> List[orm.UploadedFile]:
     session = get_session()
     user_data = session.query(orm.User).filter(orm.User.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
-    file_contents = [{"filename": file.name, "file_id": file.id, "content": cardamom_tokenise(file.content, "english")} for file in files_]
+    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content} for file in files_]
     return  jsonify({"file_contents": file_contents})
 
 @api.route('/fileUpload', methods = ['POST'])
@@ -100,11 +126,47 @@ def file_upload():
 
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> orm.UploadedFile:
-    print(file_id)
-    session = get_session()
-    annots = session.query(orm.Annotation).filter(orm.Annotation.uploaded_file_id==file_id).all()
-    annotations = [serialise(annot) for annot in annots]
+    annotations = get_tokens(file_id)
     return jsonify({"annotations": annotations})
 
 
+@api.route('/annotations', methods = ["POST"])
+def push_annotations():
+    # assuming the annotations come as a list of dictionaries
+    data = request.get_json()
+    annotations, file_id = data.get('tokens'), data.get("file_id")
+    session = get_session()
+    
+    # Check for tokens to be deleted
+    extracted_annotations = get_tokens(file_id)
+    for annotation in annotations:
+        replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
+        for token in replace_tokens:
+            session.query(orm.Annotation).filter(orm.Annotation.id == token["id"]).delete() 
 
+        new_annotation = orm.Annotation(
+            token = 'IDK', 
+            reserved_token = False, 
+            start_index = annotation["start_index"],
+            end_index = annotation["end_index"],
+            text_language = 'IDK', 
+            token_language = 'IDK',
+            type = annotation["type"],
+            uploaded_file_id = file_id
+        )
+        session.add(new_annotation)
+    session.commit()
+    session.flush()
+    response_body = {
+            "response": "success"
+        }
+    return response_body
+
+
+@api.route('/auto_tokenise', methods=["POST"])
+def auto_tokenise():
+    text = request.form.get("data")
+    tokenised_text = cardamom_tokenise(text)
+    return { "annotations": tokenised_text }
+
+    

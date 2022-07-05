@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { NavBar } from '../../components/';
-import { Token } from "../../components";
+import { NavBar, POSToken } from '../../components/';
 import { Button } from 'react-bootstrap';
 
 import 'bootstrap/dist/css/bootstrap.css';
-import "./PosTagging.css";
+import "./POSTagging.css";
 
-const Tagging = () => {
+const POSTagging = () => {
 
   let [annoText, updateAnnoText] = useState([]);
   let [tags, updateTags] = useState([]);
@@ -28,7 +27,7 @@ const Tagging = () => {
   // Create Tokens for textarea.
   let data = [];
   for (let i = 0; i < annoText.length; i++) {
-    data.push(<Token key={i} updateTagState={updateTagState} data={annoText[i]["token"]} />);
+    data.push(<POSToken key={i} updateTagState={updateTagState} data={annoText[i]["token"]} />);
   }
 
   return (
@@ -45,4 +44,4 @@ const Tagging = () => {
     </div>
   );
 };
-export default Tagging;
+export default POSTagging;
