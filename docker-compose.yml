@@ -17,6 +17,6 @@ services:
       - POSTGRES_PASSWORD=cardamom9867
     volumes:
         - ./database/postgres-data:/var/lib/postgresql/data
-#       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+        # - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     ports:
       - "54321:5432"
