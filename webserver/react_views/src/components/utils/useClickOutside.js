@@ -25,10 +25,10 @@ export default function useClickOutside(ref, keyword, callback) {
             className = element.className;
         }
 
-        // console.log(className);
         if (
             ref.current &&
             !ref.current.contains(event.target) &&
+            !keyword &&
             !className.includes(keyword)
         ) {
             callback();

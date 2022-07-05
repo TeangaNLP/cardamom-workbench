@@ -1,2 +1,4 @@
 webserver/react_views/node_modules/**
 /database/postgres-data/
+.DS_Store
+../.DS_Store

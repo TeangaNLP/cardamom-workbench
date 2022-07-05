@@ -1,22 +1,42 @@
 from nltk.tokenize import word_tokenize
 
 
-def cardamom_tokenise(string, provenance, matrix_language=None):
+def cardamom_tokenise(string, provenance=None, matrix_language=None):
     """Tokenises a string of text and returns a list containing data for each token dictionaries:
 
-       [{'type': 'token', 'start': int, 'end': int, 'provenance': int}, ...]"""
+    [{'type': 'token', 'start': int, 'end': int, 'provenance': int}, ...]"""
 
     # Identify languages currently supported by NLTK's tokeniser.
-    nltk_langs = ['czech', 'danish', 'dutch', 'english', 'estonian', 'finnish', 'french', 'german', 'greek', 'italian',
-                  'norwegian', 'polish', 'portuguese', 'russian', 'slovene', 'spanish', 'swedish', 'turkish']
+    nltk_langs = [
+        "czech",
+        "danish",
+        "dutch",
+        "english",
+        "estonian",
+        "finnish",
+        "french",
+        "german",
+        "greek",
+        "italian",
+        "norwegian",
+        "polish",
+        "portuguese",
+        "russian",
+        "slovene",
+        "spanish",
+        "swedish",
+        "turkish",
+    ]
 
     # Tokenise the string of text using the primary language of the document if supplied.
     if matrix_language:
         if matrix_language in nltk_langs:
             token_list = word_tokenize(string, matrix_language)
         else:
-            raise RuntimeError(f'Could not tokenise text. '
-                               f'Check language, "{matrix_language}", is supported by tokeniser.')
+            raise RuntimeError(
+                f"Could not tokenise text. "
+                f'Check language, "{matrix_language}", is supported by tokeniser.'
+            )
     else:
         token_list = word_tokenize(string)
 
@@ -25,7 +45,12 @@ def cardamom_tokenise(string, provenance, matrix_language=None):
     current_index = 0
     for token in token_list:
         tok_index = string[current_index:].find(token) + current_index
-        tok_dict = {"type": "token", "start_index": tok_index, "end_index": tok_index + len(token), "provenance": provenance}
+        tok_dict = {
+            "type": "auto",
+            "start_index": tok_index,
+            "end_index": tok_index + len(token),
+            "provenance": provenance,
+        }
         indexed_tokens.append(tok_dict)
         current_index = tok_dict.get("end_index")
     return indexed_tokens

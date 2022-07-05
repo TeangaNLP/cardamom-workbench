@@ -1,18 +1,30 @@
-import React from 'react';
-import { BrowserRouter, 
-         Routes,
-         Route,
-       } from "react-router-dom";
-import Home from "./Home/Home";
-import PosTagging from "./PosTagging/PosTagging";   
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Login } from "./Login/";
+import { Home } from "./Home/";
+import { FileUpload } from "./FileUpload/";
+import { POSTagging } from "./POSTagging";
+import { Tokeniser } from "./Tokeniser";
+import { useEffect, useState } from "react";
 
-export default function Router(){ 
+
+export default function Router() {
+  const [userId, setUserId] = useState();
+
+  console.log("In router", userId);
+
+  useEffect(() => {
+    console.log('Mounted');
+  }, []);
+
   return (
-  <BrowserRouter>
-    <Routes>
-        <Route path="/"  element={<Home />} /> 
-        <Route path="/postagging" element={<PosTagging />} />
-    </Routes>
-  </BrowserRouter>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login setUserId={setUserId} />} />
+        <Route path="/" element={<Home userId={userId} />} />
+        <Route path="/fileupload" element={<FileUpload userId={userId} />} />
+        <Route path="/tokeniser" element={<Tokeniser userId={userId} />} />
+        <Route path="/postagging" element={<POSTagging userId={userId} />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }

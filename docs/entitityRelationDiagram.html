@@ -1,0 +1,224 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <body>
+  <script src="https://unpkg.com/gojs@2.2.5/release/go.js"></script>
+  <p>
+    This is a minimalist HTML and JavaScript skeleton of the GoJS Sample
+    <a href="https://gojs.net/latest/samples/entityRelationship.html">entityRelationship.html</a>. It was automatically generated from a button on the sample page,
+    and does not contain the full HTML. It is intended as a starting point to adapt for your own usage.
+    For many samples, you may need to inspect the
+    <a href="https://github.com/NorthwoodsSoftware/GoJS/blob/master/samples/entityRelationship.html">full source on Github</a>
+    and copy other files or scripts.
+  </p>
+  <div id="allSampleContent" class="p-4 w-full">
+  <script src="https://unpkg.com/gojs@2.2.5/extensions/Figures.js"></script>
+    <script id="code">
+    function init() {
+
+      // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
+      // For details, see https://gojs.net/latest/intro/buildingObjects.html
+      const $ = go.GraphObject.make;  // for conciseness in defining templates
+
+      myDiagram =
+        $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
+          {
+            allowDelete: false,
+            allowCopy: false,
+            layout: $(go.ForceDirectedLayout),
+            "undoManager.isEnabled": true
+          });
+
+      var colors = {
+        'red': '#be4b15',
+        'green': '#52ce60',
+        'blue': '#6ea5f8',
+        'lightred': '#fd8852',
+        'lightblue': '#afd4fe',
+        'lightgreen': '#b9e986',
+        'pink': '#faadc1',
+        'purple': '#d689ff',
+        'orange': '#fdb400',
+      }
+
+      // the template for each attribute in a node's array of item data
+      var itemTempl =
+        $(go.Panel, "Horizontal",
+          $(go.Shape,
+            { desiredSize: new go.Size(15, 15), strokeJoin: "round", strokeWidth: 3, stroke: null, margin: 2 },
+            new go.Binding("figure", "figure"),
+            new go.Binding("fill", "color"),
+            new go.Binding("stroke", "color")),
+          $(go.TextBlock,
+            {
+              stroke: "#333333",
+              font: "bold 14px sans-serif"
+            },
+            new go.Binding("text", "name"))
+        );
+
+      // define the Node template, representing an entity
+      myDiagram.nodeTemplate =
+        $(go.Node, "Auto",  // the whole node panel
+          {
+            selectionAdorned: true,
+            resizable: true,
+            layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+            fromSpot: go.Spot.AllSides,
+            toSpot: go.Spot.AllSides,
+            isShadowed: true,
+            shadowOffset: new go.Point(3, 3),
+            shadowColor: "#C5C1AA"
+          },
+          new go.Binding("location", "location").makeTwoWay(),
+          // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
+          // clear out any desiredSize set by the ResizingTool.
+          new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
+          // define the node's outer shape, which will surround the Table
+          $(go.Shape, "RoundedRectangle",
+            { fill: 'white', stroke: "#eeeeee", strokeWidth: 3 }),
+          $(go.Panel, "Table",
+            { margin: 8, stretch: go.GraphObject.Fill },
+            $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+            // the table header
+            $(go.TextBlock,
+              {
+                row: 0, alignment: go.Spot.Center,
+                margin: new go.Margin(0, 24, 0, 2),  // leave room for Button
+                font: "bold 16px sans-serif"
+              },
+              new go.Binding("text", "key")),
+            // the collapse/expand button
+            $("PanelExpanderButton", "LIST",  // the name of the element whose visibility this button toggles
+              { row: 0, alignment: go.Spot.TopRight }),
+            // the list of Panels, each showing an attribute
+            $(go.Panel, "Vertical",
+              {
+                name: "LIST",
+                row: 1,
+                padding: 3,
+                alignment: go.Spot.TopLeft,
+                defaultAlignment: go.Spot.Left,
+                stretch: go.GraphObject.Horizontal,
+                itemTemplate: itemTempl
+              },
+              new go.Binding("itemArray", "items"))
+          )  // end Table Panel
+        );  // end Node
+
+      // define the Link template, representing a relationship
+      myDiagram.linkTemplate =
+        $(go.Link,  // the whole link panel
+          {
+            selectionAdorned: true,
+            layerName: "Foreground",
+            reshapable: true,
+            routing: go.Link.AvoidsNodes,
+            corner: 5,
+            curve: go.Link.JumpOver
+          },
+          $(go.Shape,  // the link shape
+            { stroke: "#303B45", strokeWidth: 2.5 }),
+          $(go.TextBlock,  // the "from" label
+            {
+              textAlign: "center",
+              font: "bold 14px sans-serif",
+              stroke: "#1967B3",
+              segmentIndex: 0,
+              segmentOffset: new go.Point(NaN, NaN),
+              segmentOrientation: go.Link.OrientUpright
+            },
+            new go.Binding("text", "text")),
+          $(go.TextBlock,  // the "to" label
+            {
+              textAlign: "center",
+              font: "bold 14px sans-serif",
+              stroke: "#1967B3",
+              segmentIndex: -1,
+              segmentOffset: new go.Point(NaN, NaN),
+              segmentOrientation: go.Link.OrientUpright
+            },
+            new go.Binding("text", "toText"))
+        );
+
+      // create the model for the E-R diagram
+      var nodeDataArray = [
+        {
+          key: "users",
+          items: [
+            // red - primary key
+            // blue - normal key
+            // purple - foreign key
+          { name: "id", iskey: true, figure: "Decision", color: colors.red },
+          { name: "name", iskey: false, figure: "Hexagon", color: colors.blue},
+          { name: "email", iskey: false, figure: "Hexagon", color: colors.blue},
+          { name: "password", iskey: false, figure: "Hexagon", color: colors.blue},
+          ]
+        },
+        {
+          key: "uploaded_files",
+          items: [
+          { name: "id", iskey: true, figure: "Decision", color: colors.red },
+          { name: "name", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "content", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "user_id", iskey: true, figure: "Decision", color: "purple" },
+          { name: "language_id", iskey: true, figure: "Decision", color: "purple" },
+          ]
+        },
+        {
+          key: "languages",
+          items: [{ name: "id", iskey: true, figure: "Decision", color: colors.red },
+          { name: "language_name", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "iso_code", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "requested", iskey: false, figure: "Hexagon", color: colors.blue }]
+        },
+        {
+          key: "annotations",
+          items: [{ name: "id", iskey: true, figure: "Decision", color: colors.red },
+          { name: "token", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "reserved_token", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "start_index", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "end_index", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "token_language_id", iskey: true, figure: "Hexagon", color: "purple" },
+          { name: "type", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "uploaded_file_id", iskey: true, figure: "Hexagon", color: "purple" },
+        ]
+        },
+        {
+          key: "provenance",
+          items: [{ name: "id", iskey: true, figure: "Decision", color: colors.red },
+          { name: "timestamp", iskey: false, figure: "Hexagon", color: colors.blue },
+          { name: "reference_id", iskey: false, figure: "Hexagon", color: colors.blue },
+        ]
+        },
+      
+      ];
+      var linkDataArray = [
+        { from: "users", to: "uploaded_files", text: "1", toText: "1..N" },
+        { from: "uploaded_files", to: "Tokens", text: "1", toText: "1..N" },
+        { from: "uploaded_files", to: "languages", text: "1", toText: "1..1"},
+        { from: "annotations", to: "languages", text: "1", toText: "1..1"},
+        { from: "annotations", to: "provenance", text: "1", toText: "1..1"},
+
+      ];
+      myDiagram.model = new go.GraphLinksModel(
+        {
+          copiesArrays: true,
+          copiesArrayObjects: true,
+          nodeDataArray: nodeDataArray,
+          linkDataArray: linkDataArray
+        });
+    }
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+
+<div id="sample">
+  <div id="myDiagramDiv" style="background-color: white; border: 1px solid black; width: 100%; height: 700px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0);"><canvas tabindex="0" width="1594" height="1396" style="position: absolute; top: 0px; left: 0px; z-index: 2; user-select: none; touch-action: none; width: 797px; height: 698px;">This text is displayed if your browser does not support the Canvas HTML element.</canvas><div style="position: absolute; overflow: auto; width: 797px; height: 698px; z-index: 1;"><div style="position: absolute; width: 1px; height: 1px;"></div></div></div>
+  <p>Sample for representing the relationship between various entities.  Try dragging the nodes -- their links will avoid other nodes, by virtue of the <a href="../api/symbols/Link.html#static-AvoidsNodes" target="api">Link.AvoidsNodes</a> property assigned to the
+    custom link template's <a href="../api/symbols/Link.html#routing" target="api">Link.routing</a>. Also note the use of <a href="../intro/buttons.html" target="_blank">Panel Expander Buttons</a> to allow for expandable/collapsible node data.
+  </p>
+  <p>Buttons are defined in <a href="https://unpkg.com/gojs@2.2.5/extensions/Buttons.js">Buttons.js</a>.</p>
+<p class="text-xs">GoJS version 2.2.5. Copyright 1998-2022 by Northwoods Software.</p></div>
+    <p><a href="https://github.com/NorthwoodsSoftware/GoJS/blob/master/samples/entityRelationship.html" target="_blank">View this sample page's source on GitHub</a></p></div>
+  </body>
+  </html>

@@ -2,11 +2,15 @@ import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import axios from "axios";
 import "./FileUpload.css";
+import { NavBar } from "../../components";
 
 export default function FileUpload(props) {
   const [selectedFile, setSelectedFile] = useState();
 
   let navigate = useNavigate();
+  console.log(props)
+  const userId = props.userId;
+  console.log(userId);
 
   const changeHandler = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -16,8 +20,9 @@ export default function FileUpload(props) {
   const handleSubmission = () => {
     const data = new FormData();
     data.append("file", selectedFile);
+    data.append("user_id", userId);
     axios
-      .post("http://127.0.0.1/api/fileUpload", data, {
+      .post("http://localhost:5001/api/fileUpload", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -25,8 +30,7 @@ export default function FileUpload(props) {
       .then(function (response) {
         console.log("Successfully uploaded!");
         console.log(response.data);
-        navigate("/tagging", {state: response.data});
-
+        // navigate("/tokeniser", { state: response.data });
       })
       .catch(function () {
         console.log("Didn't upload");
@@ -35,8 +39,9 @@ export default function FileUpload(props) {
 
   return (
     <div>
+      <NavBar />
+      <br />
       <h2> Cardamom Workbench</h2>
-      <p> </p>
       <div id="file-upload-form" className="uploader">
         <label htmlFor="file-upload" id="file-drag">
           <input

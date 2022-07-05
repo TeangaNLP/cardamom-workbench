@@ -3,17 +3,14 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-
 class User():
-    def __init__(self, id, name, email, password):
-        self.id = id
+    def __init__(self, name, email, password):
         self.name = name
         self.email = email
         self.password = password
 
 class UploadedFile():
-    def __init__(self, id, name, content, user_id):
-        self.id = id
+    def __init__(self, name, content, user_id):
         self.name = name
         self.content = content
         self.user_id = user_id

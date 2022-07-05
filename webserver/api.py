@@ -1,78 +1,172 @@
-from urllib import request
-from flask import Blueprint, request, render_template, jsonify 
-import model
-import config
 import orm
 import docx
 import nltk
+import config
+from orm import Base
+from typing import List, Dict
+from sqlalchemy import create_engine, delete
+from sqlalchemy.orm import sessionmaker, class_mapper
+from flask import Blueprint, request, render_template, make_response, jsonify 
+
+from Tokeniser import cardamom_tokenise
+
 nltk.download('punkt')
-from nltk.tokenize import word_tokenize
-from typing import List
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-from config import get_api_url
 
 api = Blueprint('api', __name__,
                         template_folder='templates')
 
-orm.start_mappers()
-get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
+# orm.start_mappers()
+engine = create_engine(config.get_postgres_uri())
+Base.metadata.create_all(engine)
+get_session = sessionmaker(bind=engine)
 
 
-@api.route('/file/', methods=["GET"])
-def get_all_files() -> List[model.UploadedFile]:
+def serialise(model):
+    columns = [c.key for c in class_mapper(model.__class__).columns]
+    return dict((c, getattr(model, c)) for c in columns)
+
+def get_tokens(file_id):
     session = get_session()
-    files_ = session.query(model.UploadedFile).all()
+    annots = session.query(orm.Annotation).filter(orm.Annotation.uploaded_file_id==file_id).all()
+    # print('Inside get_tokens: ', annots)
+    annotations = [serialise(annot) for annot in annots]
+    return sorted(annotations, key=lambda a: a['start_index'])
 
-    # TODO implement serializer for UploadedFile model
-    data = [{"name":f.name,"file_id":f.file_id,"content":f.content} for f in files_]
+def get_replaced_tokens(start, end, annotations):
+    # fetch the saved tokens
+    i = 0
+    replace_tokens = []
 
-    return  jsonify(data)
+    while(i < len(annotations)):
+        # if the new start is greater than annotations start
+        new_set = set(range(start, end))
+        overlap_set = set(range(annotations[i]["start_index"], annotations[i]["end_index"]))
+
+        if(len(new_set & overlap_set) > 0):
+            while(i < len(annotations) and end > annotations[i]["end_index"]):
+                replace_tokens.append(annotations[i])
+                i = i + 1
+            replace_tokens.append(annotations[i])
+            break
+        
+        i = i + 1
+    print(replace_tokens)
+    return replace_tokens
+
+@api.route('/login_user', methods=["POST"])
+def login_user() -> Dict:
+    """
+    User login route
+    """
+    # for now we are just checking if the user name exist
+    # we also need to check for password
+    user_data = request.form.get("user")
+    password_data = request.form.get("password")
+    session = get_session()
+    user = session.query(orm.User).filter(orm.User.email==user_data).one_or_none()
+    if user:
+        return jsonify({"user": user.id})
+    else:
+        return jsonify({"user": None})
+
+@api.route('/get_files/', methods=["GET"])
+def get_all_files() -> List[orm.UploadedFile]:
+    """
+    Get user files route
+    """
+    # for a user get all of their files
+    user_id = request.args.get("user")
+    session = get_session()
+    user_data = session.query(orm.User).filter(orm.User.id == user_id).one_or_none()
+    files_ = user_data.uploaded_files
+    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content} for file in files_]
+    return  jsonify({"file_contents": file_contents})
 
 @api.route('/fileUpload', methods = ['POST'])
-def fileUpload():
+def file_upload():
     """
-    Route to add a file to the database
+    Uploading a file
     """
+    session = get_session()
     if 'file' not in request.files:
         print('abort(400)') 
-
     uploaded_file = request.files["file"]
     name = uploaded_file.filename
     name, extension = name.split('.')
+    user_id = request.form['user_id']
+
     if extension == 'txt':
+        # upload a txt file
         uploaded_file = uploaded_file.read()
         content = uploaded_file.decode("utf-8") 
-        # the idea behind file_id needs to be implemented
-        session = get_session()
-        session.add(model.UploadedFile(1, name, content))
-
-        content = word_tokenize(content)
+        new_file = orm.UploadedFile(name = name, content = content, user_id = user_id)
+        session.add(new_file)
+        session.commit()
+        session.flush()
+        content = cardamom_tokenise(content,"english")
         response_body = {
             "data": content
         }
     elif extension == 'docx':
+        # upload a docx file
         uploaded_file = docx.Document(uploaded_file)
         text = []
         content = ''
         for para in uploaded_file.paragraphs:
             text.append(para.text)
         content = '\n'.join(text)
-        session = get_session()
-        session.add(model.UploadedFile(1, name, content))
-        print(content)
+        session.add(orm.UploadedFile(name, content, user_id))
+        session.commit()
+        session.flush()
+        content = cardamom_tokenise(content,"english")
         response_body = {
             "data": content
         }
     return response_body
 
-@api.route('/file/<file_id>', methods=["GET"])
-def get_file(file_id) -> model.UploadedFile:
+@api.route('/annotations/<file_id>', methods=["GET"])
+def get_annotations(file_id) -> orm.UploadedFile:
+    annotations = get_tokens(file_id)
+    return jsonify({"annotations": annotations})
+
+
+@api.route('/annotations', methods = ["POST"])
+def push_annotations():
+    # assuming the annotations come as a list of dictionaries
+    data = request.get_json()
+    annotations, file_id = data.get('tokens'), data.get("file_id")
     session = get_session()
-    file_ = session.query(model.UploadedFile).filter(model.UploadedFile.file_id==file_id).one()
+    
+    # Check for tokens to be deleted
+    extracted_annotations = get_tokens(file_id)
+    for annotation in annotations:
+        replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
+        for token in replace_tokens:
+            session.query(orm.Annotation).filter(orm.Annotation.id == token["id"]).delete() 
 
-    # TODO implement serializer for UploadedFile model
-    data = {"name":file_.name,"file_id":file_.file_id,"content":file_.content}
+        new_annotation = orm.Annotation(
+            token = 'IDK', 
+            reserved_token = False, 
+            start_index = annotation["start_index"],
+            end_index = annotation["end_index"],
+            text_language = 'IDK', 
+            token_language = 'IDK',
+            type = annotation["type"],
+            uploaded_file_id = file_id
+        )
+        session.add(new_annotation)
+    session.commit()
+    session.flush()
+    response_body = {
+            "response": "success"
+        }
+    return response_body
 
-    return jsonify(data) 
 
+@api.route('/auto_tokenise', methods=["POST"])
+def auto_tokenise():
+    text = request.form.get("data")
+    tokenised_text = cardamom_tokenise(text)
+    return { "annotations": tokenised_text }
+
+    
