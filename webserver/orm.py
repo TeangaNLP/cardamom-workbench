@@ -21,23 +21,41 @@ class UploadedFile(Base):
     name = Column(String(255), nullable=False)
     content = Column( String(), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False) 
+    language_id = Column(Integer, ForeignKey("languages.id"))
 
     user = relationship("User", backref = backref('uploaded_files'))
+    language = relationship("Language", backref = backref('languages'))
+
+class Language(Base):
+    __tablename__ = 'languages'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    language_name = Column(String(255), nullable=False)
+    iso_code = Column(String(255))
+    requested = Column(Boolean, nullable=False)
+
+class Provenance(Base):
+    __tablename__ = 'provenances'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(String(255), nullable=False)
+    reference_id = Column(Integer)
 
 class Annotation(Base):
     __tablename__ = 'annotations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     token = Column(String(255), nullable=False)
-    text_language = Column(String(255), nullable=False)
-    token_language = Column(String(255), nullable=False)
-    type = Column(String(255), nullable=False)
     reserved_token = Column(Boolean, nullable=False)
     start_index = Column(Integer, nullable=False)
     end_index = Column(Integer, nullable=False)
-    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
-
+    token_language_id = Column(Integer, ForeignKey("languages.id"), nullable=False)
+    type = Column(String(255), nullable=False)
+    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable = False)
+    
     file = relationship("UploadedFile", backref = backref('annotations'))
+    token = relationship("Language", backref = backref('languages'))
+
 
 
 

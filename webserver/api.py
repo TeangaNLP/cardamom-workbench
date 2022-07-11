@@ -5,7 +5,7 @@ import nltk
 import config
 from orm import Base
 from typing import List, Dict
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from flask import Blueprint, request, render_template, make_response, jsonify 
 
@@ -101,12 +101,33 @@ def file_upload():
 def get_tokens(file_id):
     session = get_session()
     annots = session.query(orm.Annotation).filter(orm.Annotation.uploaded_file_id==file_id).all()
+    # print('Inside get_tokens: ', annots)
     annotations = [serialise(annot) for annot in annots]
     return annotations
+
+def get_replaced_tokens(start, end, annotations):
+    # fetch the saved tokens
+    i = 0
+    replaceIndex, replaceTokens = None, []
+
+    while(i < len(annotations)):
+        # if the new start is greater than annotations start
+        if((start >= annotations[i]["start_index"]) and not(annotations[i]["end_index"] <= start)):
+            replaceIndex = i
+            while(end > annotations[i]["end_index"]):
+                replaceTokens.append(annotations[i])
+                i = i + 1
+            replaceTokens.append(annotations[i])
+            break
+        
+        i = i + 1
+    return replaceTokens
+
 
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> orm.UploadedFile:
     annotations = get_tokens(file_id)
+    annotations = sorted(annotations, key=lambda a: a['start_index']) 
     return jsonify({"annotations": annotations})
 
 
@@ -116,17 +137,20 @@ def push_annotations():
     data = request.get_json()
     annotations, file_id = data.get('tokens'), data.get("file_id")
     session = get_session()
-
+    
     # Check for tokens to be deleted
-    update_tokens(file_id)
-
+    extracted_annotations = get_tokens(file_id)
     for annotation in annotations:
+        replaceTokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
+        for token in replaceTokens:
+            session.query(orm.Annotation).filter(orm.Annotation.id == token["id"]).delete() 
+
         new_annotation = orm.Annotation(
             token = 'IDK', 
             reserved_token = False, 
             start_index = annotation["start_index"],
             end_index = annotation["end_index"],
-            text_language = 'IDK', 
+            token_language_id = 1, 
             token_language = 'IDK',
             type = annotation["type"],
             uploaded_file_id = file_id
@@ -138,11 +162,6 @@ def push_annotations():
             "response": "success"
         }
     return response_body
-
-def update_tokens(file_id):
-    # fetch the saved tokens
-    fetched_tokens = get_tokens(file_id)
-    print(fetched_tokens)
 
 
 @api.route('/auto_tokenise', methods=["POST"])
