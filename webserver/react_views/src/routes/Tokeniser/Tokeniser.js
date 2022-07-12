@@ -190,6 +190,7 @@ const Tokeniser = () => {
     }
     // Add new tokens
     const newToken = {
+      token: location.state.content.substring(start, end),
       type: "manual",
       start_index: start,
       end_index: end,

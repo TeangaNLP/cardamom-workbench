@@ -50,7 +50,6 @@ def get_replaced_tokens(start, end, annotations):
             break
         
         i = i + 1
-    print(replace_tokens)
     return replace_tokens
 
 @api.route('/login_user', methods=["POST"])
@@ -145,12 +144,11 @@ def push_annotations():
             session.query(orm.Annotation).filter(orm.Annotation.id == token["id"]).delete() 
 
         new_annotation = orm.Annotation(
-            token = 'IDK', 
+            token = annotation["token"], 
             reserved_token = False, 
             start_index = annotation["start_index"],
             end_index = annotation["end_index"],
-            text_language = 'IDK', 
-            token_language = 'IDK',
+            token_language_id = 1,
             type = annotation["type"],
             uploaded_file_id = file_id
         )
