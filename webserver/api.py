@@ -148,7 +148,7 @@ def push_annotations():
             reserved_token = False, 
             start_index = annotation["start_index"],
             end_index = annotation["end_index"],
-            token_language_id = 1,
+            token_language_id = 1, 
             type = annotation["type"],
             uploaded_file_id = file_id
         )
