@@ -1,6 +1,6 @@
 webserver/react_views/node_modules/**
 /database/postgres-data/
 webserver/static
-webserver/templates
+webserver/templates/index.html
 .DS_Store
 ../.DS_Store
