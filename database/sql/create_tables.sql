@@ -10,6 +10,14 @@ CREATE TABLE IF NOT EXISTS users (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS languages (
+  id SERIAL NOT NULL,
+  PRIMARY KEY (id),
+  language_name varchar(250) NOT NULL,
+  iso_code varchar(250),
+  requested boolean NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS uploaded_files (
   id SERIAL NOT NULL,
   name varchar(250) NOT NULL,
@@ -21,13 +29,11 @@ CREATE TABLE IF NOT EXISTS uploaded_files (
   FOREIGN KEY (language_id) REFERENCES languages(id)
 );
 
-CREATE TABLE IF NOT EXISTS languages (
+CREATE TABLE IF NOT EXISTS provenance (
   id SERIAL NOT NULL,
-  language_name varchar(250) NOT NULL,
-  iso_code varchar(250),
-  requested boolean NOT NULL
+  timestamp varchar(250) NOT NULL,
+  reference_id integer
 );
-
 
 CREATE TABLE IF NOT EXISTS annotations (
   id SERIAL NOT NULL,
@@ -43,10 +49,6 @@ CREATE TABLE IF NOT EXISTS annotations (
   FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS provenance (
-  id SERIAL NOT NULL,
-  timestamp varchar(250) NOT NULL,
-  reference_id integer,
-);
+
 
 /*INSERT INTO uploaded_file (name, content) VALUES ('a-filename.pdf', 'this is a content');*/ 
