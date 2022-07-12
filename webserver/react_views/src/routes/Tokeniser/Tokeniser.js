@@ -103,7 +103,7 @@ const Tokeniser = () => {
       changedTokens = changedTokens.filter(token => token !== replaceToken);
     }
     // Add new tokens
-    const newToken = { 'type': 'token', 'start_index': start, 'end_index': end, 'provenance': 1 }
+    const newToken = { 'token': location.state.content.substring(start, end), 'type': 'token', 'start_index': start, 'end_index': end, 'provenance': 1 }
     changedTokens.splice(replaceIndex, 0, newToken);
     // Sort array based on start index
     changedTokens.sort((a, b) => {
