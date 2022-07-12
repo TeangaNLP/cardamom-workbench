@@ -17,7 +17,6 @@ const Tokeniser = () => {
 
   // Callback for saving
   const onEnter = useCallback((event) => {
-    console.log(event.keyCode, selecting);
     if (event.keyCode == 13 && selecting.start != null && selecting.end != null) {
       updateTokens(selecting.start, selecting.end);
       setSelecting({ mouseDown: false, mouseUp: false, rightClick: false, start: null, end: null, componentStartIndex: null });
@@ -63,7 +62,6 @@ const Tokeniser = () => {
     let selection = window.getSelection();
     let start = selecting.componentStartIndex + selection.anchorOffset;
     let end = index + selection.focusOffset;
-    console.log(start, end)
     selecting = setSelecting({
       ...selecting,
       mouseUp: true,
@@ -75,7 +73,6 @@ const Tokeniser = () => {
 
   const deselect = () => {
     if (selecting.mouseUp && selecting.mouseDown && selecting.start && selecting.end) {
-      console.log("Deselect");
       setSelecting({ mouseDown: false, mouseUp: false, rightClick: false, start: null, end: null, componentStartIndex: null });
     }
   }
@@ -102,14 +99,16 @@ const Tokeniser = () => {
 
     // Remove tokens
     let changedTokens = [...tokenData]
-    console.log(changedTokens, replaceTokens)
     for (let replaceToken of replaceTokens) {
       changedTokens = changedTokens.filter(token => token !== replaceToken);
     }
     // Add new tokens
     const newToken = { 'type': 'token', 'start_index': start, 'end_index': end, 'provenance': 1 }
     changedTokens.splice(replaceIndex, 0, newToken);
-    console.log(changedTokens);
+    // Sort array based on start index
+    changedTokens.sort((a, b) => {
+      return a.start_index - b.start_index;
+    });
     // Update UI
     combineTokensAndGaps(changedTokens, location.state.content);
   }
@@ -121,6 +120,31 @@ const Tokeniser = () => {
       let currData = data[i];
       let nextData = data[i + 1];
 
+
+      if (i == 0 && i == data.length - 1) {
+        // For start
+        if (currData.start_index != 0) {
+          let start_index = 0;
+          gaps.push({
+            start_index: start_index,
+            end_index: start_index > currData.start_index ? start_index : currData.start_index,
+            index: 0,
+          });
+        }
+        // For end
+        if (i == data.length - 1) {
+          if (currData.end_index != text.length) {
+            let start_index = currData.end_index;
+            gaps.push({
+              start_index: start_index,
+              end_index: start_index > text.length ? start_index : text.length,
+              index: data.length,
+            });
+          }
+        }
+        continue;
+      }
+
       if (i == 0) {
         if (currData.start_index != 0) {
           let start_index = 0;
@@ -129,7 +153,7 @@ const Tokeniser = () => {
             end_index: start_index > currData.start_index ? start_index : currData.start_index,
             index: 0,
           });
-          continue;
+          // continue;
         }
       }
 
@@ -141,7 +165,7 @@ const Tokeniser = () => {
             end_index: start_index > text.length ? start_index : text.length,
             index: data.length,
           });
-          continue;
+          // continue;
         }
       }
 
@@ -159,6 +183,15 @@ const Tokeniser = () => {
     let originalLength = newTokensAndGaps.length;
     for (let gap of gaps) {
       newTokensAndGaps.splice((newTokensAndGaps.length - originalLength) + gap.index, 0, gap);
+    }
+
+    if (data.length == 0 && newTokensAndGaps.length == 0) {
+      const gap = {
+        start_index: 0,
+        end_index: text.length,
+        index: 0,
+      }
+      newTokensAndGaps.push(gap);
     }
 
     setTokenData(data);
@@ -217,7 +250,7 @@ const Tokeniser = () => {
           {
             tokensAndGaps.map(token => {
               let text = location.state.content;
-              let backgroundColour = token.type ? "yellow" : "none";
+              let backgroundColour = token.type ? "yellow" : "transparent";
               let tokenValue = text.substring(token.start_index, token.end_index);
               return (
                 <Token downHandler={handleMouseDown} upHandler={handleMouseUp} deselectHandler={deselect} colour={backgroundColour} token={token} value={tokenValue} />
