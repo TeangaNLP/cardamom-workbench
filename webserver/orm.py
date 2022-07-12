@@ -24,7 +24,7 @@ class UploadedFile(Base):
     language_id = Column(Integer, ForeignKey("languages.id"))
 
     user = relationship("User", backref = backref('uploaded_files'))
-    language = relationship("Language", backref = backref('languages'))
+    file_language = relationship("Language", back_populates = "uploaded_files")
 
 class Language(Base):
     __tablename__ = 'languages'
@@ -33,6 +33,9 @@ class Language(Base):
     language_name = Column(String(255), nullable=False)
     iso_code = Column(String(255))
     requested = Column(Boolean, nullable=False)
+
+    uploaded_files = relationship("UploadedFile", back_populates = "file_language")
+    annotations = relationship("Annotation", back_populates = "annotation_language")
 
 class Provenance(Base):
     __tablename__ = 'provenances'
@@ -54,7 +57,7 @@ class Annotation(Base):
     uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable = False)
     
     file = relationship("UploadedFile", backref = backref('annotations'))
-    token = relationship("Language", backref = backref('languages'))
+    annotation_language = relationship("Language", back_populates = "annotations")
 
 
 
