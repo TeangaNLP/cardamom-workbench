@@ -18,7 +18,7 @@ const Tokeniser = () => {
   // Callback for saving
   const onEnter = useCallback((event) => {
     if (event.keyCode == 13 && selecting.start != null && selecting.end != null) {
-      updateManualTokens(selecting.start, selecting.end);
+      updateTokens(selecting.start, selecting.end);
       setSelecting({ mouseDown: false, mouseUp: false, rightClick: false, start: null, end: null, componentStartIndex: null });
     }
   }, [selecting]);
@@ -78,48 +78,8 @@ const Tokeniser = () => {
   }
 
   // Functionality
-  const updateAutoTokens = (autoTokens) => {
-    let changedTokens = [...tokenData]
 
-    for (let autoToken of autoTokens) {
-      let i = 0;
-      let replaceIndex = null;
-      let replaceTokens = [];
-
-      let start = autoToken["start_index"];
-      let end = autoToken["end_index"];
-
-      while (i < tokensAndGaps.length) {
-        if (tokensAndGaps[i].type != "manual" && start >= tokensAndGaps[i].start_index && !(tokensAndGaps[i].end_index <= start)) {
-          replaceIndex = i;
-          while (end > tokensAndGaps[i].end_index) {
-            replaceTokens.push(tokensAndGaps[i]);
-            i += 1;
-          }
-          replaceTokens.push(tokensAndGaps[i]);
-          break
-        }
-        i += 1;
-      }
-
-      console.log(replaceTokens)
-
-      // Remove tokens
-      for (let replaceToken of replaceTokens) {
-        changedTokens = changedTokens.filter(token => token !== replaceToken);
-      }
-      // Add token only if it replaces something (meaning that there is something to be changed).
-      if (replaceTokens.length > 0) changedTokens.splice(replaceIndex, 0, autoToken);
-    }
-    // Sort array based on start index
-    changedTokens.sort((a, b) => {
-      return a.start_index - b.start_index;
-    });
-    // Update UI
-    combineTokensAndGaps(changedTokens, location.state.content);
-  }
-
-  const updateManualTokens = (start, end) => {
+  const updateTokens = (start, end) => {
     let i = 0;
     let replaceIndex = null;
     let replaceTokens = [];
@@ -137,15 +97,13 @@ const Tokeniser = () => {
       i += 1;
     }
 
-    console.log(replaceTokens)
-
     // Remove tokens
     let changedTokens = [...tokenData]
     for (let replaceToken of replaceTokens) {
       changedTokens = changedTokens.filter(token => token !== replaceToken);
     }
     // Add new tokens
-    const newToken = { 'type': 'manual', 'start_index': start, 'end_index': end, 'provenance': 1 }
+    const newToken = { 'type': 'token', 'start_index': start, 'end_index': end, 'provenance': 1 }
     changedTokens.splice(replaceIndex, 0, newToken);
     // Sort array based on start index
     changedTokens.sort((a, b) => {
@@ -171,7 +129,6 @@ const Tokeniser = () => {
             start_index: start_index,
             end_index: start_index > currData.start_index ? start_index : currData.start_index,
             index: 0,
-            type: "gap",
           });
         }
         // For end
@@ -182,7 +139,6 @@ const Tokeniser = () => {
               start_index: start_index,
               end_index: start_index > text.length ? start_index : text.length,
               index: data.length,
-              type: "gap",
             });
           }
         }
@@ -196,7 +152,6 @@ const Tokeniser = () => {
             start_index: start_index,
             end_index: start_index > currData.start_index ? start_index : currData.start_index,
             index: 0,
-            type: "gap",
           });
           // continue;
         }
@@ -209,7 +164,6 @@ const Tokeniser = () => {
             start_index: start_index,
             end_index: start_index > text.length ? start_index : text.length,
             index: data.length,
-            type: "gap",
           });
           // continue;
         }
@@ -221,7 +175,6 @@ const Tokeniser = () => {
           start_index: start_index,
           end_index: start_index > nextData.start_index ? start_index : nextData.start_index,
           index: i + 1,
-          type: "gap",
         });
       }
     }
@@ -237,7 +190,6 @@ const Tokeniser = () => {
         start_index: 0,
         end_index: text.length,
         index: 0,
-        type: "gap",
       }
       newTokensAndGaps.push(gap);
     }
@@ -260,7 +212,7 @@ const Tokeniser = () => {
         },
       })
       .then(function (response) {
-        updateAutoTokens(response.data.annotations);
+        combineTokensAndGaps(response.data.annotations, location.state.content);
       })
       .catch(function (e) {
         console.log(e);
@@ -298,9 +250,10 @@ const Tokeniser = () => {
           {
             tokensAndGaps.map(token => {
               let text = location.state.content;
+              let backgroundColour = token.type ? "yellow" : "transparent";
               let tokenValue = text.substring(token.start_index, token.end_index);
               return (
-                <Token downHandler={handleMouseDown} upHandler={handleMouseUp} deselectHandler={deselect} token={token} value={tokenValue} />
+                <Token downHandler={handleMouseDown} upHandler={handleMouseUp} deselectHandler={deselect} colour={backgroundColour} token={token} value={tokenValue} />
               )
             })
           }
