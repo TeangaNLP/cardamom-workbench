@@ -29,13 +29,23 @@ CREATE TABLE IF NOT EXISTS uploaded_files (
   FOREIGN KEY (language_id) REFERENCES languages(id)
 );
 
+CREATE TABLE IF NOT EXISTS file_translation (
+  translation_id SERIAL NOT NULL,
+  text_translation varchar NOT NULL,
+  PRIMARY KEY (id),
+  file_id NOT NULL,
+  FOREIGN KEY (file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE,
+  language_id integer,
+  FOREIGN KEY (language_id) REFERENCES languages(id)
+);
+
 CREATE TABLE IF NOT EXISTS provenance (
   id SERIAL NOT NULL,
   timestamp varchar(250) NOT NULL,
   reference_id integer
 );
 
-CREATE TABLE IF NOT EXISTS annotations (
+CREATE TABLE IF NOT EXISTS tokens (
   id SERIAL NOT NULL,
   token varchar(10000) NOT NULL,
   reserved_token boolean NOT NULL,
@@ -49,6 +59,17 @@ CREATE TABLE IF NOT EXISTS annotations (
   FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS partOfSpeechInstanace (
+  id SERIAL NOT NULL,
+  token_id SERIAL NOT NULL,
+  FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE,
+);
+
+CREATE TABLE IF NOT EXISTS posFeatures (
+  id SERIAL NOT NULL,
+  partOfSpeechInstanace_id SERIAL NOT NULL,
+  FOREIGN KEY (partOfSpeechInstanace_id) REFERENCES partOfSpeechInstanace(id) ON DELETE CASCADE
+);
 
 
 /*INSERT INTO uploaded_file (name, content) VALUES ('a-filename.pdf', 'this is a content');*/ 
