@@ -6,7 +6,7 @@ import axios from "axios";
 
 import "./Tokeniser.css";
 
-const Tokeniser = () => {
+const Tokeniser = (props) => {
   let [tokenData, setTokenData] = useState([]);
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
@@ -46,6 +46,10 @@ const Tokeniser = () => {
 
   useEffect(() => {
     const fileId = location.state.fileId;
+    props.setFileInfo({
+      fileId: fileId,
+      content: location.state.content
+    });
 
     if (!fetched) {
       axios
@@ -353,12 +357,13 @@ const Tokeniser = () => {
 
   return (
     <div>
-      <NavBar />
+      <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <NavBar main={false} pages={[{ path: "/tokeniser", name: "Tokenisation" }, { path: "/postagging", name: "POS Tagging" }]} />
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
           {tokensAndGaps.map((token) => {
-            let text = location.state.content;
-            let tokenValue = text.substring(token.start_index, token.end_index);
+            const text = location.state.content;
+            const tokenValue = text.substring(token.start_index, token.end_index);
             return (
               <Token
                 downHandler={handleMouseDown}

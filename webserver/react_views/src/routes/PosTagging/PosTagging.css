@@ -1,21 +1,26 @@
-body{
+body {
   padding: 0px;
   margin: 0px;
 }
 
-.annotation-area {
+.tagging-area {
   margin: 10px;
 }
 
-.annotation-text {
+.tagging-text {
+  text-align: left;
   overflow-y: scroll;
   border: 1px solid black;
   width: 100%;
-  display: flex;
   flex-wrap: wrap;
   padding-bottom: 100px;
+  height: 300px;
 }
 
-.save-button{
+.buttons {
   text-align: right;
+}
+
+.button {
+  margin: 5px;
 }
