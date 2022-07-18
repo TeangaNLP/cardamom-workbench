@@ -25,10 +25,12 @@ export default function useClickOutside(ref, keyword, callback) {
             className = element.className;
         }
 
+        // The keyword condition is required so that className.includes does not throw error
+        // when keyword is null and so that keyword !== null is true incase keyword is provided.
         if (
             ref.current &&
             !ref.current.contains(event.target) &&
-            !keyword &&
+            (keyword === null || keyword !== null) &&
             !className.includes(keyword)
         ) {
             callback();

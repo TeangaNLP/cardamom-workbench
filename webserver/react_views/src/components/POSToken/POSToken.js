@@ -12,6 +12,7 @@ export default function POSToken({ key, updateTagState, token, tokenData }) {
     // Custom hook that notifies when clicked outside this component.
     const ref = useRef();
     useClickOutside(ref, "rs", () => {
+        console.log("Outside")
         setCascaderState(false);
     });
 

@@ -37,7 +37,7 @@ const Home = (props) => {
 
   return (
     <div>
-      <NavBar />
+      <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
       {isLoading ? <div>Loading...</div> : documents.length > 0 ? (
         documents.map(doc => {
           return (

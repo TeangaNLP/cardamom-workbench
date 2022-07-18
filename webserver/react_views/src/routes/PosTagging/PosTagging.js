@@ -34,6 +34,7 @@ const POSTagging = (props) => {
 
   // Update the state of the token with a tag.
   const updateTagState = (token, tag) => {
+    console.log(token, tag)
     updateTags({ ...tags, [token]: tag });
   }
 
@@ -145,7 +146,8 @@ const POSTagging = (props) => {
 
   return (
     <div>
-      <NavBar />
+      <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <NavBar main={false} pages={[{ path: "/tokeniser", name: "Tokenisation" }, { path: "/postagging", name: "POS Tagging" }]} />
       <div className='tagging-area'>
         <div className="tagging-text">
           {tokensAndGaps.map((token, i) => {
