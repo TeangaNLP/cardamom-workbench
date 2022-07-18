@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { NavBar, POSToken } from '../../components/';
+import { NavBar, POSToken } from '../../components';
 import { Button } from 'react-bootstrap';
 
 import 'bootstrap/dist/css/bootstrap.css';
