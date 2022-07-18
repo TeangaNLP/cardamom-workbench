@@ -173,7 +173,7 @@
           { name: "requested", iskey: false, figure: "Hexagon", color: colors.blue }]
         },
         {
-          key: "annotations",
+          key: "tokens",
           items: [{ name: "id", iskey: true, figure: "Decision", color: colors.red },
           { name: "token", iskey: false, figure: "Hexagon", color: colors.blue },
           { name: "reserved_token", iskey: false, figure: "Hexagon", color: colors.blue },
@@ -183,6 +183,36 @@
           { name: "type", iskey: false, figure: "Hexagon", color: colors.blue },
           { name: "uploaded_file_id", iskey: true, figure: "Hexagon", color: "purple" },
         ]
+        },
+        {
+          key: "PartsOfSpeechInstance",
+          items: [
+            // red - primary key
+            // blue - normal key
+            // purple - foreign key
+          { name: "id", iskey: true, figure: "Decision", color: colors.red },
+          { name: "token_id", iskey: true, figure: "Decision", color: "purple" },
+          ]
+        },
+        {
+          key: "POSFeatures",
+          items: [
+            // red - primary key
+            // blue - normal key
+            // purple - foreign key
+          { name: "id", iskey: true, figure: "Decision", color: colors.red },
+          { name: "PartsOfSpeechInstance_id", iskey: true, figure: "Decision", color: "purple" },
+          ]
+        },
+        {
+          key: "PartsOfSpeech",
+          items: [
+            // red - primary key
+            // blue - normal key
+            // purple - foreign key
+          { name: "id", iskey: true, figure: "Decision", color: colors.red },
+          { name: "language_id", iskey: true, figure: "Decision", color: "purple" },
+          ]
         },
         {
           key: "provenance",
@@ -197,8 +227,10 @@
         { from: "users", to: "uploaded_files", text: "1", toText: "1..N" },
         { from: "uploaded_files", to: "Tokens", text: "1", toText: "1..N" },
         { from: "uploaded_files", to: "languages", text: "1", toText: "1..1"},
-        { from: "annotations", to: "languages", text: "1", toText: "1..1"},
-        { from: "annotations", to: "provenance", text: "1", toText: "1..1"},
+        { from: "tokens", to: "languages", text: "1", toText: "1..1"},
+        { from: "tokens", to: "provenance", text: "1", toText: "1..1"},
+        { from: "tokens", to: "PartsOfSpeechInstance", text: "1", toText: "0..1"},
+        { from: "PartsOfSpeechInstance", to: "POSFeatures", text: "1", toText: "0..N"},
 
       ];
       myDiagram.model = new go.GraphLinksModel(
