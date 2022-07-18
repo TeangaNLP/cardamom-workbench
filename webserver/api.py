@@ -168,3 +168,33 @@ def auto_tokenise():
     return { "annotations": tokenised_text }
 
     
+@api.route('/pos_tag', methods = ['POST'])
+def pos_tag():
+    # assuming the annotations come as a list of dictionaries
+    data = request.get_json()
+    annotations, file_id = data.get('tokens'), data.get("file_id")
+    session = get_session()
+    
+    # Check for tokens to be deleted
+    extracted_annotations = get_tokens(file_id)
+    for annotation in annotations:
+        replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
+        for token in replace_tokens:
+            session.query(orm.Annotation).filter(orm.Annotation.id == token["id"]).delete() 
+
+            new_annotation = orm.Annotation(
+                token = annotation["token"], 
+                reserved_token = False, 
+                start_index = annotation["start_index"],
+                end_index = annotation["end_index"],
+                token_language_id = 1,
+                type = annotation["type"],
+                uploaded_file_id = file_id
+            )
+            session.add(new_annotation)
+        session.commit()
+        session.flush()
+        response_body = {
+                "response": "success"
+            }
+    return response_body
