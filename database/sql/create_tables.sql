@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS uploaded_files (
 );
 
 CREATE TABLE IF NOT EXISTS file_translation (
-  translation_id SERIAL NOT NULL,
+  id SERIAL NOT NULL,
   text_translation varchar NOT NULL,
   PRIMARY KEY (id),
-  file_id NOT NULL,
+  file_id integer NOT NULL,
   FOREIGN KEY (file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE,
   language_id integer,
   FOREIGN KEY (language_id) REFERENCES languages(id)
@@ -59,16 +59,18 @@ CREATE TABLE IF NOT EXISTS tokens (
   FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS partOfSpeechInstanace (
+CREATE TABLE IF NOT EXISTS partOfSpeechInstance (
   id SERIAL NOT NULL,
-  token_id SERIAL NOT NULL,
-  FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE,
+  PRIMARY KEY (id),
+  token_id integer NOT NULL,
+  FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS posFeatures (
   id SERIAL NOT NULL,
-  partOfSpeechInstanace_id SERIAL NOT NULL,
-  FOREIGN KEY (partOfSpeechInstanace_id) REFERENCES partOfSpeechInstanace(id) ON DELETE CASCADE
+  PRIMARY KEY (id),
+  partOfSpeechInstance_id integer NOT NULL,
+  FOREIGN KEY (partOfSpeechInstance_id) REFERENCES partOfSpeechInstance(id) ON DELETE CASCADE
 );
 
 

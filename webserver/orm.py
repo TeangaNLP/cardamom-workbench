@@ -80,3 +80,18 @@ class POSFeatures(Base):
     pos_instance = relationship("PartOfSpeechInstance", back_populates = "features")
 
 
+class Token(Base):
+    __tablename__ = 'tokens'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    token = Column(String(255), nullable=False)
+    reserved_token = Column(Boolean, nullable=False)
+    start_index = Column(Integer, nullable=False)
+    end_index = Column(Integer, nullable=False)
+    token_language_id = Column(Integer, ForeignKey("languages.id"), nullable=False)
+    type = Column(String(255), nullable=False)
+    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable = False)
+    
+    file = relationship("UploadedFile", backref = backref('tokens'))
+    token_language = relationship("Language", back_populates = "tokens")
+    pos_instance = relationship("PartOfSpeechInstance", back_populates = "token")

@@ -358,7 +358,7 @@ const Tokeniser = (props) => {
   return (
     <div>
       <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
-      <NavBar main={false} pages={[{ path: "/tokeniser", name: "Tokenisation" }, { path: "/postagging", name: "POS Tagging" }]} />
+      <NavBar main={false} pages={[{ path: "/tokeniser", name: "Tokenisation" }, { path: "/tagging", name: "POS Tagging" }]} />
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
           {tokensAndGaps.map((token) => {
