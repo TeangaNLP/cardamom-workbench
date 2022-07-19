@@ -70,7 +70,6 @@ class Token(Base):
     __tablename__ = 'tokens'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    token = Column(String(255), nullable=False)
     reserved_token = Column(Boolean, nullable=False)
     start_index = Column(Integer, nullable=False)
     end_index = Column(Integer, nullable=False)

@@ -47,7 +47,6 @@ CREATE TABLE IF NOT EXISTS provenance (
 
 CREATE TABLE IF NOT EXISTS tokens (
   id SERIAL NOT NULL,
-  token varchar(10000) NOT NULL,
   reserved_token boolean NOT NULL,
   start_index integer NOT NULL,
   end_index integer NOT NULL,

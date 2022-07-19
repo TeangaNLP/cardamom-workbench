@@ -7,6 +7,7 @@ from typing import List, Dict
 from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from flask import Blueprint, request, render_template, make_response, jsonify 
+import json
 
 from Tokeniser import cardamom_tokenise
 
@@ -145,8 +146,7 @@ def push_annotations():
             session.query(orm.Token).filter(orm.Token.id == token["id"]).delete() 
 
         new_annotation = orm.Token(
-            token = annotation["token"], 
-            reserved_token = False, 
+            reserved_token = True if annotation["type"] == "manual" else False, 
             start_index = annotation["start_index"],
             end_index = annotation["end_index"],
             token_language_id = 1, 
@@ -164,45 +164,13 @@ def push_annotations():
 
 @api.route('/auto_tokenise', methods=["POST"])
 def auto_tokenise():
+    print(request.form)
     text = request.form.get("data")
-    tokenised_text = cardamom_tokenise(text)
+    reserved_tokens = json.loads(request.form.get("reservedTokens"))
+    print(reserved_tokens)
+    tokenised_text = cardamom_tokenise(text, reserved_toks=reserved_tokens)
+    sorted(tokenised_text, key=lambda a: a['start_index'])
     return { "annotations": tokenised_text }
-
-@api.route('/pos_tag', methods=["POST"])
-def push_postags():
-    data = request.get_json()
-    pos_tags = data.get('tags')
-
-    session = get_session()
-    print(pos_tags)
-    for token_id in pos_tags:
-        pos_instance = orm.PartOfSpeechInstance(token_id = int(token_id), tag = pos_tags[token_id]["tag"])
-        session.add(pos_instance)
-        session.commit()
-        session.flush()
-        session.refresh(pos_instance)
-        print(pos_instance.id)
-        
-        session.add(orm.POSFeatures(partOfSpeechInstance_id = pos_instance.id, feature = pos_tags[token_id]['features']))
-        session.commit()
-        session.flush()
-    response_body = {
-            "response": "success"
-        }
-    return response_body
-
-@api.route('pos_tag/<file_id>', methods = ["GET"])
-def get_postags(file_id):
-    tokens = get_tokens(file_id)
-    token_tags = {}
-    for token in tokens:
-        instances = token.pos_instance
-        for instance in instances:
-            features = instance.features
-            tag_features = []
-            for feature in features:
-                tag_features.append({"feature": feature.feature, "value": feature.value})
-            token_tags[token.token] = {"tag": instance.tag, "features": tag_features}
     
 @api.route('/pos_tag', methods=["POST"])
 def push_postags():

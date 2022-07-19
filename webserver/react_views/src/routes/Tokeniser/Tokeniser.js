@@ -146,8 +146,6 @@ const Tokeniser = (props) => {
         i += 1;
       }
 
-      console.log(replaceTokens);
-
       // Remove tokens
       for (let replaceToken of replaceTokens) {
         changedTokens = changedTokens.filter((token) => token !== replaceToken);
@@ -185,8 +183,6 @@ const Tokeniser = (props) => {
       i += 1;
     }
 
-    console.log(replaceTokens);
-
     // Remove tokens
     let changedTokens = [...tokenData];
     for (let replaceToken of replaceTokens) {
@@ -194,7 +190,6 @@ const Tokeniser = (props) => {
     }
     // Add new tokens
     const newToken = {
-      token: location.state.content.substring(start, end),
       type: "manual",
       start_index: start,
       end_index: end,
@@ -312,11 +307,29 @@ const Tokeniser = (props) => {
     setTokensAndGaps(newTokensAndGaps);
   };
 
-  // Buttons
+  // Return manual tokens.
+  const getReservedTokens = () => {
+    let reservedTokens = [];
+    for (let token of tokenData) {
+      if (token.type == "manual") {
+        const t = {
+          type: token.type,
+          start_index: token.start_index,
+          end_index: token.end_index,
+          provenance: 1
+        }
+        reservedTokens.push(t)
+      }
+    }
+    console.log(reservedTokens);
+    return reservedTokens
+  }
 
+  // Buttons
   const autoTokenise = () => {
     const data = new FormData();
     data.append("data", location.state.content);
+    data.append("reservedTokens", JSON.stringify(getReservedTokens()));
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
@@ -325,6 +338,7 @@ const Tokeniser = (props) => {
         },
       })
       .then(function (response) {
+        console.log(response.data.annotations);
         updateAutoTokens(response.data.annotations);
       })
       .catch(function (e) {
@@ -335,7 +349,6 @@ const Tokeniser = (props) => {
 
   const saveTokens = (event) => {
     let difference = tokenData.filter((x) => !originalTokenData.includes(x));
-    console.log(difference);
     const data = {
       tokens: difference,
       file_id: location.state.fileId,
