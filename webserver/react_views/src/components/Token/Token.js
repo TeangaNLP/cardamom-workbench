@@ -23,8 +23,6 @@ export default function Token({
     upHandler(token.start_index);
   };
 
-  console.log(token.type);
-
   return (
     <span
       ref={ref}

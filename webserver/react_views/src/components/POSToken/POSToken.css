@@ -1,16 +1,20 @@
-.postoken {
-  margin: 5px;
+.pos-token {
+  margin: 1px;
 }
 
-.postoken:hover {
+.pos-token:hover {
   cursor: pointer;
   color: black;
 }
 
-/* .highlight {
-  background-color: rgb(255, 230, 0);
-  border-bottom: 5px solid gold;
-} */
+.pos-gap {
+  margin: 1px;
+  color: lightgrey;
+}
+
+.pos-gap:hover {
+  cursor: not-allowed;
+}
 
 .class1 {
   background-color: rgb(115, 200, 250);
@@ -19,5 +23,80 @@
 
 .class2 {
   background-color: rgb(0, 215, 45);
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class3 {
+  background-color: #c0c0c0;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class4 {
+  background-color: #2f4f4f;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class5 {
+  background-color: #8b4513;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class6 {
+  background-color: #191970;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class7 {
+  background-color: #b03060;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class8 {
+  background-color: rgb(0, 215, 45);
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class9 {
+  background-color: #ff4500;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class10 {
+  background-color: #ff4500;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class11 {
+  background-color: #ff4500;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class12 {
+  background-color: #0000cd;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class13 {
+  background-color: #7cfc00;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class14 {
+  background-color: rgb(0, 215, 45);
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class15 {
+  background-color: #00ffff;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class16 {
+  background-color: #00ffff;
+  border-bottom: 5px solid rgb(5, 130, 15);
+}
+
+.class17 {
+  background-color: #ffff00;
   border-bottom: 5px solid rgb(5, 130, 15);
 }

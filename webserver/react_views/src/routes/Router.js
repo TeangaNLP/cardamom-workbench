@@ -2,13 +2,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Login } from "./Login/";
 import { Home } from "./Home/";
 import { FileUpload } from "./FileUpload/";
-import { POSTagging } from "./POSTagging";
+import { Tagging } from "./Tagging";
 import { Tokeniser } from "./Tokeniser";
 import { useEffect, useState } from "react";
 
 
 export default function Router() {
   const [userId, setUserId] = useState();
+  const [fileInfo, setFileInfo] = useState({});
 
   console.log("In router", userId);
 
@@ -22,8 +23,8 @@ export default function Router() {
         <Route path="/login" element={<Login setUserId={setUserId} />} />
         <Route path="/" element={<Home userId={userId} />} />
         <Route path="/fileupload" element={<FileUpload userId={userId} />} />
-        <Route path="/tokeniser" element={<Tokeniser userId={userId} />} />
-        <Route path="/postagging" element={<POSTagging userId={userId} />} />
+        <Route path="/tokeniser" element={<Tokeniser setFileInfo={setFileInfo} userId={userId} />} />
+        <Route path="/tagging" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
       </Routes>
     </BrowserRouter>
   );

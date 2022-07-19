@@ -146,5 +146,53 @@ export default [
                 ]
             }
         ]
+    }, {
+        value: "3",
+        label: "ADV"
+    }, {
+        value: "4",
+        label: "AUX"
+    }, {
+        value: "5",
+        label: "CCONJ"
+    },
+    {
+        value: "6",
+        label: "DET"
+    },
+    {
+        value: "7",
+        label: "INTJ"
+    }, {
+        value: "8",
+        label: "NOUN"
+    }, {
+        value: "9",
+        label: "NUM"
+    },
+    {
+        value: "10",
+        label: "PART"
+    }, {
+        value: "11",
+        label: "PRON"
+    }, {
+        value: "12",
+        label: "PROPN"
+    }, {
+        value: "13",
+        label: "PUNCT"
+    }, {
+        value: "14",
+        label: "SCONJ"
+    }, {
+        value: "15",
+        label: "SYM"
+    }, {
+        value: "16",
+        label: "VERB"
+    }, {
+        value: "17",
+        label: "X"
     }
 ];

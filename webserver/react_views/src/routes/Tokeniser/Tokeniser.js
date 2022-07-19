@@ -6,7 +6,7 @@ import axios from "axios";
 
 import "./Tokeniser.css";
 
-const Tokeniser = () => {
+const Tokeniser = (props) => {
   let [tokenData, setTokenData] = useState([]);
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
@@ -46,6 +46,10 @@ const Tokeniser = () => {
 
   useEffect(() => {
     const fileId = location.state.fileId;
+    props.setFileInfo({
+      fileId: fileId,
+      content: location.state.content
+    });
 
     if (!fetched) {
       axios
@@ -142,8 +146,6 @@ const Tokeniser = () => {
         i += 1;
       }
 
-      console.log(replaceTokens);
-
       // Remove tokens
       for (let replaceToken of replaceTokens) {
         changedTokens = changedTokens.filter((token) => token !== replaceToken);
@@ -181,8 +183,6 @@ const Tokeniser = () => {
       i += 1;
     }
 
-    console.log(replaceTokens);
-
     // Remove tokens
     let changedTokens = [...tokenData];
     for (let replaceToken of replaceTokens) {
@@ -190,7 +190,6 @@ const Tokeniser = () => {
     }
     // Add new tokens
     const newToken = {
-      token: location.state.content.substring(start, end),
       type: "manual",
       start_index: start,
       end_index: end,
@@ -308,11 +307,29 @@ const Tokeniser = () => {
     setTokensAndGaps(newTokensAndGaps);
   };
 
-  // Buttons
+  // Return manual tokens.
+  const getReservedTokens = () => {
+    let reservedTokens = [];
+    for (let token of tokenData) {
+      if (token.type == "manual") {
+        const t = {
+          type: token.type,
+          start_index: token.start_index,
+          end_index: token.end_index,
+          provenance: 1
+        }
+        reservedTokens.push(t)
+      }
+    }
+    console.log(reservedTokens);
+    return reservedTokens
+  }
 
+  // Buttons
   const autoTokenise = () => {
     const data = new FormData();
     data.append("data", location.state.content);
+    data.append("reservedTokens", JSON.stringify(getReservedTokens()));
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
@@ -321,6 +338,7 @@ const Tokeniser = () => {
         },
       })
       .then(function (response) {
+        console.log(response.data.annotations);
         updateAutoTokens(response.data.annotations);
       })
       .catch(function (e) {
@@ -331,7 +349,6 @@ const Tokeniser = () => {
 
   const saveTokens = (event) => {
     let difference = tokenData.filter((x) => !originalTokenData.includes(x));
-    console.log(difference);
     const data = {
       tokens: difference,
       file_id: location.state.fileId,
@@ -353,12 +370,13 @@ const Tokeniser = () => {
 
   return (
     <div>
-      <NavBar />
+      <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <NavBar main={false} pages={[{ path: "/tokeniser", name: "Tokenisation" }, { path: "/tagging", name: "POS Tagging" }]} />
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
           {tokensAndGaps.map((token) => {
-            let text = location.state.content;
-            let tokenValue = text.substring(token.start_index, token.end_index);
+            const text = location.state.content;
+            const tokenValue = text.substring(token.start_index, token.end_index);
             return (
               <Token
                 downHandler={handleMouseDown}
