@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { MultiCascader } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
 import "./CustomCascader.css";
-import data from "../utils/data";
 
 const CustomCascader = React.forwardRef((props, ref) => {
 
@@ -122,7 +121,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
     return (
         <div ref={ref} className="cascader">
             <MultiCascader
-                data={data}
+                data={props.data}
                 onCheck={onCheck}
                 defaultValue={props.defaultValue}
                 renderValue={(value, selectedItems) =>

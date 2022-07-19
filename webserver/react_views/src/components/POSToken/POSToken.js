@@ -3,11 +3,11 @@ import useClickOutside from "../utils/useClickOutside";
 import { CustomCascader } from "../CustomCascader";
 import "./POSToken.css";
 
-export default function POSToken({ key, updateTagState, token, tokenData }) {
+export default function POSToken({ key, defaultValue, cascaderData, updateTagState, token, tokenData }) {
     // Cascader.
     let [showCascader, setCascaderState] = useState(false);
     // Tags.
-    let [tag, updateTag] = useState([]);
+    let [tag, updateTag] = useState(defaultValue);
 
     // Custom hook that notifies when clicked outside this component.
     const ref = useRef();
@@ -43,6 +43,7 @@ export default function POSToken({ key, updateTagState, token, tokenData }) {
             {token.type !== "gap" && showCascader ? (
                 <CustomCascader
                     ref={ref}
+                    data={cascaderData}
                     defaultValue={tag}
                     onUpdateTag={onUpdateTag}
                 />

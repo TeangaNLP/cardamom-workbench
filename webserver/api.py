@@ -25,9 +25,11 @@ def serialise(model):
     columns = [c.key for c in class_mapper(model.__class__).columns]
     return dict((c, getattr(model, c)) for c in columns)
 
-def get_tokens(file_id):
+def get_tokens(file_id, objectify=False):
     session = get_session()
     annots = session.query(orm.Token).filter(orm.Token.uploaded_file_id==file_id).all()
+    if objectify:
+        return annots
     # print('Inside get_tokens: ', annots)
     annotations = [serialise(annot) for annot in annots]
     return sorted(annotations, key=lambda a: a['start_index'])
@@ -196,3 +198,18 @@ def push_postags():
             "response": "success"
         }
     return response_body
+
+@api.route('pos_tag/<file_id>', methods = ["GET"])
+def get_postags(file_id):
+    tokens = get_tokens(file_id, objectify=True)
+    token_tags = {}
+    for token in tokens:
+        instances = token.pos_instance
+        for instance in instances:
+            features = instance.features
+            tag_features = []
+            for feature in features:
+                tag_features.append({"feature": feature.feature, "value": feature.value})
+            token_tags[token.token] = {"tag": instance.tag, "features": tag_features}
+    annotations = [serialise(annot) for annot in tokens]
+    return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
