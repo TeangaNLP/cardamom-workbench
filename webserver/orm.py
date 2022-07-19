@@ -61,7 +61,7 @@ class Token(Base):
     pos_instance = relationship("PartOfSpeechInstance", back_populates = "token")
 
 
-class PartOfSpeechInstance:
+class PartOfSpeechInstance(Base):
     __tablename__ = 'partOfSpeechInstance'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -71,11 +71,11 @@ class PartOfSpeechInstance:
     features = relationship("POSFeatures", back_populates = "pos_instance")
 
 
-class POSFeatures:
+class POSFeatures(Base):
     __tablename__ = 'posFeatures'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    partOfSpeechInstanace_id = Column(Integer, ForeignKey("partOfSpeechInstanace.id"), nullable=False)
+    partOfSpeechInstance_id = Column(Integer, ForeignKey("partOfSpeechInstance.id"), nullable=False)
 
     pos_instance = relationship("PartOfSpeechInstance", back_populates = "features")
 
