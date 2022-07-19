@@ -63,14 +63,17 @@ CREATE TABLE IF NOT EXISTS partOfSpeechInstance (
   id SERIAL NOT NULL,
   PRIMARY KEY (id),
   token_id integer NOT NULL,
-  FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+  FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE,
+  tag varchar(250) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS posFeatures (
   id SERIAL NOT NULL,
   PRIMARY KEY (id),
   partOfSpeechInstance_id integer NOT NULL,
-  FOREIGN KEY (partOfSpeechInstance_id) REFERENCES partOfSpeechInstance(id) ON DELETE CASCADE
+  FOREIGN KEY (partOfSpeechInstance_id) REFERENCES partOfSpeechInstance(id) ON DELETE CASCADE,
+  feature varchar(250) NOT NULL,
+  value varchar(250) NOT NULL
 );
 
 

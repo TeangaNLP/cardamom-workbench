@@ -21,6 +21,7 @@ const Tagging = (props) => {
     axios
       .get("http://localhost:5001/api/annotations/" + fileId)
       .then(function (response) {
+        console.log(response);
         setOriginalTokenData(response.data.annotations);
         combineTokensAndGaps(
           response.data.annotations,
@@ -33,12 +34,9 @@ const Tagging = (props) => {
   }, []);
 
   // Update the state of the token with a tag.
-  const updateTagState = (token, tag) => {
-    console.log(token, tag)
-    updateTags({ ...tags, [token]: tag });
+  const updateTagState = (tokenId, tag) => {
+    updateTags({ ...tags, [tokenId]: tag });
   }
-
-  console.log(tags);
 
   // Create Tokens for textarea.
   const combineTokensAndGaps = (data, text) => {
@@ -144,6 +142,28 @@ const Tagging = (props) => {
     setTokensAndGaps(newTokensAndGaps);
   };
 
+  // Send annotations to server.
+  const saveTags = (event) => {
+    // let difference = tokenData.filter((x) => !originalTokenData.includes(x));
+    // console.log(difference);
+    const data = {
+      tags: tags,
+    };
+    axios
+      .post("http://localhost:5001/api/pos_tag", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (e) {
+        console.log(e);
+        console.log("Could not save.");
+      });
+  };
+
   return (
     <div>
       <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
@@ -162,7 +182,7 @@ const Tagging = (props) => {
         </div>
       </div>
       <div className="tagging-area buttons">
-        <Button className="button" variant="dark">Save</Button>
+        <Button className="button" onClick={saveTags} variant="dark">Save</Button>
       </div>
     </div>
   );

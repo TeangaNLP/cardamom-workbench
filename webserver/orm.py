@@ -66,6 +66,7 @@ class PartOfSpeechInstance(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     token_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
+    tag = Column(String(255))
 
     token = relationship("Token", back_populates = "pos_instance")
     features = relationship("POSFeatures", back_populates = "pos_instance")
@@ -76,22 +77,6 @@ class POSFeatures(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     partOfSpeechInstance_id = Column(Integer, ForeignKey("partOfSpeechInstance.id"), nullable=False)
+    feature = Column(String(255))
 
     pos_instance = relationship("PartOfSpeechInstance", back_populates = "features")
-
-
-class Token(Base):
-    __tablename__ = 'tokens'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    token = Column(String(255), nullable=False)
-    reserved_token = Column(Boolean, nullable=False)
-    start_index = Column(Integer, nullable=False)
-    end_index = Column(Integer, nullable=False)
-    token_language_id = Column(Integer, ForeignKey("languages.id"), nullable=False)
-    type = Column(String(255), nullable=False)
-    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable = False)
-    
-    file = relationship("UploadedFile", backref = backref('tokens'))
-    token_language = relationship("Language", back_populates = "tokens")
-    pos_instance = relationship("PartOfSpeechInstance", back_populates = "token")

@@ -28,7 +28,6 @@ def serialise(model):
 def get_tokens(file_id):
     session = get_session()
     annots = session.query(orm.Token).filter(orm.Token.uploaded_file_id==file_id).all()
-    # print('Inside get_tokens: ', annots)
     annotations = [serialise(annot) for annot in annots]
     return sorted(annotations, key=lambda a: a['start_index'])
 
@@ -48,7 +47,6 @@ def get_replaced_tokens(start, end, annotations):
                 i = i + 1
             replace_tokens.append(annotations[i])
             break
-        
         i = i + 1
     return replace_tokens
 
@@ -167,4 +165,42 @@ def auto_tokenise():
     tokenised_text = cardamom_tokenise(text)
     return { "annotations": tokenised_text }
 
+@api.route('/pos_tag', methods=["POST"])
+def push_postags():
+    data = request.get_json()
+    pos_tags = data.get('tags')
+
+    session = get_session()
+    print(pos_tags)
+    for token_id in pos_tags:
+        pos_instance = orm.PartOfSpeechInstance(token_id = int(token_id), tag = pos_tags[token_id]["tag"])
+        session.add(pos_instance)
+        session.commit()
+        session.flush()
+        session.refresh(pos_instance)
+        print(pos_instance.id)
+        
+        session.add(orm.POSFeatures(partOfSpeechInstance_id = pos_instance.id, feature = pos_tags[token_id]['features']))
+        session.commit()
+        session.flush()
+    response_body = {
+            "response": "success"
+        }
+    return response_body
+
+@api.route('pos_tag/<file_id>', methods = ["GET"])
+def get_postags(file_id):
+    tokens = get_tokens(file_id)
+    token_tags = {}
+    for token in tokens:
+        instances = token.pos_instance
+        for instance in instances:
+            features = instance.features
+            tag_features = []
+            for feature in features:
+                tag_features.append({"feature": feature.feature, "value": feature.value})
+            token_tags[token.token] = {"tag": instance.tag, "features": tag_features}
     
+    return token_tags
+
+        

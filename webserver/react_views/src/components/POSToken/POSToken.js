@@ -29,7 +29,7 @@ export default function POSToken({ key, updateTagState, token, tokenData }) {
     let onUpdateTag = (tag, builtTag) => {
         updateTag(tag);
         console.log(tag[0][0]);
-        updateTagState(tokenData, builtTag);
+        updateTagState(token.id, builtTag);
     };
 
     return (
