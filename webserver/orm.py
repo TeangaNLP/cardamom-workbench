@@ -35,7 +35,7 @@ class Language(Base):
     requested = Column(Boolean, nullable=False)
 
     uploaded_files = relationship("UploadedFile", back_populates = "file_language")
-    annotations = relationship("Annotation", back_populates = "annotation_language")
+    tokens = relationship("Token", back_populates = "token_language")
 
 class Provenance(Base):
     __tablename__ = 'provenances'
@@ -56,13 +56,13 @@ class Token(Base):
     type = Column(String(255), nullable=False)
     uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable = False)
     
-    file = relationship("UploadedFile", backref = backref('annotations'))
-    annotation_language = relationship("Language", back_populates = "annotations")
-    pos_instance = relationship("partOfSpeechInstanace", back_populates = "token")
+    file = relationship("UploadedFile", backref = backref('tokens'))
+    token_language = relationship("Language", back_populates = "tokens")
+    pos_instance = relationship("PartOfSpeechInstance", back_populates = "token")
 
 
 class PartOfSpeechInstance:
-    __tablename__ = 'partOfSpeechInstanace'
+    __tablename__ = 'partOfSpeechInstance'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     token_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
