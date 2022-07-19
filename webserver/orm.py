@@ -35,7 +35,7 @@ class Language(Base):
     requested = Column(Boolean, nullable=False)
 
     uploaded_files = relationship("UploadedFile", back_populates = "file_language")
-    annotations = relationship("Annotation", back_populates = "annotation_language")
+    tokens = relationship("Token", back_populates = "token_language")
 
 class Provenance(Base):
     __tablename__ = 'provenances'
@@ -43,6 +43,26 @@ class Provenance(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(String(255), nullable=False)
     reference_id = Column(Integer)
+
+
+class PartOfSpeechInstance(Base):
+    __tablename__ = 'partOfSpeechInstance'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    token_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
+
+    token = relationship("Token", back_populates = "pos_instance")
+    features = relationship("POSFeatures", back_populates = "pos_instance")
+
+
+class POSFeatures(Base):
+    __tablename__ = 'posFeatures'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    partOfSpeechInstanace_id = Column(Integer, ForeignKey("partOfSpeechInstance.id"), nullable=False)
+
+    pos_instance = relationship("PartOfSpeechInstance", back_populates = "features")
+
 
 class Token(Base):
     __tablename__ = 'tokens'
@@ -56,27 +76,6 @@ class Token(Base):
     type = Column(String(255), nullable=False)
     uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable = False)
     
-    file = relationship("UploadedFile", backref = backref('annotations'))
-    annotation_language = relationship("Language", back_populates = "annotations")
-    pos_instance = relationship("partOfSpeechInstanace", back_populates = "token")
-
-
-class PartOfSpeechInstance:
-    __tablename__ = 'partOfSpeechInstanace'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    token_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
-
-    token = relationship("Token", back_populates = "pos_instance")
-    features = relationship("POSFeatures", back_populates = "pos_instance")
-
-
-class POSFeatures:
-    __tablename__ = 'posFeatures'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    partOfSpeechInstanace_id = Column(Integer, ForeignKey("partOfSpeechInstanace.id"), nullable=False)
-
-    pos_instance = relationship("PartOfSpeechInstance", back_populates = "features")
-
-
+    file = relationship("UploadedFile", backref = backref('tokens'))
+    token_language = relationship("Language", back_populates = "tokens")
+    pos_instance = relationship("PartOfSpeechInstance", back_populates = "token")

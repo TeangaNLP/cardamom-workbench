@@ -27,7 +27,7 @@ def serialise(model):
 
 def get_tokens(file_id):
     session = get_session()
-    annots = session.query(orm.Annotation).filter(orm.Annotation.uploaded_file_id==file_id).all()
+    annots = session.query(orm.Token).filter(orm.Token.uploaded_file_id==file_id).all()
     # print('Inside get_tokens: ', annots)
     annotations = [serialise(annot) for annot in annots]
     return sorted(annotations, key=lambda a: a['start_index'])
@@ -141,9 +141,9 @@ def push_annotations():
     for annotation in annotations:
         replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
         for token in replace_tokens:
-            session.query(orm.Annotation).filter(orm.Annotation.id == token["id"]).delete() 
+            session.query(orm.Token).filter(orm.Token.id == token["id"]).delete() 
 
-        new_annotation = orm.Annotation(
+        new_annotation = orm.Token(
             token = annotation["token"], 
             reserved_token = False, 
             start_index = annotation["start_index"],
@@ -180,9 +180,9 @@ def pos_tag():
     for annotation in annotations:
         replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
         for token in replace_tokens:
-            session.query(orm.Annotation).filter(orm.Annotation.id == token["id"]).delete() 
+            session.query(orm.Token).filter(orm.Token.id == token["id"]).delete() 
 
-            new_annotation = orm.Annotation(
+            new_annotation = orm.Token(
                 token = annotation["token"], 
                 reserved_token = False, 
                 start_index = annotation["start_index"],
