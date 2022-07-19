@@ -59,18 +59,21 @@ CREATE TABLE IF NOT EXISTS tokens (
   FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS partOfSpeechInstance (
+CREATE TABLE IF NOT EXISTS posinstance (
   id SERIAL NOT NULL,
   PRIMARY KEY (id),
   token_id integer NOT NULL,
-  FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+  FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE,
+  tag varchar(250) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS posFeatures (
+CREATE TABLE IF NOT EXISTS posfeatures (
   id SERIAL NOT NULL,
   PRIMARY KEY (id),
-  partOfSpeechInstance_id integer NOT NULL,
-  FOREIGN KEY (partOfSpeechInstance_id) REFERENCES partOfSpeechInstance(id) ON DELETE CASCADE
+  posinstance_id integer NOT NULL,
+  FOREIGN KEY (posinstance_id) REFERENCES posinstance(id) ON DELETE CASCADE,
+  feature varchar(250) NOT NULL,
+  value varchar(250) NOT NULL
 );
 
 

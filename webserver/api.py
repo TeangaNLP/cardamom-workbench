@@ -168,3 +168,31 @@ def auto_tokenise():
     return { "annotations": tokenised_text }
 
     
+@api.route('/pos_tag', methods=["POST"])
+def push_postags():
+    data = request.get_json()
+    pos_tags = data.get('tags')
+
+    session = get_session()
+
+    print(pos_tags)
+
+    for token_id in pos_tags:
+        print(token_id)
+        pos_instance = orm.POSInstance(token_id = int(token_id), tag = pos_tags[token_id]["tag"])
+        session.add(pos_instance)
+        session.commit()
+        session.flush()
+        session.refresh(pos_instance)
+        print(pos_instance.id)
+        if pos_tags[token_id]['features']:
+            for f_key_val in pos_tags[token_id]['features']:
+                f_key = f_key_val["feature"]
+                f_val = f_key_val["value"]
+                session.add(orm.POSFeatures(posinstance_id = pos_instance.id, feature = f_key, value = f_val))
+            session.commit()
+            session.flush()
+    response_body = {
+            "response": "success"
+        }
+    return response_body
