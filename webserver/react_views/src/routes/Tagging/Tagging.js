@@ -8,29 +8,115 @@ import axios from 'axios';
 
 const Tagging = (props) => {
 
+  let [fetched, setFetched] = useState(false);
   let [tokenData, setTokenData] = useState([])
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
   let [tags, updateTags] = useState([]);
+  let [cascaderData, setCascaderData] = useState([]);
+  let [taggedTokens, setTaggedTokens] = useState([]);
+  let [reverseLookup, setReverseLookup] = useState([]);
+
+  let posTags = {
+    "ADJ": [],
+    "ADP": [{
+      "Type": ["NA", "PREP"],
+      "Case": ["NA", "ACC", "DAT"],
+      "Definite": ["NA", "DEF", "IND"],
+      "Gender": ["NA", "MASC", "MASC NEUT", "NEUT", "FEM"],
+      "Number": ["NA", "DUAL", "SING", "PLUR"],
+      "Person": ["NA", "1", "2", "3"],
+      "PRON": ["NA", "ART", "PRS"]
+    }],
+    "ADV": [],
+    "AUX": [],
+    "CCONJ": [],
+    "DET": [],
+    "INTJ": [],
+    "NOUN": [],
+    "NUM": [],
+    "PART": [],
+    "PRON": [],
+    "PROPN": [],
+    "PUNCT": [],
+    "SCONJ": [],
+    "SYM": [],
+    "VERB": [],
+    "X": []
+  };
+
+  // Create data for Cascader from hardcoded list.
+  const createCascaderData = () => {
+    let data = [];
+    let reverseLookup = {};
+    let i = 1;
+    for (let key of Object.keys(posTags)) {
+      let currentData = posTags[key]
+      if (posTags[key].length > 0) {
+        let childrenData = [];
+        let j = 1;
+        for (let childKey of Object.keys(currentData[0])) {
+          let grandChildrenData = [];
+          for (let k = 0; k < currentData[0][childKey].length; k++) {
+            let grandChildData = {
+              value: i.toString() + "-" + j.toString() + "-" + (k + 1).toString(),
+              label: currentData[0][childKey][k]
+            }
+            reverseLookup[grandChildData.label] = grandChildData.value
+            grandChildrenData.push(grandChildData);
+          }
+          let childData = {
+            value: i.toString() + "-" + j.toString(),
+            label: childKey,
+            children: grandChildrenData
+          }
+          reverseLookup[childData.label] = childData.value
+          childrenData.push(childData);
+          j += 1;
+        }
+        let keyData = {
+          value: i.toString(),
+          label: key,
+          children: childrenData
+        }
+        reverseLookup[keyData.label] = keyData.value
+        data.push(keyData);
+      } else {
+        let keyData = {
+          value: i.toString(),
+          label: key,
+        }
+        reverseLookup[keyData.label] = keyData.value
+        data.push(keyData);
+      }
+      i += 1;
+    }
+    setCascaderData(data);
+    setReverseLookup(reverseLookup);
+  }
 
   useEffect(() => {
     const fileId = props.fileInfo.fileId;
     const content = props.fileInfo.content;
 
-    // Fetch annotations from server.
-    axios
-      .get("http://localhost:5001/api/annotations/" + fileId)
-      .then(function (response) {
-        console.log(response);
-        setOriginalTokenData(response.data.annotations);
-        combineTokensAndGaps(
-          response.data.annotations,
-          content
-        );
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+    if (!fetched) {
+      axios
+        .get("http://localhost:5001/api/pos_tag/" + fileId)
+        .then(function (response) {
+          createCascaderData();
+          setOriginalTokenData(response.data.annotations);
+          combineTokensAndGaps(
+            response.data.annotations,
+            content
+          );
+          setTaggedTokens(response.data.tags);
+          setFetched(true);
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+    }
+
   }, []);
 
   // Update the state of the token with a tag.
@@ -164,6 +250,22 @@ const Tagging = (props) => {
       });
   };
 
+  // Convert tags into their values.
+  const convertTags = (tag) => {
+    console.log(reverseLookup);
+    if (tag["features"].length == 0) {
+      console.log(reverseLookup[tag["tag"]], tag["tag"]);
+      return [reverseLookup[tag["tag"]]]
+    } else {
+      let values = [];
+      for (let feature of tag["features"]) {
+        console.log(reverseLookup[feature["value"]], feature["value"]);
+        values.push(reverseLookup[feature["value"]]);
+      }
+      return values;
+    }
+  }
+
   return (
     <div>
       <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
@@ -173,9 +275,18 @@ const Tagging = (props) => {
           {tokensAndGaps.map((token, i) => {
             const text = props.fileInfo.content;
             const tokenData = text.substring(token.start_index, token.end_index);
+
+            let tagList = []
+            if (taggedTokens.hasOwnProperty(tokenData)) {
+              const defaultTags = taggedTokens[tokenData];
+              tagList = convertTags(defaultTags);
+            }
+
+            console.log("taglist", tagList);
+
             return (
               <POSToken
-                key={i} updateTagState={updateTagState} token={token} tokenData={tokenData}
+                key={i} defaultValue={tagList} cascaderData={cascaderData} updateTagState={updateTagState} token={token} tokenData={tokenData}
               />
             );
           })}

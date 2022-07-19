@@ -44,6 +44,28 @@ class Provenance(Base):
     timestamp = Column(String(255), nullable=False)
     reference_id = Column(Integer)
 
+class POSInstance(Base):
+    __tablename__ = 'posinstance'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    token_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
+    tag = Column(String(255))
+
+    token = relationship("Token", back_populates = "pos_instance")
+    features = relationship("POSFeatures", back_populates = "pos_instance")
+
+
+class POSFeatures(Base):
+    __tablename__ = 'posfeatures'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    posinstance_id = Column(Integer, ForeignKey("posinstance.id"), nullable=False)
+    feature = Column(String(255))
+    value = Column(String(255))
+
+    pos_instance = relationship("POSInstance", back_populates = "features")
+
+
 class Token(Base):
     __tablename__ = 'tokens'
 
@@ -58,25 +80,4 @@ class Token(Base):
     
     file = relationship("UploadedFile", backref = backref('tokens'))
     token_language = relationship("Language", back_populates = "tokens")
-    pos_instance = relationship("PartOfSpeechInstance", back_populates = "token")
-
-
-class PartOfSpeechInstance(Base):
-    __tablename__ = 'partOfSpeechInstance'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    token_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
-    tag = Column(String(255))
-
-    token = relationship("Token", back_populates = "pos_instance")
-    features = relationship("POSFeatures", back_populates = "pos_instance")
-
-
-class POSFeatures(Base):
-    __tablename__ = 'posFeatures'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    partOfSpeechInstance_id = Column(Integer, ForeignKey("partOfSpeechInstance.id"), nullable=False)
-    feature = Column(String(255))
-
-    pos_instance = relationship("PartOfSpeechInstance", back_populates = "features")
+    pos_instance = relationship("POSInstance", back_populates = "token")

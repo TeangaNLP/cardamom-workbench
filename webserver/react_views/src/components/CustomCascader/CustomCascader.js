@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { MultiCascader } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
 import "./CustomCascader.css";
-import data from "../utils/data";
 
 const CustomCascader = React.forwardRef((props, ref) => {
 
@@ -35,22 +34,22 @@ const CustomCascader = React.forwardRef((props, ref) => {
         // else:
         // tokenTag: {
         //     tag: tagName,
-        //     features: null
+        //     features: []
         // }
 
         let tokenTag = {};
 
-        if(!multiFeatures){
+        if (!multiFeatures) {
             let item = items[0];
             tokenTag = {
                 tag: item["label"],
-                features: null,
+                features: [],
             }
         } else {
             console.log(items);
             let tagName = items[0]["parent"]["parent"]["label"];
             let features = [];
-            for(let i = 0; i < items.length; i++){
+            for (let i = 0; i < items.length; i++) {
                 let item = items[i];
                 let featureObj = {
                     feature: item["parent"]["label"],
@@ -101,7 +100,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
         tags.push(newVal);
         tempTagItems.push(item);
         updateTagItems(tempTagItems);
-        
+
         let builtTag = buildTag(tempTagItems);
         props.onUpdateTag(tags, builtTag);
     };
@@ -122,7 +121,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
     return (
         <div ref={ref} className="cascader">
             <MultiCascader
-                data={data}
+                data={props.data}
                 onCheck={onCheck}
                 defaultValue={props.defaultValue}
                 renderValue={(value, selectedItems) =>
