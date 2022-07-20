@@ -62,6 +62,8 @@ const Tokeniser = (props) => {
       });
     }
 
+    console.log(fileState);
+
     setFileState({ fileId: fileId, content: content });
 
     if (!fetched) {
@@ -399,6 +401,7 @@ const Tokeniser = (props) => {
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
           {fetched ? tokensAndGaps.map((token) => {
+            console.log(fileState);
             const text = fileState.content;
             const tokenValue = text.substring(token.start_index, token.end_index)
             return (
