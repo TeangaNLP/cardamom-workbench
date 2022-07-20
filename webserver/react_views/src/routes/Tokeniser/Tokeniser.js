@@ -376,7 +376,7 @@ const Tokeniser = (props) => {
         <div className="tokenise-text">
           {tokensAndGaps.map((token) => {
             const text = location.state.content;
-            const tokenValue = text.substring(token.start_index, token.end_index);
+            const tokenValue = text.substring(token.start_index, token.end_index)
             return (
               <Token
                 downHandler={handleMouseDown}
