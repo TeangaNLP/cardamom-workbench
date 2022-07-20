@@ -7,7 +7,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
 
     // Since onCheck does not return an array of items to build tags,
     // we will keep track of the tag items ourselves.
-    let [tagItems, updateTagItems] = useState([]);
+    let [tagItems, setTagItems] = useState([]);
     let labelValue = null;
     let item = null;
 
@@ -67,15 +67,18 @@ const CustomCascader = React.forwardRef((props, ref) => {
     };
 
     let onCheck = (value, item, checked) => {
+        console.log(value, item, checked);
         // If something is checked, then run validation, else return.
         if (!checked) {
             return;
         }
+
         // Value is going to be previously selected values.
         // So if a new value has been checked, it would be the last value entered.
 
-        let newVal = value[value.length - 1];
+        let newVal = item.value;
         let newValSplit = newVal.split("-");
+        console.log(newValSplit);
         let tags = [];
         let tempTagItems = [];
 
@@ -99,9 +102,10 @@ const CustomCascader = React.forwardRef((props, ref) => {
         }
         tags.push(newVal);
         tempTagItems.push(item);
-        updateTagItems(tempTagItems);
+        setTagItems(tempTagItems);
 
         let builtTag = buildTag(tempTagItems);
+        console.log(builtTag);
         props.onUpdateTag(tags, builtTag);
     };
 
@@ -109,7 +113,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
     let createUncheckable = (levels) => {
         let uncheckables = [];
         for (let l of levels) {
-            uncheckables.push(String(l[0]));
+            // uncheckables.push(String(l[0]));
             for (let sl = 1; sl <= l[1]; sl++) {
                 let s = l[0] + "-" + sl;
                 uncheckables.push(s);

@@ -1,5 +1,7 @@
 .pos-token {
   margin: 1px;
+  background-color: #E5E5E5;
+  white-space: pre-wrap;
 }
 
 .pos-token:hover {

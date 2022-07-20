@@ -11,6 +11,7 @@ const Tokeniser = (props) => {
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
   let [fetched, setFetched] = useState(false);
+  let [fileState, setFileState] = useState({});
   let [selecting, setSelecting] = useState({
     mouseDown: false,
     mouseUp: false,
@@ -45,11 +46,23 @@ const Tokeniser = (props) => {
   );
 
   useEffect(() => {
-    const fileId = location.state.fileId;
-    props.setFileInfo({
-      fileId: fileId,
-      content: location.state.content
-    });
+    // To check if file already selected before.
+    let fileId;
+    let content;
+    console.log(location.state);
+    if (location.state === null) {
+      fileId = props.fileInfo.fileId;
+      content = props.fileInfo.content;
+    } else if (props.fileInfo.fileId === null || location.state.fileId != props.fileInfo.fileId) {
+      fileId = location.state.fileId;
+      content = location.state.content;
+      props.setFileInfo({
+        fileId: fileId,
+        content: location.state.content
+      });
+    }
+
+    setFileState({ fileId: fileId, content: content });
 
     if (!fetched) {
       axios
@@ -58,7 +71,7 @@ const Tokeniser = (props) => {
           setOriginalTokenData(response.data.annotations);
           combineTokensAndGaps(
             response.data.annotations,
-            location.state.content
+            content
           );
           setFetched(true);
         })
@@ -90,6 +103,8 @@ const Tokeniser = (props) => {
     let selection = window.getSelection();
     let start = selecting.componentStartIndex + selection.anchorOffset;
     let end = index + selection.focusOffset;
+    console.log("Selection", selection);
+    console.log("End", start, end);
     selecting = setSelecting({
       ...selecting,
       mouseUp: true,
@@ -159,7 +174,7 @@ const Tokeniser = (props) => {
       return a.start_index - b.start_index;
     });
     // Update UI
-    combineTokensAndGaps(changedTokens, location.state.content);
+    combineTokensAndGaps(changedTokens, fileState.content);
   };
 
   const updateManualTokens = (start, end) => {
@@ -201,11 +216,12 @@ const Tokeniser = (props) => {
       return a.start_index - b.start_index;
     });
     // Update UI
-    combineTokensAndGaps(changedTokens, location.state.content);
+    combineTokensAndGaps(changedTokens, fileState.content);
   };
 
   const combineTokensAndGaps = (data, text) => {
     let gaps = [];
+    console.log(data, text);
 
     for (let i = 0; i < data.length; i++) {
       let currData = data[i];
@@ -328,7 +344,7 @@ const Tokeniser = (props) => {
   // Buttons
   const autoTokenise = () => {
     const data = new FormData();
-    data.append("data", location.state.content);
+    data.append("data", fileState.content);
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
 
     axios
@@ -351,7 +367,7 @@ const Tokeniser = (props) => {
     let difference = tokenData.filter((x) => !originalTokenData.includes(x));
     const data = {
       tokens: difference,
-      file_id: location.state.fileId,
+      file_id: fileState.fileId,
     };
     axios
       .post("http://localhost:5001/api/annotations", data, {
@@ -371,11 +387,19 @@ const Tokeniser = (props) => {
   return (
     <div>
       <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
-      <NavBar main={false} pages={[{ path: "/tokeniser", name: "Tokenisation" }, { path: "/tagging", name: "POS Tagging" }]} />
+      <NavBar main={false} pages={
+        [
+          { path: "/editor", name: "Text Editor" },
+          { path: "/tokeniser", name: "Tokenisation" },
+          { path: "/identification", name: "Identification" },
+          { path: "/annotation", name: "Annotation" },
+          { path: "/tagging", name: "POS Tagging" }
+        ]
+      } />
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
-          {tokensAndGaps.map((token) => {
-            const text = location.state.content;
+          {fetched ? tokensAndGaps.map((token) => {
+            const text = fileState.content;
             const tokenValue = text.substring(token.start_index, token.end_index)
             return (
               <Token
@@ -386,7 +410,7 @@ const Tokeniser = (props) => {
                 value={tokenValue}
               />
             );
-          })}
+          }) : "Loading..."}
         </div>
       </div>
       <div className="tokenise-area buttons">

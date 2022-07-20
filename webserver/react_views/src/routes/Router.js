@@ -23,8 +23,11 @@ export default function Router() {
         <Route path="/login" element={<Login setUserId={setUserId} />} />
         <Route path="/" element={<Home userId={userId} />} />
         <Route path="/fileupload" element={<FileUpload userId={userId} />} />
-        <Route path="/tokeniser" element={<Tokeniser setFileInfo={setFileInfo} userId={userId} />} />
+        <Route path="/tokeniser" element={<Tokeniser setFileInfo={setFileInfo} fileInfo={fileInfo} userId={userId} />} />
         <Route path="/tagging" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
+        <Route path="/editor" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
+        <Route path="/identification" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
+        <Route path="/annotation" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
       </Routes>
     </BrowserRouter>
   );

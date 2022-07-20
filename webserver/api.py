@@ -80,7 +80,7 @@ def get_all_files() -> List[orm.UploadedFile]:
     session = get_session()
     user_data = session.query(orm.User).filter(orm.User.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
-    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content} for file in files_]
+    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content.replace("\\n", "\n")} for file in files_]
     return  jsonify({"file_contents": file_contents})
 
 @api.route('/fileUpload', methods = ['POST'])

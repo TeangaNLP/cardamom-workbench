@@ -30,7 +30,9 @@ export default function Token({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
     >
-      {token.type == "manual" ? value.replace(/ /g, "⎵") : value.replace(/\\n\\n/g, " \u000A ")}
+      {token.type == "manual" ?
+        value.replace(/ /g, "⎵").replace(/\\n/g, "\u000A") :
+        value.replace(/\\n/g, "\u000A")}
     </span>
   );
 }
