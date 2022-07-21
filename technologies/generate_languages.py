@@ -6,16 +6,16 @@ def collect_languages():
 
     # identify directories
     cur_dir = os.getcwd()
-    main_dir = cur_dir[:cur_dir.index("\\technologies")]
-    corpora_dir = main_dir + "\\CorporaUD"
+    main_dir = cur_dir[:cur_dir.index("/technologies")]
+    corpora_dir = main_dir + "/CorporaUD"
 
     # navigate to directory containing UD corpora
     os.chdir(corpora_dir)
 
     # navigate to directory containing most recent UD corpus
     available_corpora = os.listdir()
-    latest_corpus = corpora_dir + "\\ud-treebanks-v" + str(
-        max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora])
+    latest_corpus = corpora_dir + "/ud-treebanks-v" + str(
+        max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
     )
     os.chdir(latest_corpus)
 
@@ -55,4 +55,4 @@ def collect_languages():
 #     # print(len(available_languages))
 #     # print(available_languages)
 #     for lang in available_languages:
-#         print(f"INSERT INTO languages (language_name, iso_code, requested) VALUES ({lang[0]}, {lang[1]}, FALSE);")
+#         print(f"INSERT INTO languages (language_name, iso_code, requested) VALUES ('{lang[0]}', '{lang[1]}', FALSE);")
