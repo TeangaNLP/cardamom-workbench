@@ -21,9 +21,9 @@ export default function Router() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login setUserId={setUserId} />} />
-        <Route path="/" element={<Home userId={userId} />} />
+        <Route path="/" element={<Home setFileInfo={setFileInfo} userId={userId} />} />
         <Route path="/fileupload" element={<FileUpload userId={userId} />} />
-        <Route path="/tokeniser" element={<Tokeniser setFileInfo={setFileInfo} fileInfo={fileInfo} userId={userId} />} />
+        <Route path="/tokeniser" element={<Tokeniser fileInfo={fileInfo} userId={userId} />} />
         <Route path="/tagging" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
         <Route path="/editor" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
         <Route path="/identification" element={<Tagging fileInfo={fileInfo} userId={userId} />} />

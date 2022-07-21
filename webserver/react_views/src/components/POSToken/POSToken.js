@@ -35,7 +35,7 @@ export default function POSToken({ key, defaultValue, cascaderData, updateTagSta
     return (
         <span>
             <span
-                className={`${token.type === "gap" ? "pos-gap" : "pos-token"} ${tag.length ? `highlight class${tag[0][0]}` : ""}`}
+                className={`${token.type === "gap" ? "pos-gap" : "pos-token"} ${tag.length ? `class${tag[0][0]}` : ""}`}
                 onClick={onClick}
             >
                 {tokenData.replace(/\\n/g, "\u000A")}

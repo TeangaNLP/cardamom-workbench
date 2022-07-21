@@ -47,23 +47,8 @@ const Tokeniser = (props) => {
 
   useEffect(() => {
     // To check if file already selected before.
-    let fileId;
-    let content;
-    console.log(location.state);
-    if (location.state === null) {
-      fileId = props.fileInfo.fileId;
-      content = props.fileInfo.content;
-    } else if (props.fileInfo.fileId === null || location.state.fileId != props.fileInfo.fileId) {
-      fileId = location.state.fileId;
-      content = location.state.content;
-      props.setFileInfo({
-        fileId: fileId,
-        content: location.state.content
-      });
-    }
-
-    console.log(fileState);
-
+    const fileId = props.fileInfo.fileId;
+    const content = props.fileInfo.content;
     setFileState({ fileId: fileId, content: content });
 
     if (!fetched) {

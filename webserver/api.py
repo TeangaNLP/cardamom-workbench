@@ -165,7 +165,7 @@ def push_annotations():
 @api.route('/auto_tokenise', methods=["POST"])
 def auto_tokenise():
     print(request.form)
-    text = request.form.get("data")
+    text = request.form.get("data").replace("\r", "")
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
     print(reserved_tokens)
     tokenised_text = cardamom_tokenise(text, reserved_toks=reserved_tokens)
