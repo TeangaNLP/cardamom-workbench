@@ -9,25 +9,26 @@ import { useEffect, useState } from "react";
 
 export default function Router() {
   const [userId, setUserId] = useState();
+  /*
+   fileinfo =  {
+           fileId: fileId,
+            content: location.state.content
+    }
+   */
   const [fileInfo, setFileInfo] = useState({});
-
-  console.log("In router", userId);
-
-  useEffect(() => {
-    console.log('Mounted');
-  }, []);
+  const [documents, setDocuments] = useState([]);
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login setUserId={setUserId} />} />
-        <Route path="/" element={<Home userId={userId} />} />
+        <Route path="/" element={<Home userId={userId} 
+                                documents={documents} setDocuments={setDocuments} 
+                                setFileInfo={setFileInfo} />} />
         <Route path="/fileupload" element={<FileUpload userId={userId} />} />
-        <Route path="/tokeniser" element={<Tokeniser setFileInfo={setFileInfo} fileInfo={fileInfo} userId={userId} />} />
+        <Route path="/tokeniser" element={<Tokeniser fileInfo={fileInfo} setFileInfo={setFileInfo} 
+                                                     userId={userId} />} />
         <Route path="/tagging" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
-        <Route path="/editor" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
-        <Route path="/identification" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
-        <Route path="/annotation" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
       </Routes>
     </BrowserRouter>
   );

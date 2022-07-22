@@ -6,12 +6,12 @@ import axios from "axios";
 
 import "./Tokeniser.css";
 
-const Tokeniser = (props) => {
+const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
   let [tokenData, setTokenData] = useState([]);
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
   let [fetched, setFetched] = useState(false);
-  let [fileState, setFileState] = useState({});
+  //let [fileInfo, setFileState] = useState({});
   let [selecting, setSelecting] = useState({
     mouseDown: false,
     mouseUp: false,
@@ -47,6 +47,7 @@ const Tokeniser = (props) => {
 
   useEffect(() => {
     // To check if file already selected before.
+    /*
     let fileId;
     let content;
     console.log(location.state);
@@ -62,18 +63,17 @@ const Tokeniser = (props) => {
       });
     }
 
-    console.log(fileState);
 
     setFileState({ fileId: fileId, content: content });
-
+    */
     if (!fetched) {
       axios
-        .get("http://localhost:5001/api/annotations/" + fileId)
+        .get("http://localhost:5001/api/annotations/" + fileInfo.fileId)
         .then(function (response) {
           setOriginalTokenData(response.data.annotations);
           combineTokensAndGaps(
             response.data.annotations,
-            content
+            fileInfo.content
           );
           setFetched(true);
         })
@@ -176,7 +176,7 @@ const Tokeniser = (props) => {
       return a.start_index - b.start_index;
     });
     // Update UI
-    combineTokensAndGaps(changedTokens, fileState.content);
+    combineTokensAndGaps(changedTokens, fileInfo.content);
   };
 
   const updateManualTokens = (start, end) => {
@@ -218,7 +218,7 @@ const Tokeniser = (props) => {
       return a.start_index - b.start_index;
     });
     // Update UI
-    combineTokensAndGaps(changedTokens, fileState.content);
+    combineTokensAndGaps(changedTokens, fileInfo.content);
   };
 
   const combineTokensAndGaps = (data, text) => {
@@ -346,7 +346,7 @@ const Tokeniser = (props) => {
   // Buttons
   const autoTokenise = () => {
     const data = new FormData();
-    data.append("data", fileState.content);
+    data.append("data", fileInfo.content);
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
 
     axios
@@ -369,7 +369,7 @@ const Tokeniser = (props) => {
     let difference = tokenData.filter((x) => !originalTokenData.includes(x));
     const data = {
       tokens: difference,
-      file_id: fileState.fileId,
+      file_id: fileInfo.fileId,
     };
     axios
       .post("http://localhost:5001/api/annotations", data, {
@@ -401,8 +401,8 @@ const Tokeniser = (props) => {
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
           {fetched ? tokensAndGaps.map((token) => {
-            console.log(fileState);
-            const text = fileState.content;
+            console.log(fileInfo);
+            const text = fileInfo.content;
             const tokenValue = text.substring(token.start_index, token.end_index)
             return (
               <Token

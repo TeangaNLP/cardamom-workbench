@@ -6,14 +6,16 @@ import axios from "axios";
 
 import "./Home.css";
 
-const Home = (props) => {
+const Home = ({
+                userId,
+                documents,
+                setDocuments,
+                setFileInfo
+              }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [documents, setDocuments] = useState([]);
   const navigate = useNavigate();
 
-  const userId = props.userId;
-  console.log(userId);
-
+  //const userId = props.userId;
 
   useEffect(() => {
     // Update the document title using the browser API
@@ -44,8 +46,13 @@ const Home = (props) => {
             <ListGroup key={doc.filename} className="list-item">
               <ListGroup.Item
                 action
-                onClick={() =>
-                  navigate("/tokeniser", { state: { fileId: doc.file_id, content: doc.content } })
+                onClick={() => {
+                  setFileInfo({
+                   fileId: fileId,
+                   content: location.state.content
+                  })
+                  navigate("/tokeniser")
+                  }
                 }
               >
                 {doc.filename}
