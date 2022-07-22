@@ -44,8 +44,10 @@ const Home = (props) => {
             <ListGroup key={doc.filename} className="list-item">
               <ListGroup.Item
                 action
-                onClick={() =>
-                  navigate("/tokeniser", { state: { fileId: doc.file_id, content: doc.content } })
+                onClick={() => {
+                  navigate("/tokeniser");
+                  props.setFileInfo({ fileId: doc.file_id, content: doc.content });
+                }
                 }
               >
                 {doc.filename}

@@ -13,6 +13,9 @@ const CustomCascader = React.forwardRef((props, ref) => {
 
     let buildTag = (items) => {
 
+        items = items.filter(x => x !== undefined);
+        console.log(items);
+
         // Check if the current tag can have multiple features.
         let multiFeatures = items[0]["parent"];
 
@@ -67,6 +70,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
     };
 
     let onCheck = (value, item, checked) => {
+        console.log(value, item, checked)
         // If something is checked, then run validation, else return.
         if (!checked) {
             return;
@@ -98,10 +102,18 @@ const CustomCascader = React.forwardRef((props, ref) => {
             tempTagItems.push(tagItems[i]);
         }
         tags.push(newVal);
+
         tempTagItems.push(item);
         updateTagItems(tempTagItems);
 
         let builtTag = buildTag(tempTagItems);
+
+        // Check to see if a feature is tagged,
+        // if feature is tagged then add it parent tag as well.
+        if (newValSplit.length > 1 && value.indexOf(newValSplit[0]) === -1) {
+            tags.push(newValSplit[0]);
+        }
+
         props.onUpdateTag(tags, builtTag);
     };
 
@@ -109,7 +121,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
     let createUncheckable = (levels) => {
         let uncheckables = [];
         for (let l of levels) {
-            uncheckables.push(String(l[0]));
+            // uncheckables.push(String(l[0]));
             for (let sl = 1; sl <= l[1]; sl++) {
                 let s = l[0] + "-" + sl;
                 uncheckables.push(s);
@@ -128,6 +140,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
                     selectedItems.map((item) => item.label).join(" , ")
                 }
                 uncheckableItemValues={createUncheckable([[2, 7]])}
+                cascade={false}
             />
         </div>
     );

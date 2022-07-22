@@ -28,17 +28,17 @@ export default function POSToken({ key, defaultValue, cascaderData, updateTagSta
     // Update the tag of the selected token.
     let onUpdateTag = (tag, builtTag) => {
         updateTag(tag);
-        console.log(tag[0][0]);
+        console.log(tag);
         updateTagState(token.id, builtTag);
     };
 
     return (
         <span>
             <span
-                className={`${token.type === "gap" ? "pos-gap" : "pos-token"} ${tag.length ? `highlight class${tag[0][0]}` : ""}`}
+                className={`${token.type === "gap" ? "pos-gap" : "pos-token"} ${tag.length ? `class${tag[0][0]}` : ""}`}
                 onClick={onClick}
             >
-                {tokenData}
+                {tokenData.replace(/\\n/g, "\u000A")}
             </span>
             {token.type !== "gap" && showCascader ? (
                 <CustomCascader
