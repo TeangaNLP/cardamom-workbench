@@ -252,27 +252,39 @@ const Tagging = (props) => {
 
   // Convert tags into their values.
   const convertTags = (tag) => {
-    console.log(reverseLookup);
     if (tag["features"].length == 0) {
       console.log(reverseLookup[tag["tag"]], tag["tag"]);
       return [reverseLookup[tag["tag"]]]
     } else {
       let values = [];
       for (let feature of tag["features"]) {
-        console.log(reverseLookup[feature["value"]], feature["value"]);
         values.push(reverseLookup[feature["value"]]);
       }
       return values;
     }
   }
 
+  // Text Editor
+  // Tokenisation
+  // Language Identification
+  // Annotation
+  // POS Tagging
+
   return (
     <div>
       <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
-      <NavBar main={false} pages={[{ path: "/tokeniser", name: "Tokenisation" }, { path: "/tagging", name: "POS Tagging" }]} />
+      <NavBar main={false} pages={
+        [
+          { path: "/editor", name: "Text Editor" },
+          { path: "/tokeniser", name: "Tokenisation" },
+          { path: "/identification", name: "Identification" },
+          { path: "/annotation", name: "Annotation" },
+          { path: "/tagging", name: "POS Tagging" }
+        ]
+      } />
       <div className='tagging-area'>
         <div className="tagging-text">
-          {tokensAndGaps.map((token, i) => {
+          {fetched ? tokensAndGaps.map((token, i) => {
             const text = props.fileInfo.content;
             const tokenData = text.substring(token.start_index, token.end_index);
 
@@ -282,14 +294,12 @@ const Tagging = (props) => {
               tagList = convertTags(defaultTags);
             }
 
-            console.log("taglist", tagList);
-
             return (
               <POSToken
                 key={i} defaultValue={tagList} cascaderData={cascaderData} updateTagState={updateTagState} token={token} tokenData={tokenData}
               />
             );
-          })}
+          }) : "Loading..."}
         </div>
       </div>
       <div className="tagging-area buttons">

@@ -1,5 +1,6 @@
 .cascader {
   z-index: 100;
-  display: block;
-  position: fixed;
+  display: inline-block;
+  position: absolute;
+  transform: translate(-90%, 50%);
 }

@@ -80,7 +80,7 @@ def get_all_files() -> List[orm.UploadedFile]:
     session = get_session()
     user_data = session.query(orm.User).filter(orm.User.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
-    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content} for file in files_]
+    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content.replace("\\n", "\n")} for file in files_]
     return  jsonify({"file_contents": file_contents})
 
 @api.route('/fileUpload', methods = ['POST'])
@@ -165,7 +165,7 @@ def push_annotations():
 @api.route('/auto_tokenise', methods=["POST"])
 def auto_tokenise():
     print(request.form)
-    text = request.form.get("data")
+    text = request.form.get("data").replace("\r", "")
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
     print(reserved_tokens)
     tokenised_text = cardamom_tokenise(text, reserved_toks=reserved_tokens)
