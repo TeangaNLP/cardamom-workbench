@@ -1,4 +1,5 @@
 import os
+import platform
 from decimal import *
 import nltk
 from conllu import parse
@@ -6,20 +7,26 @@ from ast import literal_eval
 import json
 from nltk import word_tokenize, sent_tokenize
 
+op_sys = platform.system()
+if op_sys == "Windows":
+    slash = "\\"
+else:
+    slash = "/"
+
 
 def list_pos_langs():
 
     # identify directories
     tech_dir = os.getcwd()
-    main_dir = tech_dir[:tech_dir.index("/technologies")]
-    corpora_dir = main_dir + "/CorporaUD"
+    main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
+    corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
     os.chdir(corpora_dir)
 
     # navigate to directory containing most recent UD corpus
     available_corpora = os.listdir()
-    latest_corpus = corpora_dir + "/ud-treebanks-v" + str(
+    latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
         max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
     )
     os.chdir(latest_corpus)
@@ -40,15 +47,15 @@ def get_treebank_names(language):
 
     # identify directories
     tech_dir = os.getcwd()
-    main_dir = tech_dir[:tech_dir.index("/technologies")]
-    corpora_dir = main_dir + "/CorporaUD"
+    main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
+    corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
     os.chdir(corpora_dir)
 
     # navigate to directory containing most recent UD corpus
     available_corpora = os.listdir()
-    latest_corpus = corpora_dir + "/ud-treebanks-v" + str(
+    latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
         max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
     )
     os.chdir(latest_corpus)
@@ -72,15 +79,15 @@ def get_treebanks(language):
 
     # identify directories
     tech_dir = os.getcwd()
-    main_dir = tech_dir[:tech_dir.index("/technologies")]
-    corpora_dir = main_dir + "/CorporaUD"
+    main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
+    corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
     os.chdir(corpora_dir)
 
     # navigate to directory containing most recent UD corpus
     available_corpora = os.listdir()
-    latest_corpus = corpora_dir + "/ud-treebanks-v" + str(
+    latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
         max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
     )
     os.chdir(latest_corpus)
@@ -88,7 +95,7 @@ def get_treebanks(language):
     # extract data from each treebank and put in a list
     treebanks = list()
     for treebank in available_treebanks:
-        os.chdir(latest_corpus + "/" + treebank)
+        os.chdir(latest_corpus + slash + treebank)
         available_files = os.listdir()
         retrieved_file = [file for file in available_files if ".conllu" in file]
         if len(retrieved_file) > 1:

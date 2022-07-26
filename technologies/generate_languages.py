@@ -1,20 +1,27 @@
 import os
+import platform
 from decimal import *
+
+op_sys = platform.system()
+if op_sys == "Windows":
+    slash = "\\"
+else:
+    slash = "/"
 
 
 def collect_languages():
 
     # identify directories
     cur_dir = os.getcwd()
-    main_dir = cur_dir[:cur_dir.index("/technologies")]
-    corpora_dir = main_dir + "/CorporaUD"
+    main_dir = cur_dir[:cur_dir.index(f"{slash}technologies")]
+    corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
     os.chdir(corpora_dir)
 
     # navigate to directory containing most recent UD corpus
     available_corpora = os.listdir()
-    latest_corpus = corpora_dir + "/ud-treebanks-v" + str(
+    latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
         max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
     )
     os.chdir(latest_corpus)
