@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavBar, POSToken } from '../../components';
 import { Button } from 'react-bootstrap';
+import posTags from './tags';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import "./Tagging.css";
@@ -17,34 +18,6 @@ const Tagging = (props) => {
   let [taggedTokens, setTaggedTokens] = useState([]);
   let [reverseLookup, setReverseLookup] = useState([]);
 
-  let posTags = {
-    "ADJ": [],
-    "ADP": [{
-      "Type": ["NA", "PREP"],
-      "Case": ["NA", "ACC", "DAT"],
-      "Definite": ["NA", "DEF", "IND"],
-      "Gender": ["NA", "MASC", "MASC NEUT", "NEUT", "FEM"],
-      "Number": ["NA", "DUAL", "SING", "PLUR"],
-      "Person": ["NA", "1", "2", "3"],
-      "PRON": ["NA", "ART", "PRS"]
-    }],
-    "ADV": [],
-    "AUX": [],
-    "CCONJ": [],
-    "DET": [],
-    "INTJ": [],
-    "NOUN": [],
-    "NUM": [],
-    "PART": [],
-    "PRON": [],
-    "PROPN": [],
-    "PUNCT": [],
-    "SCONJ": [],
-    "SYM": [],
-    "VERB": [],
-    "X": []
-  };
-
   // Create data for Cascader from hardcoded list.
   const createCascaderData = () => {
     let data = [];
@@ -52,43 +25,35 @@ const Tagging = (props) => {
     let i = 1;
     for (let key of Object.keys(posTags)) {
       let currentData = posTags[key]
-      if (posTags[key].length > 0) {
-        let childrenData = [];
-        let j = 1;
-        for (let childKey of Object.keys(currentData[0])) {
-          let grandChildrenData = [];
-          for (let k = 0; k < currentData[0][childKey].length; k++) {
-            let grandChildData = {
-              value: i.toString() + "-" + j.toString() + "-" + (k + 1).toString(),
-              label: currentData[0][childKey][k]
-            }
-            reverseLookup[grandChildData.label] = grandChildData.value
-            grandChildrenData.push(grandChildData);
+      let j = 1;
+      let childrenData = [];
+      for (let childKey of Object.keys(currentData)) {
+        let childData = currentData[childKey]
+        let grandChildrenData = [];
+        for (let k = 0; k < childData.length; k++) {
+          let grandChildObj = {
+            value: i.toString() + "-" + j.toString() + "-" + (k + 1).toString(),
+            label: childData[k]
           }
-          let childData = {
-            value: i.toString() + "-" + j.toString(),
-            label: childKey,
-            children: grandChildrenData
-          }
-          reverseLookup[childData.label] = childData.value
-          childrenData.push(childData);
-          j += 1;
+          reverseLookup[grandChildObj.label] = grandChildObj.value;
+          grandChildrenData.push(grandChildObj);
         }
-        let keyData = {
-          value: i.toString(),
-          label: key,
-          children: childrenData
+        let childObj = {
+          value: i.toString() + "-" + j.toString(),
+          label: childKey,
+          children: grandChildrenData
         }
-        reverseLookup[keyData.label] = keyData.value
-        data.push(keyData);
-      } else {
-        let keyData = {
-          value: i.toString(),
-          label: key,
-        }
-        reverseLookup[keyData.label] = keyData.value
-        data.push(keyData);
+        reverseLookup[childObj.label] = childObj.value;
+        childrenData.push(childObj);
+        j += 1;
       }
+      let keyObj = {
+        value: i.toString(),
+        label: key,
+        children: childrenData
+      }
+      reverseLookup[keyObj.label] = keyObj.value;
+      data.push(keyObj);
       i += 1;
     }
     setCascaderData(data);
@@ -290,8 +255,10 @@ const Tagging = (props) => {
 
             let tagList = []
             if (taggedTokens.hasOwnProperty(tokenData)) {
-              const defaultTags = taggedTokens[tokenData];
-              tagList = convertTags(defaultTags);
+              const defaultTag = taggedTokens[tokenData];
+              if (token.start_index === defaultTag.start_index) {
+                tagList = convertTags(defaultTag);
+              }
             }
 
             return (

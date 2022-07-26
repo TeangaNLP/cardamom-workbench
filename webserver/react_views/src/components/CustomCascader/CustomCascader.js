@@ -8,8 +8,6 @@ const CustomCascader = React.forwardRef((props, ref) => {
     // Since onCheck does not return an array of items to build tags,
     // we will keep track of the tag items ourselves.
     let [tagItems, updateTagItems] = useState([]);
-    let labelValue = null;
-    let item = null;
 
     let buildTag = (items) => {
 
@@ -118,13 +116,12 @@ const CustomCascader = React.forwardRef((props, ref) => {
     };
 
     // Create uncheckable items in Cascader based on levels.
-    let createUncheckable = (levels) => {
+    let createUncheckable = () => {
         let uncheckables = [];
-        for (let l of levels) {
-            // uncheckables.push(String(l[0]));
-            for (let sl = 1; sl <= l[1]; sl++) {
-                let s = l[0] + "-" + sl;
-                uncheckables.push(s);
+        for (let l of props.data) {
+            let child = l.children;
+            for (let c of child) {
+                uncheckables.push(c.value);
             }
         }
         return uncheckables;
@@ -139,7 +136,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
                 renderValue={(value, selectedItems) =>
                     selectedItems.map((item) => item.label).join(" , ")
                 }
-                uncheckableItemValues={createUncheckable([[2, 7]])}
+                uncheckableItemValues={createUncheckable()}
                 cascade={false}
             />
         </div>

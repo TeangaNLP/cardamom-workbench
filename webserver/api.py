@@ -212,6 +212,7 @@ def get_postags(file_id):
             tag_features = []
             for feature in features:
                 tag_features.append({"feature": feature.feature, "value": feature.value})
-            token_tags[token.token] = {"tag": instance.tag, "features": tag_features}
+            content = token.file.content[token.start_index:token.end_index]
+            token_tags[content] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index}
     annotations = [serialise(annot) for annot in tokens]
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
