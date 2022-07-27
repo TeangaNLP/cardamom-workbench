@@ -1,17 +1,16 @@
-import orm
 import docx
 import nltk
 import config
+import json
+import orm
 from orm import Base
 from typing import List, Dict
 from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from flask import Blueprint, request, render_template, make_response, jsonify 
-import json
 
 from Tokeniser import cardamom_tokenise
-
-nltk.download('punkt')
+from POS_tag import cardamom_postag
 
 api = Blueprint('api', __name__,
                         template_folder='templates')
@@ -183,7 +182,7 @@ def push_postags():
 
     for token_id in pos_tags:
         print(token_id)
-        pos_instance = orm.POSInstance(token_id = int(token_id), tag = pos_tags[token_id]["tag"])
+        pos_instance = orm.POSInstance(token_id = int(token_id), tag = pos_tags[token_id]["tag"], type=pos_tags[token_id]["type"])
         session.add(pos_instance)
         session.commit()
         session.flush()
@@ -212,7 +211,18 @@ def get_postags(file_id):
             tag_features = []
             for feature in features:
                 tag_features.append({"feature": feature.feature, "value": feature.value})
-            content = token.file.content[token.start_index:token.end_index]
-            token_tags[content] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index}
+            token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index}
     annotations = [serialise(annot) for annot in tokens]
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
+
+
+@api.route('/auto_tag', methods=["POST"])
+def auto_tag():
+    print(request.form)
+    # extract the text
+    content = request.form.get('content')
+    tokens = json.loads(request.form.get('tokens'))
+    print(tokens)
+    pos_text = cardamom_postag(content, tokens, 2, 'en')
+    print(pos_text)
+    return { "POS": pos_text }

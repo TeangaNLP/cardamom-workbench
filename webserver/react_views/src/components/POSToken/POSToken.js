@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import useClickOutside from "../utils/useClickOutside";
 import { CustomCascader } from "../CustomCascader";
 import "./POSToken.css";
@@ -7,7 +7,7 @@ export default function POSToken({ key, defaultValue, cascaderData, updateTagSta
     // Cascader.
     let [showCascader, setCascaderState] = useState(false);
     // Tags.
-    let [tag, updateTag] = useState(defaultValue);
+    let [tag, setTag] = useState();
 
     // Custom hook that notifies when clicked outside this component.
     const ref = useRef();
@@ -27,15 +27,14 @@ export default function POSToken({ key, defaultValue, cascaderData, updateTagSta
 
     // Update the tag of the selected token.
     let onUpdateTag = (tag, builtTag) => {
-        updateTag(tag);
-        console.log(tag);
+        setTag(tag);
         updateTagState(token.id, builtTag);
     };
 
     return (
         <span>
             <span
-                className={`${token.type === "gap" ? "pos-gap" : "pos-token"} ${tag.length ? `class${tag[0][0]}` : ""}`}
+                className={`${token.type === "gap" ? "pos-gap" : "pos-token"} ${tag ? `class${tag[0][0]}` : defaultValue.length > 0 ? `class${defaultValue[0][0]}` : ""}`}
                 onClick={onClick}
             >
                 {tokenData.replace(/\\n/g, "\u000A")}
@@ -44,7 +43,7 @@ export default function POSToken({ key, defaultValue, cascaderData, updateTagSta
                 <CustomCascader
                     ref={ref}
                     data={cascaderData}
-                    defaultValue={tag}
+                    defaultValue={tag ? tag : defaultValue}
                     onUpdateTag={onUpdateTag}
                 />
             ) : null}

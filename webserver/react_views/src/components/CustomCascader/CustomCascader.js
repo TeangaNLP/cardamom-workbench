@@ -45,6 +45,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
             tokenTag = {
                 tag: item["label"],
                 features: [],
+                type: "manual",
             }
         } else {
             console.log(items);
@@ -61,6 +62,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
             tokenTag = {
                 tag: tagName,
                 features: features,
+                type: "manual",
             }
         }
 

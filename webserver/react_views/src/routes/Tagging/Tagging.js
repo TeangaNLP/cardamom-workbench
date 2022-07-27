@@ -9,14 +9,44 @@ import axios from 'axios';
 
 const Tagging = (props) => {
 
-  let [fetched, setFetched] = useState(false);
-  let [tokenData, setTokenData] = useState([])
-  let [originalTokenData, setOriginalTokenData] = useState([]);
-  let [tokensAndGaps, setTokensAndGaps] = useState([]);
-  let [tags, updateTags] = useState([]);
-  let [cascaderData, setCascaderData] = useState([]);
-  let [taggedTokens, setTaggedTokens] = useState([]);
-  let [reverseLookup, setReverseLookup] = useState([]);
+  let [fetched, setFetched] = useState(false); // For fetching data once.
+  let [tokenData, setTokenData] = useState([]); // For tokens (not tags).
+  let [tokensAndGaps, setTokensAndGaps] = useState([]); // For tokens and gaps.
+  let [tags, setTags] = useState({}); // For saving and UI.
+  let [cascaderData, setCascaderData] = useState([]); // For Cascader lookup.
+  let [reverseLookup, setReverseLookup] = useState([]); // For reverse lookup.
+  let [fileState, setFileState] = useState({}); // To main router file state.
+
+  useEffect(() => {
+    const fileId = props.fileInfo.fileId;
+    const content = props.fileInfo.content;
+    setFileState({ fileId: fileId, content: content });
+
+    if (!fetched) {
+      axios
+        .get("http://localhost:5001/api/pos_tag/" + fileId)
+        .then(function (response) {
+          createCascaderData();
+          setTokenData(response.data.annotations);
+          combineTokensAndGaps(
+            response.data.annotations,
+            content
+          );
+          setTags(response.data.tags);
+          setFetched(true);
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+    }
+
+  }, []);
+
+  // Functionality
+  // Update the state of the token with a tag.
+  const updateTagState = (tokenId, tag) => {
+    setTags({ ...tags, [tokenId]: tag });
+  }
 
   // Create data for Cascader from hardcoded list.
   const createCascaderData = () => {
@@ -58,35 +88,6 @@ const Tagging = (props) => {
     }
     setCascaderData(data);
     setReverseLookup(reverseLookup);
-  }
-
-  useEffect(() => {
-    const fileId = props.fileInfo.fileId;
-    const content = props.fileInfo.content;
-
-    if (!fetched) {
-      axios
-        .get("http://localhost:5001/api/pos_tag/" + fileId)
-        .then(function (response) {
-          createCascaderData();
-          setOriginalTokenData(response.data.annotations);
-          combineTokensAndGaps(
-            response.data.annotations,
-            content
-          );
-          setTaggedTokens(response.data.tags);
-          setFetched(true);
-        })
-        .catch(function (err) {
-          console.log(err);
-        });
-    }
-
-  }, []);
-
-  // Update the state of the token with a tag.
-  const updateTagState = (tokenId, tag) => {
-    updateTags({ ...tags, [tokenId]: tag });
   }
 
   // Create Tokens for textarea.
@@ -188,13 +189,11 @@ const Tagging = (props) => {
       };
       newTokensAndGaps.push(gap);
     }
-
-    setTokenData(data);
     setTokensAndGaps(newTokensAndGaps);
   };
 
   // Send annotations to server.
-  const saveTags = (event) => {
+  const saveTags = () => {
     // let difference = tokenData.filter((x) => !originalTokenData.includes(x));
     // console.log(difference);
     const data = {
@@ -215,10 +214,49 @@ const Tagging = (props) => {
       });
   };
 
+  // Update Auto-tags;
+  const updateAutoTags = (posTags) => {
+    let newTags = { ...tags };
+    for (let tag of posTags) {
+      let tokenId = tag.id;
+      // If type is auto but key does not exist then update.
+      if (!newTags.hasOwnProperty(tokenId)) {
+        newTags[tokenId] = tag;
+      } else {
+        // If type it auto and key exists and tag is auto then update.
+        let oldTag = tags[tokenId];
+        if (oldTag.type === "auto") {
+          newTags[tokenId] = tag;
+        }
+      }
+    }
+    setTags(newTags);
+  }
+
+  // Auto-tag
+  const autoTag = () => {
+    const data = new FormData();
+    data.append("tokens", JSON.stringify(tokenData));
+    data.append("content", fileState.content);
+    axios
+      .post("http://localhost:5001/api/auto_tag", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(function (response) {
+        const posTags = response.data.POS;
+        updateAutoTags(posTags);
+      })
+      .catch(function (e) {
+        console.log(e);
+        console.log("Could not auto tag.");
+      });
+  }
+
   // Convert tags into their values.
   const convertTags = (tag) => {
     if (tag["features"].length == 0) {
-      console.log(reverseLookup[tag["tag"]], tag["tag"]);
       return [reverseLookup[tag["tag"]]]
     } else {
       let values = [];
@@ -228,12 +266,6 @@ const Tagging = (props) => {
       return values;
     }
   }
-
-  // Text Editor
-  // Tokenisation
-  // Language Identification
-  // Annotation
-  // POS Tagging
 
   return (
     <div>
@@ -252,10 +284,13 @@ const Tagging = (props) => {
           {fetched ? tokensAndGaps.map((token, i) => {
             const text = props.fileInfo.content;
             const tokenData = text.substring(token.start_index, token.end_index);
+            const tokenId = token.id;
+
+            console.log(tags);
 
             let tagList = []
-            if (taggedTokens.hasOwnProperty(tokenData)) {
-              const defaultTag = taggedTokens[tokenData];
+            if (tags.hasOwnProperty(tokenId)) {
+              const defaultTag = tags[tokenId];
               if (token.start_index === defaultTag.start_index) {
                 tagList = convertTags(defaultTag);
               }
@@ -270,6 +305,9 @@ const Tagging = (props) => {
         </div>
       </div>
       <div className="tagging-area buttons">
+        <Button className="button" onClick={autoTag} variant="dark">
+          Auto-Tag
+        </Button>
         <Button className="button" onClick={saveTags} variant="dark">Save</Button>
       </div>
     </div>

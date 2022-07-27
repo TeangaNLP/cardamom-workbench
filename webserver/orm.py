@@ -50,6 +50,7 @@ class POSInstance(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     token_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
     tag = Column(String(255))
+    type = Column(String(255), nullable=False)
 
     token = relationship("Token", back_populates = "pos_instance")
     features = relationship("POSFeatures", back_populates = "pos_instance")

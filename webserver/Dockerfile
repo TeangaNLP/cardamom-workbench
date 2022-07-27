@@ -11,4 +11,7 @@ COPY wait-for-it.sh /code/
 RUN chmod +x /code/wait-for-it.sh
 WORKDIR /code
 ENV FLASK_APP=flask_app.py FLASK_DEBUG=1 PYTHONUNBUFFERED=1
+RUN python -m nltk.downloader averaged_perceptron_tagger
+RUN python -m nltk.downloader universal_tagset
+RUN python -m nltk.downloader punkt
 # CMD python3 flask_app.py
