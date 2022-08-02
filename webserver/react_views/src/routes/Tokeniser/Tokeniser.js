@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { NavBar, Token } from "../../components/";
 import axios from "axios";
@@ -20,8 +19,6 @@ const Tokeniser = (props) => {
     end: null,
     componentStartIndex: null,
   });
-
-  const location = useLocation();
 
   // Callback for saving
   const onEnter = useCallback(
@@ -76,7 +73,6 @@ const Tokeniser = (props) => {
   }, [onEnter]);
 
   // Events
-
   const handleMouseDown = (index) => {
     selecting = setSelecting({
       ...selecting,
@@ -333,6 +329,7 @@ const Tokeniser = (props) => {
     const data = new FormData();
     data.append("data", fileState.content);
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
+    data.append("fileId", fileState.fileId);
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
