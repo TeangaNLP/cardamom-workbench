@@ -78,7 +78,8 @@ def get_all_files() -> List[orm.UploadedFile]:
     session = get_session()
     user_data = session.query(orm.User).filter(orm.User.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
-    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content.replace("\\n", "\n")} for file in files_]
+    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content.replace("\\n", "\n"), "lang_id" : file.language_id} for file in files_]
+    print(file_contents)
     return  jsonify({"file_contents": file_contents})
 
 @api.route('/fileUpload', methods = ['POST'])
@@ -166,14 +167,12 @@ def push_annotations():
 
 @api.route('/auto_tokenise', methods=["POST"])
 def auto_tokenise():
-
     session = get_session()
     text = request.form.get("data").replace("\r", "")
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
-    file_id = request.form.get("fileId")
-    file = session.query(orm.UploadedFile).filter(orm.UploadedFile.id == file_id).one_or_none()
- 
-    lang = session.query(orm.Language).filter(orm.Language.id == file.language_id).one_or_none()
+    lang_id = request.form.get('lang_id')
+    print(lang_id)
+    lang = session.query(orm.Language).filter(orm.Language.id == lang_id).one_or_none()
     tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=reserved_tokens)
     sorted(tokenised_text, key=lambda a: a['start_index'])
     return { "annotations": tokenised_text }
@@ -182,9 +181,7 @@ def auto_tokenise():
 def push_postags():
     data = request.get_json()
     pos_tags = data.get('tags')
-
     session = get_session()
-
     for token_id in pos_tags:
         pos_instance = orm.POSInstance(token_id = int(token_id), tag = pos_tags[token_id]["tag"], type=pos_tags[token_id]["type"])
         session.add(pos_instance)
@@ -222,7 +219,10 @@ def get_postags(file_id):
 @api.route('/auto_tag', methods=["POST"])
 def auto_tag():
     # extract the text
+    session = get_session()
     content = request.form.get('content')
     tokens = json.loads(request.form.get('tokens'))
-    pos_text = cardamom_postag(content, tokens, 2, 'en')
+    lang_id = request.form.get('lang_id')
+    lang = session.query(orm.Language).filter(orm.Language.id == lang_id).one_or_none()
+    pos_text = cardamom_postag(content, tokens, 2, lang.iso_code)
     return { "POS": pos_text }

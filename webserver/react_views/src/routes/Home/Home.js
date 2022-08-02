@@ -12,13 +12,9 @@ const Home = (props) => {
   const navigate = useNavigate();
 
   const userId = props.userId;
-  console.log(userId);
-
 
   useEffect(() => {
     // Update the document title using the browser API
-
-    console.log(userId);
     if (!userId) {
       navigate("/login", { replace: true });
     }
@@ -46,7 +42,7 @@ const Home = (props) => {
                 action
                 onClick={() => {
                   navigate("/tokeniser");
-                  props.setFileInfo({ fileId: doc.file_id, content: doc.content });
+                  props.setFileInfo({ fileId: doc.file_id, content: doc.content, langId: doc.lang_id });
                 }
                 }
               >

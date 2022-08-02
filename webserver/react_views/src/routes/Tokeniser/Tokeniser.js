@@ -46,7 +46,7 @@ const Tokeniser = (props) => {
     // To check if file already selected before.
     const fileId = props.fileInfo.fileId;
     const content = props.fileInfo.content;
-    setFileState({ fileId: fileId, content: content });
+    setFileState({ fileId: fileId, content: content, langId: props.fileInfo.langId });
 
     if (!fetched) {
       axios
@@ -86,8 +86,6 @@ const Tokeniser = (props) => {
     let selection = window.getSelection();
     let start = selecting.componentStartIndex + selection.anchorOffset;
     let end = index + selection.focusOffset;
-    console.log("Selection", selection);
-    console.log("End", start, end);
     selecting = setSelecting({
       ...selecting,
       mouseUp: true,
@@ -204,8 +202,6 @@ const Tokeniser = (props) => {
 
   const combineTokensAndGaps = (data, text) => {
     let gaps = [];
-    console.log(data, text);
-
     for (let i = 0; i < data.length; i++) {
       let currData = data[i];
       let nextData = data[i + 1];
@@ -320,7 +316,6 @@ const Tokeniser = (props) => {
         reservedTokens.push(t)
       }
     }
-    console.log(reservedTokens);
     return reservedTokens
   }
 
@@ -329,7 +324,7 @@ const Tokeniser = (props) => {
     const data = new FormData();
     data.append("data", fileState.content);
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
-    data.append("fileId", fileState.fileId);
+    data.append("lang_id", fileState.langId);
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
@@ -338,7 +333,6 @@ const Tokeniser = (props) => {
         },
       })
       .then(function (response) {
-        console.log(response.data.annotations);
         updateAutoTokens(response.data.annotations);
       })
       .catch(function (e) {
@@ -351,7 +345,7 @@ const Tokeniser = (props) => {
     let difference = tokenData.filter((x) => !originalTokenData.includes(x));
     const data = {
       tokens: difference,
-      file_id: fileState.fileId,
+      file_id: fileState.fileId
     };
     axios
       .post("http://localhost:5001/api/annotations", data, {
@@ -383,7 +377,6 @@ const Tokeniser = (props) => {
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
           {fetched ? tokensAndGaps.map((token) => {
-            console.log(fileState);
             const text = fileState.content;
             const tokenValue = text.substring(token.start_index, token.end_index)
             return (

@@ -20,7 +20,7 @@ const Tagging = (props) => {
   useEffect(() => {
     const fileId = props.fileInfo.fileId;
     const content = props.fileInfo.content;
-    setFileState({ fileId: fileId, content: content });
+    setFileState({ fileId: fileId, content: content, langId: props.fileInfo.langId });
 
     if (!fetched) {
       axios
@@ -238,6 +238,7 @@ const Tagging = (props) => {
     const data = new FormData();
     data.append("tokens", JSON.stringify(tokenData));
     data.append("content", fileState.content);
+    data.append("lang_id", fileState.langId)
     axios
       .post("http://localhost:5001/api/auto_tag", data, {
         headers: {
@@ -285,8 +286,6 @@ const Tagging = (props) => {
             const text = props.fileInfo.content;
             const tokenData = text.substring(token.start_index, token.end_index);
             const tokenId = token.id;
-
-            console.log(tags);
 
             let tagList = []
             if (tags.hasOwnProperty(tokenId)) {
