@@ -329,6 +329,7 @@ const Tokeniser = (props) => {
     const data = new FormData();
     data.append("data", fileState.content);
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
+    data.append("fileId", fileState.fileId);
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
