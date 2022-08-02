@@ -1,5 +1,5 @@
 from nltk import pos_tag
-from Train_Taggers import train_pos_tagger
+from .Train_Taggers import train_pos_tagger
 
 
 def cardamom_postag(string, tokens, provenance, matrix_language=None):

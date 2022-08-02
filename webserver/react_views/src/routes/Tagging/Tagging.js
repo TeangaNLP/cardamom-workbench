@@ -49,6 +49,7 @@ const Tagging = (props) => {
   }
 
   // Create data for Cascader from hardcoded list.
+  // TODO: Reverse Lookup names have clashing values, need fix around.
   const createCascaderData = () => {
     let data = [];
     let reverseLookup = {};
@@ -216,8 +217,10 @@ const Tagging = (props) => {
 
   // Update Auto-tags;
   const updateAutoTags = (posTags) => {
+    console.log(tags);
     let newTags = { ...tags };
     for (let tag of posTags) {
+      console.log(tag);
       let tokenId = tag.id;
       // If type is auto but key does not exist then update.
       if (!newTags.hasOwnProperty(tokenId)) {
