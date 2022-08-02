@@ -4,7 +4,7 @@ from nltk.tokenize import word_tokenize
 def cardamom_tokenise(string, provenance=None, iso_code=None, reserved_toks=None):
     """Tokenises a string of text and returns a list containing data for each token dictionaries:
 
-       [{'type': 'auto', 'start': int, 'end': int, 'provenance': int}, ...]"""
+       [{'type': 'auto', 'start_index': int, 'end_index': int, 'provenance': int}, ...]"""
 
     # Identify languages for which we have corpora.
     corp_langs = {'af': 'Afrikaans', 'akk': 'Akkadian', 'aqz': 'Akuntsu', 'sq': 'Albanian', 'am': 'Amharic',
@@ -49,13 +49,13 @@ def cardamom_tokenise(string, provenance=None, iso_code=None, reserved_toks=None
         # if not raise error with informative message.
         if not isinstance(reserved_toks, list):
             raise RuntimeError(f"\nExpected array of reserved tokens where each token is of type 'dict',\neg. "
-                               f"[{{'type': 'auto', 'start': 0, 'end': 5, 'text_language': 'en',"
+                               f"[{{'type': 'auto', 'start_index': 0, 'end_index': 5, 'text_language': 'en',"
                                f"'token_language': 'en', 'provenance': 1}}, {{...}}, ...]\n"
                                f"Instead, got {type(reserved_toks).__name__} class entry:\n{reserved_toks}.")
         for indset in reserved_toks:
             if not isinstance(indset, dict):
                 raise RuntimeError(f"\nExpected array of reserved tokens where each token is of type 'dict',\neg. "
-                                   f"[{{'type': 'auto', 'start': 0, 'end': 5, 'text_language': 'en',"
+                                   f"[{{'type': 'auto', 'start_index': 0, 'end_index': 5, 'text_language': 'en',"
                                    f"'token_language': 'en', 'provenance': 1}}, {{...}}, ...]\n"
                                    f"Problem found in '{type(indset).__name__}' class entry: {indset}.")
         stringlist = list()
@@ -65,7 +65,7 @@ def cardamom_tokenise(string, provenance=None, iso_code=None, reserved_toks=None
             if reserved_toks.count(indset) > 1:
                 raise RuntimeError(f"Duplicate token found in reserved tokens' list: {indset}")
             # Check that reserved tokens contain the correct key-value pairs, if not raise error.
-            checklist = ["type", "start", "end", "provenance"]
+            checklist = ["type", "start_index", "end_index", "provenance"]
             if not all(data_type in checklist for data_type in indset):
                 problem_keys = [key for key in indset if key not in checklist]
                 if len(problem_keys) == 1:
@@ -94,25 +94,25 @@ def cardamom_tokenise(string, provenance=None, iso_code=None, reserved_toks=None
             elif tok_type != "manual":
                 raise RuntimeError(f"Expected value 'manual' for key, 'type'. "
                                    f"Got value '{tok_type}':\n{indset}")
-            start = indset.get("start")
-            end = indset.get("end")
-            # Check that values of start and end indices for reserved tokens are integers. If not, raise error.
-            if not all(isinstance(index, int) for index in [start, end]):
-                if not isinstance(start, int):
-                    raise RuntimeError(f"Expected value of class 'int' for key, 'start'. Got class "
-                                       f"'{type(start).__name__}':\n{indset}")
-                elif not isinstance(end, int):
-                    raise RuntimeError(f"Expected value of class 'int' for key, 'end'. Got class "
-                                       f"'{type(end).__name__}':\n{indset}")
+            start_index = indset.get("start_index")
+            end_index = indset.get("end_index")
+            # Check that values of start_index and end_index indices for reserved tokens are integers. If not, raise error.
+            if not all(isinstance(index, int) for index in [start_index, end_index]):
+                if not isinstance(start_index, int):
+                    raise RuntimeError(f"Expected value of class 'int' for key, 'start_index'. Got class "
+                                       f"'{type(start_index).__name__}':\n{indset}")
+                elif not isinstance(end_index, int):
+                    raise RuntimeError(f"Expected value of class 'int' for key, 'end_index'. Got class "
+                                       f"'{type(end_index).__name__}':\n{indset}")
             # Check that reserved tokens are in order of occurrence and do not overlap in the string.
             # If they are out of order or overlap, raise an error.
-            if start < current_index:
+            if start_index < current_index:
                 raise RuntimeError(f"Reserved tokens overlap or are not in order of occurrence.\nStarting index "
-                                   f"({start}) of token, {indset}, precedes end index of preceding token "
+                                   f"({start_index}) of token, {indset}, precedes end_index index of preceding token "
                                    f"({current_index}).")
-            string_to_tok = string[current_index:start]
+            string_to_tok = string[current_index:start_index]
             stringlist.extend([("^tokenise", string_to_tok), ("^reserved", indset)])
-            current_index = end
+            current_index = end_index
         string_to_end = string[current_index:]
         stringlist.append(("^tokenise", string_to_end))
     # If no reserved tokens are passed to the tokeniser, tokenise the whole string.
@@ -147,7 +147,7 @@ def cardamom_tokenise(string, provenance=None, iso_code=None, reserved_toks=None
         # For tokens which have just been tokenised above, create token data for them and add this to indexed list.
         if isinstance(token, str):
             tok_index = string[current_index:].find(token) + current_index
-            tok_dict = {"type": "auto", "start": tok_index, "end": tok_index + len(token),
+            tok_dict = {"type": "auto", "start_index": tok_index, "end_index": tok_index + len(token),
                         "provenance": provenance}
         # For reserved tokens, make no changes to token data and add it to indexed list.
         elif isinstance(token, dict):
@@ -155,7 +155,7 @@ def cardamom_tokenise(string, provenance=None, iso_code=None, reserved_toks=None
         else:
             raise RuntimeError(f"Unexpected token variable/object type found, class {type(token)}: {token}")
         indexed_tokens.append(tok_dict)
-        current_index = tok_dict.get("end")
+        current_index = tok_dict.get("end_index")
 
     return indexed_tokens
 
@@ -174,9 +174,9 @@ def cardamom_tokenise(string, provenance=None, iso_code=None, reserved_toks=None
 #               "zehn Prozent der befragten Iren als „überzeugter Atheist“, 44 Prozent nannten " \
 #               "sich „nicht-religiös“ und 47 Prozent gaben an, eine religiöse Person zu sein."
 #
-#     res_toks = [{"type": "manual", "start": 51, "end": 60, "provenance": 2},
-#                 {"type": "manual", "start": 153, "end": 163, "provenance": 2},
-#                 {"type": "manual", "start": 165, "end": 171, "provenance": 3}]
+#     res_toks = [{"type": "manual", "start_index": 51, "end_index": 60, "provenance": 2},
+#                 {"type": "manual", "start_index": 153, "end_index": 163, "provenance": 2},
+#                 {"type": "manual", "start_index": 165, "end_index": 171, "provenance": 3}]
 #
 #     # print(cardamom_tokenise(test_de, 1, "de"))
 #     # print(cardamom_tokenise(test_en, 1, "en"))

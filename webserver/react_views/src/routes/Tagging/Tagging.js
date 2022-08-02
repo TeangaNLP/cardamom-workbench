@@ -66,7 +66,6 @@ const Tagging = (props) => {
             value: i.toString() + "-" + j.toString() + "-" + (k + 1).toString(),
             label: childData[k]
           }
-          reverseLookup[grandChildObj.label] = grandChildObj.value;
           grandChildrenData.push(grandChildObj);
         }
         let childObj = {
@@ -74,7 +73,6 @@ const Tagging = (props) => {
           label: childKey,
           children: grandChildrenData
         }
-        reverseLookup[childObj.label] = childObj.value;
         childrenData.push(childObj);
         j += 1;
       }
@@ -89,6 +87,7 @@ const Tagging = (props) => {
     }
     setCascaderData(data);
     setReverseLookup(reverseLookup);
+    console.log(reverseLookup);
   }
 
   // Create Tokens for textarea.
@@ -217,10 +216,8 @@ const Tagging = (props) => {
 
   // Update Auto-tags;
   const updateAutoTags = (posTags) => {
-    console.log(tags);
     let newTags = { ...tags };
     for (let tag of posTags) {
-      console.log(tag);
       let tokenId = tag.id;
       // If type is auto but key does not exist then update.
       if (!newTags.hasOwnProperty(tokenId)) {

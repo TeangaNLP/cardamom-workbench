@@ -9,8 +9,8 @@ from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from flask import Blueprint, request, render_template, make_response, jsonify 
 
-from technologies.changed_tokeniser import cardamom_tokenise
-from technologies.POS_tag import cardamom_postag
+from technologies.tokeniser import cardamom_tokenise
+from technologies.tagger import cardamom_postag
 
 api = Blueprint('api', __name__,
                         template_folder='templates')
@@ -200,7 +200,7 @@ def push_postags():
         }
     return response_body
 
-@api.route('/pos_tag/<file_id>', methods = ["GET"])
+@api.route('pos_tag/<file_id>', methods = ["GET"])
 def get_postags(file_id):
     tokens = get_tokens(file_id, objectify=True)
     token_tags = {}
@@ -211,7 +211,7 @@ def get_postags(file_id):
             tag_features = []
             for feature in features:
                 tag_features.append({"feature": feature.feature, "value": feature.value})
-            token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index, "type": token.type, "id": token.id}
+            token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index, "type": token.type}
     annotations = [serialise(annot) for annot in tokens]
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
 
