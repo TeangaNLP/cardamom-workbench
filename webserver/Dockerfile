@@ -5,6 +5,7 @@ RUN pip install -r /tmp/requirements.txt
 
 RUN mkdir -p /code
 COPY *.py /code/
+COPY technologies/ /code/technologies/
 COPY static/ /code/static/
 COPY templates/ /code/templates/
 COPY wait-for-it.sh /code/
