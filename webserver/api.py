@@ -30,7 +30,6 @@ def get_tokens(file_id, objectify=False):
     annots = session.query(orm.Token).filter(orm.Token.uploaded_file_id==file_id).all()
     if objectify:
         return annots
-    # print('Inside get_tokens: ', annots)
     annotations = [serialise(annot) for annot in annots]
     return sorted(annotations, key=lambda a: a['start_index'])
 
@@ -94,12 +93,14 @@ def file_upload():
     name = uploaded_file.filename
     name, extension = name.split('.')
     user_id = request.form['user_id']
+    iso_code = request.form['iso_code']
 
+    lang = session.query(orm.Language).filter(orm.Language.iso_code == iso_code).one_or_none()
     if extension == 'txt':
         # upload a txt file
         uploaded_file = uploaded_file.read()
         content = uploaded_file.decode("utf-8") 
-        new_file = orm.UploadedFile(name = name, content = content, user_id = user_id)
+        new_file = orm.UploadedFile(name = name, content = content, user_id = user_id, language_id = lang.id)
         session.add(new_file)
         session.commit()
         session.flush()
@@ -115,7 +116,7 @@ def file_upload():
         for para in uploaded_file.paragraphs:
             text.append(para.text)
         content = '\n'.join(text)
-        session.add(orm.UploadedFile(name, content, user_id))
+        session.add(orm.UploadedFile(name, content, user_id, lang.id))
         session.commit()
         session.flush()
         content = cardamom_tokenise(content,"english")
@@ -137,6 +138,8 @@ def push_annotations():
     annotations, file_id = data.get('tokens'), data.get("file_id")
     session = get_session()
     
+    file = session.query(orm.UploadedFile).filter(orm.UploadedFile.id == file_id).one_or_none()
+
     # Check for tokens to be deleted
     extracted_annotations = get_tokens(file_id)
     for annotation in annotations:
@@ -148,7 +151,7 @@ def push_annotations():
             reserved_token = True if annotation["type"] == "manual" else False, 
             start_index = annotation["start_index"],
             end_index = annotation["end_index"],
-            token_language_id = 1, 
+            token_language_id = file.language_id, 
             type = annotation["type"],
             uploaded_file_id = file_id
         )
@@ -163,11 +166,15 @@ def push_annotations():
 
 @api.route('/auto_tokenise', methods=["POST"])
 def auto_tokenise():
-    print(request.form)
+
+    session = get_session()
     text = request.form.get("data").replace("\r", "")
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
-    print(reserved_tokens)
-    tokenised_text = cardamom_tokenise(text, reserved_toks=reserved_tokens)
+    file_id = request.form.get("fileId")
+    file = session.query(orm.UploadedFile).filter(orm.UploadedFile.id == file_id).one_or_none()
+ 
+    lang = session.query(orm.Language).filter(orm.Language.id == file.language_id).one_or_none()
+    tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=reserved_tokens)
     sorted(tokenised_text, key=lambda a: a['start_index'])
     return { "annotations": tokenised_text }
     
@@ -178,16 +185,12 @@ def push_postags():
 
     session = get_session()
 
-    print(pos_tags)
-
     for token_id in pos_tags:
-        print(token_id)
         pos_instance = orm.POSInstance(token_id = int(token_id), tag = pos_tags[token_id]["tag"], type=pos_tags[token_id]["type"])
         session.add(pos_instance)
         session.commit()
         session.flush()
         session.refresh(pos_instance)
-        print(pos_instance.id)
         if pos_tags[token_id]['features']:
             for f_key_val in pos_tags[token_id]['features']:
                 f_key = f_key_val["feature"]
@@ -218,11 +221,8 @@ def get_postags(file_id):
 
 @api.route('/auto_tag', methods=["POST"])
 def auto_tag():
-    print(request.form)
     # extract the text
     content = request.form.get('content')
     tokens = json.loads(request.form.get('tokens'))
-    print(tokens)
     pos_text = cardamom_postag(content, tokens, 2, 'en')
-    print(pos_text)
     return { "POS": pos_text }
