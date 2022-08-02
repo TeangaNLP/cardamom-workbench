@@ -5,7 +5,7 @@ import { NavBar } from "../../components";
 
 export default function FileUpload(props) {
   const [selectedFile, setSelectedFile] = useState();
-  const [selectedLang, setLang] = useState();
+  const [selectedLang, setLang] = useState("ga");
 
   const userId = props.userId;
 
@@ -61,14 +61,14 @@ export default function FileUpload(props) {
           onChange={changeLang}
         >
           {options.map((option, index) => {
-          return (
-            <option value={option.value} key={option.value}>
-              {option.label}
-            </option>
-          );
-        })}
+            return (
+              <option value={option.value} key={option.value}>
+                {option.label}
+              </option>
+            );
+          })}
         </select>
-        
+
 
         <label htmlFor="file-upload" id="file-drag">
           <input
