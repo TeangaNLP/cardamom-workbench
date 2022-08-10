@@ -41,8 +41,8 @@ const Home = (props) => {
               <ListGroup.Item
                 action
                 onClick={() => {
-                  navigate("/tokeniser");
                   props.setFileInfo({ fileId: doc.file_id, content: doc.content, langId: doc.lang_id });
+                  navigate("/tokeniser");
                 }
                 }
               >
