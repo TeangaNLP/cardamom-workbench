@@ -9,8 +9,8 @@ from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from flask import Blueprint, request, render_template, make_response, jsonify 
 
-from technologies.tokeniser import cardamom_tokenise
-from technologies.tagger import cardamom_postag
+from technologies import tokenizer # cardamom_tokenise
+from technologies import tagger    # cardamom_postag
 
 api = Blueprint('api', __name__,
                         template_folder='templates')
@@ -105,7 +105,7 @@ def file_upload():
         session.add(new_file)
         session.commit()
         session.flush()
-        content = cardamom_tokenise(content,"english")
+        content = tokenizer.cardamom_tokenise(content,"english")
         response_body = {
             "data": content
         }
@@ -120,7 +120,7 @@ def file_upload():
         session.add(orm.UploadedFile(name, content, user_id, lang.id))
         session.commit()
         session.flush()
-        content = cardamom_tokenise(content,"english")
+        content = tokenizer.cardamom_tokenise(content,"english")
         response_body = {
             "data": content
         }
@@ -173,7 +173,7 @@ def auto_tokenise():
     lang_id = request.form.get('lang_id')
     print(lang_id)
     lang = session.query(orm.Language).filter(orm.Language.id == lang_id).one_or_none()
-    tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=reserved_tokens)
+    tokenised_text = tokenizer.cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=reserved_tokens)
     sorted(tokenised_text, key=lambda a: a['start_index'])
     return { "annotations": tokenised_text }
     
@@ -224,5 +224,5 @@ def auto_tag():
     tokens = json.loads(request.form.get('tokens'))
     lang_id = request.form.get('lang_id')
     lang = session.query(orm.Language).filter(orm.Language.id == lang_id).one_or_none()
-    pos_text = cardamom_postag(content, tokens, 2, lang.iso_code)
+    pos_text = tagger.cardamom_postag(content, tokens, 2, lang.iso_code)
     return { "POS": pos_text }
