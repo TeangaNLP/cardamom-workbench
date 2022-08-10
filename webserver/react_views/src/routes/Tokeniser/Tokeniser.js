@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { NavBar, Token } from "../../components/";
 import axios from "axios";
@@ -20,8 +19,6 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
     end: null,
     componentStartIndex: null,
   });
-
-  const location = useLocation();
 
   // Callback for saving
   const onEnter = useCallback(
@@ -91,7 +88,6 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
   }, [onEnter]);
 
   // Events
-
   const handleMouseDown = (index) => {
     selecting = setSelecting({
       ...selecting,
@@ -105,8 +101,6 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
     let selection = window.getSelection();
     let start = selecting.componentStartIndex + selection.anchorOffset;
     let end = index + selection.focusOffset;
-    console.log("Selection", selection);
-    console.log("End", start, end);
     selecting = setSelecting({
       ...selecting,
       mouseUp: true,
@@ -223,8 +217,6 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
 
   const combineTokensAndGaps = (data, text) => {
     let gaps = [];
-    console.log(data, text);
-
     for (let i = 0; i < data.length; i++) {
       let currData = data[i];
       let nextData = data[i + 1];
@@ -339,7 +331,6 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
         reservedTokens.push(t)
       }
     }
-    console.log(reservedTokens);
     return reservedTokens
   }
 
@@ -348,6 +339,7 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
     const data = new FormData();
     data.append("data", fileInfo.content);
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
+    data.append("lang_id", fileState.langId);
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
@@ -356,7 +348,6 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
         },
       })
       .then(function (response) {
-        console.log(response.data.annotations);
         updateAutoTokens(response.data.annotations);
       })
       .catch(function (e) {
@@ -369,7 +360,11 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
     let difference = tokenData.filter((x) => !originalTokenData.includes(x));
     const data = {
       tokens: difference,
+<<<<<<< HEAD
       file_id: fileInfo.fileId,
+=======
+      file_id: fileState.fileId
+>>>>>>> origin/issue#21
     };
     axios
       .post("http://localhost:5001/api/annotations", data, {
@@ -401,8 +396,12 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
           {fetched ? tokensAndGaps.map((token) => {
+<<<<<<< HEAD
             console.log(fileInfo);
             const text = fileInfo.content;
+=======
+            const text = fileState.content;
+>>>>>>> origin/issue#21
             const tokenValue = text.substring(token.start_index, token.end_index)
             return (
               <Token

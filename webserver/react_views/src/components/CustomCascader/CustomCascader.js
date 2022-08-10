@@ -7,11 +7,12 @@ const CustomCascader = React.forwardRef((props, ref) => {
 
     // Since onCheck does not return an array of items to build tags,
     // we will keep track of the tag items ourselves.
-    let [tagItems, setTagItems] = useState([]);
-    let labelValue = null;
-    let item = null;
+    let [tagItems, updateTagItems] = useState([]);
 
     let buildTag = (items) => {
+
+        items = items.filter(x => x !== undefined);
+        console.log(items);
 
         // Check if the current tag can have multiple features.
         let multiFeatures = items[0]["parent"];
@@ -44,6 +45,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
             tokenTag = {
                 tag: item["label"],
                 features: [],
+                type: "manual",
             }
         } else {
             console.log(items);
@@ -60,6 +62,7 @@ const CustomCascader = React.forwardRef((props, ref) => {
             tokenTag = {
                 tag: tagName,
                 features: features,
+                type: "manual",
             }
         }
 
@@ -67,18 +70,16 @@ const CustomCascader = React.forwardRef((props, ref) => {
     };
 
     let onCheck = (value, item, checked) => {
-        console.log(value, item, checked);
+        console.log(value, item, checked)
         // If something is checked, then run validation, else return.
         if (!checked) {
             return;
         }
-
         // Value is going to be previously selected values.
         // So if a new value has been checked, it would be the last value entered.
 
-        let newVal = item.value;
+        let newVal = value[value.length - 1];
         let newValSplit = newVal.split("-");
-        console.log(newValSplit);
         let tags = [];
         let tempTagItems = [];
 
@@ -101,22 +102,28 @@ const CustomCascader = React.forwardRef((props, ref) => {
             tempTagItems.push(tagItems[i]);
         }
         tags.push(newVal);
+
         tempTagItems.push(item);
-        setTagItems(tempTagItems);
+        updateTagItems(tempTagItems);
 
         let builtTag = buildTag(tempTagItems);
-        console.log(builtTag);
+
+        // Check to see if a feature is tagged,
+        // if feature is tagged then add it parent tag as well.
+        if (newValSplit.length > 1 && value.indexOf(newValSplit[0]) === -1) {
+            tags.push(newValSplit[0]);
+        }
+
         props.onUpdateTag(tags, builtTag);
     };
 
     // Create uncheckable items in Cascader based on levels.
-    let createUncheckable = (levels) => {
+    let createUncheckable = () => {
         let uncheckables = [];
-        for (let l of levels) {
-            // uncheckables.push(String(l[0]));
-            for (let sl = 1; sl <= l[1]; sl++) {
-                let s = l[0] + "-" + sl;
-                uncheckables.push(s);
+        for (let l of props.data) {
+            let child = l.children;
+            for (let c of child) {
+                uncheckables.push(c.value);
             }
         }
         return uncheckables;
@@ -131,7 +138,8 @@ const CustomCascader = React.forwardRef((props, ref) => {
                 renderValue={(value, selectedItems) =>
                     selectedItems.map((item) => item.label).join(" , ")
                 }
-                uncheckableItemValues={createUncheckable([[2, 7]])}
+                uncheckableItemValues={createUncheckable()}
+                cascade={false}
             />
         </div>
     );

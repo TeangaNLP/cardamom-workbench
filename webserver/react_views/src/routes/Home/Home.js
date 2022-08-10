@@ -15,12 +15,14 @@ const Home = ({
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   //const userId = props.userId;
+=======
+  const userId = props.userId;
+>>>>>>> origin/issue#21
 
   useEffect(() => {
     // Update the document title using the browser API
-
-    console.log(userId);
     if (!userId) {
       navigate("/login", { replace: true });
     }

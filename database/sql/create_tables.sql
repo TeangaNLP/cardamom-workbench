@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS posinstance (
   id SERIAL NOT NULL,
   PRIMARY KEY (id),
   token_id integer NOT NULL,
+  type varchar(250) NOT NULL,
   FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE,
   tag varchar(250) NOT NULL
 );

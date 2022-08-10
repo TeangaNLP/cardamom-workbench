@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavBar, POSToken } from '../../components';
 import { Button } from 'react-bootstrap';
+import posTags from './tags';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import "./Tagging.css";
@@ -8,108 +9,30 @@ import axios from 'axios';
 
 const Tagging = (props) => {
 
-  let [fetched, setFetched] = useState(false);
-  let [tokenData, setTokenData] = useState([])
-  let [originalTokenData, setOriginalTokenData] = useState([]);
-  let [tokensAndGaps, setTokensAndGaps] = useState([]);
-  let [tags, updateTags] = useState([]);
-  let [cascaderData, setCascaderData] = useState([]);
-  let [taggedTokens, setTaggedTokens] = useState([]);
-  let [reverseLookup, setReverseLookup] = useState([]);
-
-  let posTags = {
-    "ADJ": [],
-    "ADP": [{
-      "Type": ["NA", "PREP"],
-      "Case": ["NA", "ACC", "DAT"],
-      "Definite": ["NA", "DEF", "IND"],
-      "Gender": ["NA", "MASC", "MASC NEUT", "NEUT", "FEM"],
-      "Number": ["NA", "DUAL", "SING", "PLUR"],
-      "Person": ["NA", "1", "2", "3"],
-      "PRON": ["NA", "ART", "PRS"]
-    }],
-    "ADV": [],
-    "AUX": [],
-    "CCONJ": [],
-    "DET": [],
-    "INTJ": [],
-    "NOUN": [],
-    "NUM": [],
-    "PART": [],
-    "PRON": [],
-    "PROPN": [],
-    "PUNCT": [],
-    "SCONJ": [],
-    "SYM": [],
-    "VERB": [],
-    "X": []
-  };
-
-  // Create data for Cascader from hardcoded list.
-  const createCascaderData = () => {
-    let data = [];
-    let reverseLookup = {};
-    let i = 1;
-    for (let key of Object.keys(posTags)) {
-      let currentData = posTags[key]
-      if (posTags[key].length > 0) {
-        let childrenData = [];
-        let j = 1;
-        for (let childKey of Object.keys(currentData[0])) {
-          let grandChildrenData = [];
-          for (let k = 0; k < currentData[0][childKey].length; k++) {
-            let grandChildData = {
-              value: i.toString() + "-" + j.toString() + "-" + (k + 1).toString(),
-              label: currentData[0][childKey][k]
-            }
-            reverseLookup[grandChildData.label] = grandChildData.value
-            grandChildrenData.push(grandChildData);
-          }
-          let childData = {
-            value: i.toString() + "-" + j.toString(),
-            label: childKey,
-            children: grandChildrenData
-          }
-          reverseLookup[childData.label] = childData.value
-          childrenData.push(childData);
-          j += 1;
-        }
-        let keyData = {
-          value: i.toString(),
-          label: key,
-          children: childrenData
-        }
-        reverseLookup[keyData.label] = keyData.value
-        data.push(keyData);
-      } else {
-        let keyData = {
-          value: i.toString(),
-          label: key,
-        }
-        reverseLookup[keyData.label] = keyData.value
-        data.push(keyData);
-      }
-      i += 1;
-    }
-    setCascaderData(data);
-    setReverseLookup(reverseLookup);
-  }
+  let [fetched, setFetched] = useState(false); // For fetching data once.
+  let [tokenData, setTokenData] = useState([]); // For tokens (not tags).
+  let [tokensAndGaps, setTokensAndGaps] = useState([]); // For tokens and gaps.
+  let [tags, setTags] = useState({}); // For saving and UI.
+  let [cascaderData, setCascaderData] = useState([]); // For Cascader lookup.
+  let [reverseLookup, setReverseLookup] = useState([]); // For reverse lookup.
+  let [fileState, setFileState] = useState({}); // To main router file state.
 
   useEffect(() => {
     const fileId = props.fileInfo.fileId;
     const content = props.fileInfo.content;
+    setFileState({ fileId: fileId, content: content, langId: props.fileInfo.langId });
 
     if (!fetched) {
       axios
         .get("http://localhost:5001/api/pos_tag/" + fileId)
         .then(function (response) {
           createCascaderData();
-          setOriginalTokenData(response.data.annotations);
+          setTokenData(response.data.annotations);
           combineTokensAndGaps(
             response.data.annotations,
             content
           );
-          setTaggedTokens(response.data.tags);
+          setTags(response.data.tags);
           setFetched(true);
         })
         .catch(function (err) {
@@ -119,9 +42,52 @@ const Tagging = (props) => {
 
   }, []);
 
+  // Functionality
   // Update the state of the token with a tag.
   const updateTagState = (tokenId, tag) => {
-    updateTags({ ...tags, [tokenId]: tag });
+    setTags({ ...tags, [tokenId]: tag });
+  }
+
+  // Create data for Cascader from hardcoded list.
+  // TODO: Reverse Lookup names have clashing values, need fix around.
+  const createCascaderData = () => {
+    let data = [];
+    let reverseLookup = {};
+    let i = 1;
+    for (let key of Object.keys(posTags)) {
+      let currentData = posTags[key]
+      let j = 1;
+      let childrenData = [];
+      for (let childKey of Object.keys(currentData)) {
+        let childData = currentData[childKey]
+        let grandChildrenData = [];
+        for (let k = 0; k < childData.length; k++) {
+          let grandChildObj = {
+            value: i.toString() + "-" + j.toString() + "-" + (k + 1).toString(),
+            label: childData[k]
+          }
+          grandChildrenData.push(grandChildObj);
+        }
+        let childObj = {
+          value: i.toString() + "-" + j.toString(),
+          label: childKey,
+          children: grandChildrenData
+        }
+        childrenData.push(childObj);
+        j += 1;
+      }
+      let keyObj = {
+        value: i.toString(),
+        label: key,
+        children: childrenData
+      }
+      reverseLookup[keyObj.label] = keyObj.value;
+      data.push(keyObj);
+      i += 1;
+    }
+    setCascaderData(data);
+    setReverseLookup(reverseLookup);
+    console.log(reverseLookup);
   }
 
   // Create Tokens for textarea.
@@ -223,13 +189,11 @@ const Tagging = (props) => {
       };
       newTokensAndGaps.push(gap);
     }
-
-    setTokenData(data);
     setTokensAndGaps(newTokensAndGaps);
   };
 
   // Send annotations to server.
-  const saveTags = (event) => {
+  const saveTags = () => {
     // let difference = tokenData.filter((x) => !originalTokenData.includes(x));
     // console.log(difference);
     const data = {
@@ -250,10 +214,50 @@ const Tagging = (props) => {
       });
   };
 
+  // Update Auto-tags;
+  const updateAutoTags = (posTags) => {
+    let newTags = { ...tags };
+    for (let tag of posTags) {
+      let tokenId = tag.id;
+      // If type is auto but key does not exist then update.
+      if (!newTags.hasOwnProperty(tokenId)) {
+        newTags[tokenId] = tag;
+      } else {
+        // If type it auto and key exists and tag is auto then update.
+        let oldTag = tags[tokenId];
+        if (oldTag.type === "auto") {
+          newTags[tokenId] = tag;
+        }
+      }
+    }
+    setTags(newTags);
+  }
+
+  // Auto-tag
+  const autoTag = () => {
+    const data = new FormData();
+    data.append("tokens", JSON.stringify(tokenData));
+    data.append("content", fileState.content);
+    data.append("lang_id", fileState.langId)
+    axios
+      .post("http://localhost:5001/api/auto_tag", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(function (response) {
+        const posTags = response.data.POS;
+        updateAutoTags(posTags);
+      })
+      .catch(function (e) {
+        console.log(e);
+        console.log("Could not auto tag.");
+      });
+  }
+
   // Convert tags into their values.
   const convertTags = (tag) => {
     if (tag["features"].length == 0) {
-      console.log(reverseLookup[tag["tag"]], tag["tag"]);
       return [reverseLookup[tag["tag"]]]
     } else {
       let values = [];
@@ -263,12 +267,6 @@ const Tagging = (props) => {
       return values;
     }
   }
-
-  // Text Editor
-  // Tokenisation
-  // Language Identification
-  // Annotation
-  // POS Tagging
 
   return (
     <div>
@@ -287,11 +285,14 @@ const Tagging = (props) => {
           {fetched ? tokensAndGaps.map((token, i) => {
             const text = props.fileInfo.content;
             const tokenData = text.substring(token.start_index, token.end_index);
+            const tokenId = token.id;
 
             let tagList = []
-            if (taggedTokens.hasOwnProperty(tokenData)) {
-              const defaultTags = taggedTokens[tokenData];
-              tagList = convertTags(defaultTags);
+            if (tags.hasOwnProperty(tokenId)) {
+              const defaultTag = tags[tokenId];
+              if (token.start_index === defaultTag.start_index) {
+                tagList = convertTags(defaultTag);
+              }
             }
 
             return (
@@ -303,6 +304,9 @@ const Tagging = (props) => {
         </div>
       </div>
       <div className="tagging-area buttons">
+        <Button className="button" onClick={autoTag} variant="dark">
+          Auto-Tag
+        </Button>
         <Button className="button" onClick={saveTags} variant="dark">Save</Button>
       </div>
     </div>
