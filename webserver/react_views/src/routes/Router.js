@@ -23,12 +23,12 @@ export default function Router() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login setUserId={setUserId} />} />
-        <Route path="/" element={<Home userId={userId} 
-                                documents={documents} setDocuments={setDocuments} 
-                                setFileInfo={setFileInfo} />} />
+        <Route path="/" element={<Home userId={userId}
+          documents={documents} setDocuments={setDocuments}
+          setFileInfo={setFileInfo} />} />
         <Route path="/fileupload" element={<FileUpload userId={userId} />} />
-        <Route path="/tokeniser" element={<Tokeniser fileInfo={fileInfo} setFileInfo={setFileInfo} 
-                                                     userId={userId} />} />
+        <Route path="/tokeniser" element={<Tokeniser fileInfo={fileInfo} setFileInfo={setFileInfo}
+          userId={userId} />} />
         <Route path="/tagging" element={<Tagging fileInfo={fileInfo} userId={userId} />} />
       </Routes>
     </BrowserRouter>
