@@ -5,7 +5,7 @@ import axios from "axios";
 
 import "./Tokeniser.css";
 
-const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
+const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
   let [tokenData, setTokenData] = useState([]);
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
@@ -37,6 +37,7 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
           end: null,
           componentStartIndex: null,
         });
+        resetMouseSelection();
       }
     },
     [selecting]
@@ -99,10 +100,29 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
     });
   };
 
+  const resetMouseSelection = () => {
+    if (window.getSelection) {
+      if (window.getSelection().empty) {  // Chrome
+        window.getSelection().empty();
+      } else if (window.getSelection().removeAllRanges) {  // Firefox
+        window.getSelection().removeAllRanges();
+      }
+    } else if (document.selection) {  // IE?
+      document.selection.empty();
+    }
+  }
+
   const handleMouseUp = (index) => {
     let selection = window.getSelection();
     let start = selecting.componentStartIndex + selection.anchorOffset;
     let end = index + selection.focusOffset;
+    // Flip for backward selection;
+    if (start > end) {
+      let temp = start;
+      start = end;
+      end = temp;
+    }
+    console.log(start, end);
     selecting = setSelecting({
       ...selecting,
       mouseUp: true,
