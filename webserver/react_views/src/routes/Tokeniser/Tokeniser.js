@@ -45,27 +45,29 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
   useEffect(() => {
     // To check if file already selected before.
     /*
-    let fileId;
+    let file_id;
     let content;
     console.log(location.state);
     if (location.state === null) {
-      fileId = props.fileInfo.fileId;
+      file_id = props.fileInfo.file_id;
       content = props.fileInfo.content;
-    } else if (props.fileInfo.fileId === null || location.state.fileId != props.fileInfo.fileId) {
-      fileId = location.state.fileId;
+    } else if (props.fileInfo.file_id === null || location.state.file_id != props.fileInfo.file_id) {
+      file_id = location.state.file_id;
       content = location.state.content;
       props.setFileInfo({
-        fileId: fileId,
+        file_id: file_id,
         content: location.state.content
       });
     }
 
 
-    setFileState({ fileId: fileId, content: content });
+    setFileState({ file_id: file_id, content: content });
     */
+    console.log(fileInfo)
+    debugger;
     if (!fetched) {
       axios
-        .get("http://localhost:5001/api/annotations/" + fileInfo.fileId)
+        .get("http://localhost:5001/api/annotations/" + fileInfo.file_id)
         .then(function (response) {
           setOriginalTokenData(response.data.annotations);
           combineTokensAndGaps(
@@ -339,7 +341,7 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
     const data = new FormData();
     data.append("data", fileInfo.content);
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
-    data.append("lang_id", fileState.langId);
+    data.append("lang_id", fileInfo.lang_id);
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
@@ -360,11 +362,7 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
     let difference = tokenData.filter((x) => !originalTokenData.includes(x));
     const data = {
       tokens: difference,
-<<<<<<< HEAD
-      file_id: fileInfo.fileId,
-=======
-      file_id: fileState.fileId
->>>>>>> origin/issue#21
+      file_id: fileInfo.file_id,
     };
     axios
       .post("http://localhost:5001/api/annotations", data, {
@@ -396,12 +394,7 @@ const Tokeniser = ({fileInfo, setFileInfo, userId}) => {
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
           {fetched ? tokensAndGaps.map((token) => {
-<<<<<<< HEAD
-            console.log(fileInfo);
             const text = fileInfo.content;
-=======
-            const text = fileState.content;
->>>>>>> origin/issue#21
             const tokenValue = text.substring(token.start_index, token.end_index)
             return (
               <Token

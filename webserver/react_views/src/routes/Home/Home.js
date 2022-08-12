@@ -45,9 +45,9 @@ const Home = ({
               <ListGroup.Item
                 action
                 onClick={() => {
+                  console.log(doc)
                   setFileInfo({
-                   fileId: doc.fileId,
-                   content: doc.content
+                    ...doc
                   })
                   navigate("/tokeniser")
                   }

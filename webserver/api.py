@@ -10,8 +10,8 @@ from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from flask import Blueprint, request, render_template, make_response, jsonify 
 
-from technologies import tokenizer # cardamom_tokenise
-from technologies import tagger    # cardamom_postag
+from technologies import cardamom_tokenise
+from technologies import cardamom_postag
 
 api = Blueprint('api', __name__,
                         template_folder='templates')

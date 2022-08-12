@@ -11,8 +11,9 @@ export default function Router() {
   const [userId, setUserId] = useState();
   /*
    fileinfo =  {
-           fileId: fileId,
-            content: location.state.content
+           file_id: file_id,
+            content: content,
+            lang_id: lang_id
     }
    */
   const [fileInfo, setFileInfo] = useState({});
