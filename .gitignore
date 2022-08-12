@@ -2,5 +2,6 @@ webserver/react_views/node_modules/**
 /database/postgres-data/
 webserver/static
 webserver/templates/index.html
+webserver/technologies/__pycache__/
 .DS_Store
 ../.DS_Store
