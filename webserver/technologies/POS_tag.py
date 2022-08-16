@@ -51,7 +51,7 @@ def cardamom_postag(string, tokens, provenance, matrix_language=None):
     tagger_dict = {corp_langs.get(tok_lang): load_tagger(corp_langs.get(tok_lang)) for tok_lang in tok_langs}
 
     # POS-tag tokens and create output list
-    pos_list = [{'type': 'auto-POS', 'start_index': i.get('start_index_index'), 'end_index': i.get('end_index'),
+    pos_list = [{'type': 'auto', 'start_index': i.get('start_index'), 'end_index': i.get('end_index'),
                  'pos': tagger_dict.get(corp_langs.get(i.get('language'))).tag([i.get('token')])[0][1],
                  'provenance': provenance} for i in tokens]
 

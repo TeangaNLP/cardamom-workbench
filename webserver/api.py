@@ -106,7 +106,7 @@ def file_upload():
         session.add(new_file)
         session.commit()
         session.flush()
-        content = tokenizer.cardamom_tokenise(content,"english")
+        content = cardamom_tokenise(content,"english")
         response_body = {
             "data": content
         }
@@ -121,7 +121,7 @@ def file_upload():
         session.add(model.UploadedFileModel(name, content, user_id, lang.id))
         session.commit()
         session.flush()
-        content = tokenizer.cardamom_tokenise(content,"english")
+        content = cardamom_tokenise(content,"english")
         response_body = {
             "data": content
         }
