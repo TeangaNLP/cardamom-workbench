@@ -27,7 +27,7 @@ const TextField = forwardRef((props, ref) => {
   );
 });
 
-const Login = (props) => {
+const Login = ({setUserId}) => {
 
   const formRef = useRef();
   const [formValue, setFormValue] = useState({
@@ -50,7 +50,7 @@ const Login = (props) => {
       })
       .then(function (response) {
         const userId = response.data.user
-        props.setUserId(userId);
+        setUserId(userId);
         if (userId) navigate("/");
         else console.log("User not authenticated");
 

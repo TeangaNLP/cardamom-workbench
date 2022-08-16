@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import "./Tagging.css";
 import axios from 'axios';
 
-const Tagging = (props) => {
+const Tagging = ({ fileInfo, userId }) => {
 
   let [fetched, setFetched] = useState(false); // For fetching data once.
   let [tokenData, setTokenData] = useState([]); // For tokens (not tags).
@@ -15,22 +15,21 @@ const Tagging = (props) => {
   let [tags, setTags] = useState({}); // For saving and UI.
   let [cascaderData, setCascaderData] = useState([]); // For Cascader lookup.
   let [reverseLookup, setReverseLookup] = useState([]); // For reverse lookup.
-  let [fileState, setFileState] = useState({}); // To main router file state.
+  // let [fileState, setFileState] = useState({}); // To main router file state.
 
   useEffect(() => {
-    const fileId = props.fileInfo.fileId;
-    const content = props.fileInfo.content;
-    setFileState({ fileId: fileId, content: content });
+
+    console.log(fileInfo)
 
     if (!fetched) {
       axios
-        .get("http://localhost:5001/api/pos_tag/" + fileId)
+        .get("http://localhost:5001/api/pos_tag/" + fileInfo.file_id)
         .then(function (response) {
           createCascaderData();
           setTokenData(response.data.annotations);
           combineTokensAndGaps(
             response.data.annotations,
-            content
+            fileInfo.content
           );
           setTags(response.data.tags);
           setFetched(true);
@@ -49,6 +48,7 @@ const Tagging = (props) => {
   }
 
   // Create data for Cascader from hardcoded list.
+  // TODO: Reverse Lookup names have clashing values, need fix around.
   const createCascaderData = () => {
     let data = [];
     let reverseLookup = {};
@@ -65,7 +65,6 @@ const Tagging = (props) => {
             value: i.toString() + "-" + j.toString() + "-" + (k + 1).toString(),
             label: childData[k]
           }
-          reverseLookup[grandChildObj.label] = grandChildObj.value;
           grandChildrenData.push(grandChildObj);
         }
         let childObj = {
@@ -73,7 +72,6 @@ const Tagging = (props) => {
           label: childKey,
           children: grandChildrenData
         }
-        reverseLookup[childObj.label] = childObj.value;
         childrenData.push(childObj);
         j += 1;
       }
@@ -88,6 +86,7 @@ const Tagging = (props) => {
     }
     setCascaderData(data);
     setReverseLookup(reverseLookup);
+    console.log(reverseLookup);
   }
 
   // Create Tokens for textarea.
@@ -237,7 +236,8 @@ const Tagging = (props) => {
   const autoTag = () => {
     const data = new FormData();
     data.append("tokens", JSON.stringify(tokenData));
-    data.append("content", fileState.content);
+    data.append("content", fileInfo.content);
+    data.append("lang_id", fileInfo.lang_id)
     axios
       .post("http://localhost:5001/api/auto_tag", data, {
         headers: {
@@ -282,11 +282,9 @@ const Tagging = (props) => {
       <div className='tagging-area'>
         <div className="tagging-text">
           {fetched ? tokensAndGaps.map((token, i) => {
-            const text = props.fileInfo.content;
+            const text = fileInfo.content;
             const tokenData = text.substring(token.start_index, token.end_index);
             const tokenId = token.id;
-
-            console.log(tags);
 
             let tagList = []
             if (tags.hasOwnProperty(tokenId)) {

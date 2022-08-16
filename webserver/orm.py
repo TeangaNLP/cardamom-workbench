@@ -1,7 +1,8 @@
-
 from sqlalchemy.orm import mapper, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
+
+import model
 
 Base = declarative_base()
 
@@ -23,8 +24,8 @@ class UploadedFile(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False) 
     language_id = Column(Integer, ForeignKey("languages.id"))
 
-    user = relationship("User", backref = backref('uploaded_files'))
-    file_language = relationship("Language", back_populates = "uploaded_files")
+    # user = relationship("User", backref = backref('uploaded_files'))
+    # file_language = relationship("Language", back_populates = "uploaded_files")
 
 class Language(Base):
     __tablename__ = 'languages'
@@ -34,8 +35,8 @@ class Language(Base):
     iso_code = Column(String(255))
     requested = Column(Boolean, nullable=False)
 
-    uploaded_files = relationship("UploadedFile", back_populates = "file_language")
-    tokens = relationship("Token", back_populates = "token_language")
+    # uploaded_files = relationship("UploadedFile", back_populates = "file_language")
+    # tokens = relationship("Token", back_populates = "token_language")
 
 class Provenance(Base):
     __tablename__ = 'provenances'
@@ -52,8 +53,8 @@ class POSInstance(Base):
     tag = Column(String(255))
     type = Column(String(255), nullable=False)
 
-    token = relationship("Token", back_populates = "pos_instance")
-    features = relationship("POSFeatures", back_populates = "pos_instance")
+    # token = relationship("Token", back_populates = "pos_instance")
+    # features = relationship("POSFeatures", back_populates = "pos_instance")
 
 
 class POSFeatures(Base):
@@ -64,7 +65,7 @@ class POSFeatures(Base):
     feature = Column(String(255))
     value = Column(String(255))
 
-    pos_instance = relationship("POSInstance", back_populates = "features")
+    # pos_instance = relationship("POSInstance", back_populates = "features")
 
 
 class Token(Base):
@@ -78,6 +79,33 @@ class Token(Base):
     type = Column(String(255), nullable=False)
     uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable = False)
     
-    file = relationship("UploadedFile", backref = backref('tokens'))
-    token_language = relationship("Language", back_populates = "tokens")
-    pos_instance = relationship("POSInstance", back_populates = "token")
+    # file = relationship("UploadedFile", backref = backref('tokens'))
+    # token_language = relationship("Language", back_populates = "tokens")
+    # pos_instance = relationship("POSInstance", back_populates = "token")
+
+
+def start_mappers():
+    mapper(model.UserModel, User, properties={
+        "uploaded_files": relationship(model.UploadedFileModel)
+    })
+    mapper(model.UploadedFileModel, UploadedFile, properties={
+        "user": relationship(model.UserModel),
+        "file_language": relationship(model.LanguageModel) 
+    })
+    mapper(model.LanguageModel, Language, properties={
+        "uploaded_files": relationship(model.UploadedFileModel),
+        "tokens": relationship(model.TokenModel)
+    })
+    mapper(model.ProvenanceModel, Provenance)
+    mapper(model.POSInstanceModel, POSInstance, properties={
+        "token": relationship(model.TokenModel),
+        "features": relationship(model.POSFeaturesModel)
+    })
+    mapper(model.POSFeaturesModel, POSFeatures, properties={
+        "pos_instance": relationship(model.POSInstanceModel)
+    })
+    mapper(model.TokenModel, Token, properties={
+        "file": relationship(model.UploadedFileModel),
+        "token_language": relationship(model.LanguageModel),
+        "pos_instance": relationship(model.POSInstanceModel),
+    })

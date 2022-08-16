@@ -1,11 +1,9 @@
-from nltk import pos_tag
-from Train_Taggers import train_pos_tagger
+from .Train_Taggers import load_tagger
 
 
 def cardamom_postag(string, tokens, provenance, matrix_language=None):
 
     # Identify languages currently supported by NLTK's POS-tagger.
-    nltk_langs = {'en': 'eng', 'ru': 'rus'}
     corp_langs = {'af': 'Afrikaans', 'akk': 'Akkadian', 'aqz': 'Akuntsu', 'sq': 'Albanian', 'am': 'Amharic',
                   'grc': 'Ancient Greek', 'hbo': 'Ancient Hebrew', 'apu': 'Apurina', 'ar': 'Arabic', 'hy': 'Armenian',
                   'aii': 'Assyrian', 'bm': 'Bambara', 'eu': 'Basque', 'bej': 'Beja', 'be': 'Belarusian',
@@ -33,7 +31,7 @@ def cardamom_postag(string, tokens, provenance, matrix_language=None):
                   'ur': 'Urdu', 'ug': 'Uyghur', 'vi': 'Vietnamese', 'wbp': 'Warlpiri', 'cy': 'Welsh',
                   'hyw': 'Western Armenian', 'wo': 'Wolof', 'sjo': 'Xibe', 'sah': 'Yakut', 'yo': 'Yoruba',
                   'ess': 'Yupik'}
-    supported_langs = sorted(list(set([i for i in {**corp_langs, **nltk_langs}])))
+    supported_langs = sorted(list(set([i for i in corp_langs])))
 
     # Get tokens from string using their indices, add them to token dictionaries in list.
     tokens = [{**i, **{'token': string[i.get('start_index'):i.get('end_index')]}} for i in tokens
@@ -48,34 +46,29 @@ def cardamom_postag(string, tokens, provenance, matrix_language=None):
     # Reduce list to only tokens with a supported language
     tokens = [i for i in tokens if i.get('language') in supported_langs]
 
-    # Collect a list of all languages used, and train taggers for each one that isn't already supported in NLTK
-    tok_langs = sorted(list(set([i.get('language') for i in tokens if i.get('language') not in nltk_langs])))
-    tagger_dict = {corp_langs.get(tok_lang): train_pos_tagger(corp_langs.get(tok_lang)) for tok_lang in tok_langs}
+    # Collect a list of all languages used, and load taggers for each one
+    tok_langs = sorted(list(set([i.get('language') for i in tokens])))
+    tagger_dict = {corp_langs.get(tok_lang): load_tagger(corp_langs.get(tok_lang)) for tok_lang in tok_langs}
 
     # POS-tag tokens and create output list
-    pos_list = [{'type': 'auto', 'start_index': i.get('start_index'), 'end_index': i.get('end_index'),
-                 'tag': pos_tag([i.get('token')], lang=nltk_langs.get(i.get('language')), tagset='universal')[0][1],
-                 'provenance': provenance, "features": []} if i.get('language') in nltk_langs else
-                {'type': 'auto', 'start_index': i.get('start_index'), 'end_index': i.get('end_index'),
-                 'tag': tagger_dict.get(corp_langs.get(i.get('language'))).tag([i.get('token')])[0][1],
-                 'provenance': provenance, "features": []} for i in tokens]
+    pos_list = [{'type': 'auto-POS', 'start_index': i.get('start_index_index'), 'end_index': i.get('end_index'),
+                 'pos': tagger_dict.get(corp_langs.get(i.get('language'))).tag([i.get('token')])[0][1],
+                 'provenance': provenance} for i in tokens]
 
     return pos_list
 
 
-# if __name__ == "__main__":
-#
-#     from Tokeniser import cardamom_tokenise
-#
-#     test_en = "This is some test text. It's short. It doesn't say very much. But, it is useful for the sake of " \
-#               "testing!\nI hope it works because I don't want it to be a time-waste. Críoch."
-#     toks_en = cardamom_tokenise(test_en, 1, 'en')
-#
-#     # print(cardamom_postag(test_en, toks_en, 2, 'en'))
-#
-#     # gael_tagger = train_pos_tagger("Irish")
-#
-#     test_ga = "Chonaic mé mo mhadra ag rith. Thit sé agus é á casadh."
-#     toks_ga = cardamom_tokenise(test_ga, 3, 'ga')
-#
-#     print(cardamom_postag(test_ga, toks_ga, 4, 'ga'))
+if __name__ == "__main__":
+
+    from Tokeniser import cardamom_tokenise
+
+    test_en = "This is some test text. It's short. It doesn't say very much. But, it is useful for the sake of " \
+              "testing!\nI hope it works because I don't want it to be a time-waste. Críoch."
+    toks_en = cardamom_tokenise(test_en, 1, 'en')
+
+    # print(cardamom_postag(test_en, toks_en, 2, 'en'))
+
+    test_ga = "Chonaic mé mo mhadra ag rith. Thit sé agus é á casadh."
+    toks_ga = cardamom_tokenise(test_ga, 3, 'ga')
+
+    print(cardamom_postag(test_ga, toks_ga, 4, 'ga'))

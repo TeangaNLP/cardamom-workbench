@@ -38,17 +38,15 @@ export default function POSToken({
     updateTagState(token.id, builtTag);
   };
 
-  console.log(tag, defaultValue, token);
   return (
     <span>
       <span
-        className={`${token.type === "gap" ? "pos-gap" : "pos-token"} ${
-          tag
-            ? `class${tag[0][0]}`
-            : defaultValue.length > 0
-            ? `class${defaultValue[0][0]}`
-            : ""
-        }`}
+        className={`${token.type === "gap" ? "pos-gap" : "pos-token"} ${tag
+          ? `class${tag[0][0]}`
+          : defaultValue.length === 0
+            ? ""
+            : `class${defaultValue[0]}`
+          }`}
         onClick={onClick}
       >
         {tokenData.replace(/\\n/g, "\u000A")}
