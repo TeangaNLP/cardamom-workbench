@@ -10,8 +10,8 @@ from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from flask import Blueprint, request, render_template, make_response, jsonify 
 
-from technologies.Tokeniser import cardamom_tokenise
-from technologies.POS_tag import cardamom_postag
+from technologies import cardamom_tokenise
+from technologies import cardamom_postag
 
 api = Blueprint('api', __name__,
                         template_folder='templates')
@@ -80,7 +80,6 @@ def get_all_files() -> List[model.UploadedFileModel]:
     user_data = session.query(model.UserModel).filter(model.UserModel.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
     file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content.replace("\\n", "\n"), "lang_id" : file.language_id} for file in files_]
-    print(file_contents)
     return  jsonify({"file_contents": file_contents})
 
 @api.route('/fileUpload', methods = ['POST'])
@@ -172,7 +171,6 @@ def auto_tokenise():
     text = request.form.get("data").replace("\r", "")
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
     lang_id = request.form.get('lang_id')
-    print(lang_id)
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
     tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=reserved_tokens)
     sorted(tokenised_text, key=lambda a: a['start_index'])

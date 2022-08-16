@@ -1,6 +1,7 @@
 .token {
   margin: 1px;
   white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 .auto {

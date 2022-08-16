@@ -51,24 +51,25 @@ def cardamom_postag(string, tokens, provenance, matrix_language=None):
     tagger_dict = {corp_langs.get(tok_lang): load_tagger(corp_langs.get(tok_lang)) for tok_lang in tok_langs}
 
     # POS-tag tokens and create output list
+
     pos_list = [{'type': 'auto', 'start_index': i.get('start_index'), 'end_index': i.get('end_index'),
-                 'pos': tagger_dict.get(corp_langs.get(i.get('language'))).tag([i.get('token')])[0][1],
-                 'provenance': provenance} for i in tokens]
+                 'tag': tagger_dict.get(corp_langs.get(i.get('language'))).tag([i.get('token')])[0][1],
+                 'provenance': provenance, 'features' : []} for i in tokens]
 
     return pos_list
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    from Tokeniser import cardamom_tokenise
+#     from Tokeniser import cardamom_tokenise
 
-    test_en = "This is some test text. It's short. It doesn't say very much. But, it is useful for the sake of " \
-              "testing!\nI hope it works because I don't want it to be a time-waste. Críoch."
-    toks_en = cardamom_tokenise(test_en, 1, 'en')
+#     test_en = "This is some test text. It's short. It doesn't say very much. But, it is useful for the sake of " \
+#               "testing!\nI hope it works because I don't want it to be a time-waste. Críoch."
+#     toks_en = cardamom_tokenise(test_en, 1, 'en')
 
-    # print(cardamom_postag(test_en, toks_en, 2, 'en'))
+#     # print(cardamom_postag(test_en, toks_en, 2, 'en'))
 
-    test_ga = "Chonaic mé mo mhadra ag rith. Thit sé agus é á casadh."
-    toks_ga = cardamom_tokenise(test_ga, 3, 'ga')
+#     test_ga = "Chonaic mé mo mhadra ag rith. Thit sé agus é á casadh."
+#     toks_ga = cardamom_tokenise(test_ga, 3, 'ga')
 
-    print(cardamom_postag(test_ga, toks_ga, 4, 'ga'))
+#     print(cardamom_postag(test_ga, toks_ga, 4, 'ga'))
