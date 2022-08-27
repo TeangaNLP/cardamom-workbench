@@ -38,6 +38,8 @@ export default function POSToken({
     updateTagState(token.id, builtTag);
   };
 
+  console.log(tag);
+
   return (
     <span>
       <span

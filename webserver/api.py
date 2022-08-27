@@ -26,6 +26,9 @@ def serialise(model):
     columns = [c.key for c in class_mapper(model.__class__).columns]
     return dict((c, getattr(model, c)) for c in columns)
 
+def serialise_data_model(model):
+    return {k: v for k, v in model.__dict__.items() if not k.startswith("_")}
+
 def get_tokens(file_id, objectify=False):
     session = get_session()
     annots = session.query(model.TokenModel).filter(model.TokenModel.uploaded_file_id==file_id).all()
@@ -105,7 +108,7 @@ def file_upload():
         session.add(new_file)
         session.commit()
         session.flush()
-        content = cardamom_tokenise(content,"english")
+        content = cardamom_tokenise(content, iso_code = iso_code)
         response_body = {
             "data": content
         }
@@ -120,7 +123,7 @@ def file_upload():
         session.add(model.UploadedFileModel(name, content, user_id, lang.id))
         session.commit()
         session.flush()
-        content = cardamom_tokenise(content,"english")
+        content = cardamom_tokenise(content, iso_code = iso_code)
         response_body = {
             "data": content
         }
@@ -168,11 +171,19 @@ def push_annotations():
 @api.route('/auto_tokenise', methods=["POST"])
 def auto_tokenise():
     session = get_session()
-    text = request.form.get("data").replace("\r", "")
+    file_data = json.loads(request.form.get("file_data"))
+    text = file_data['content'].replace("\r", "")
+    lang_id = file_data['lang_id']
+    uploaded_file_id = file_data['file_id']
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
-    lang_id = request.form.get('lang_id')
+    resv_tks = []
+    for token in reserved_tokens:
+        resv_tks.append(model.TokenModel(reserved_token=True, start_index=token['start_index'], end_index=token['end_index'], token_language_id= lang_id, type_=token['type'], uploaded_file_id=uploaded_file_id))
+        # resv_tks.append(model.TokenModel(reserved_token = True, start_index = token.))
+    
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
-    tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=reserved_tokens)
+    tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=resv_tks, uploaded_file_id=uploaded_file_id)
+    tokenised_text = [serialise_data_model(token_model) for token_model in tokenised_text]
     sorted(tokenised_text, key=lambda a: a['start_index'])
     return { "annotations": tokenised_text }
     
@@ -210,7 +221,7 @@ def get_postags(file_id):
             tag_features = []
             for feature in features:
                 tag_features.append({"feature": feature.feature, "value": feature.value})
-            token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index, "type": token.type}
+            token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index, "type": token.type, "token_id": token.id}
     annotations = [serialise(annot) for annot in tokens]
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
 
@@ -219,9 +230,11 @@ def get_postags(file_id):
 def auto_tag():
     # extract the text
     session = get_session()
-    content = request.form.get('content')
+    file_data = json.loads(request.form.get('file_data'))
+    lang_id = file_data["lang_id"]
+    content = file_data["content"]
     tokens = json.loads(request.form.get('tokens'))
-    lang_id = request.form.get('lang_id')
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
-    pos_text = cardamom_postag(content, tokens, 2, lang.iso_code)
-    return { "POS": pos_text }
+    pos_tags = cardamom_postag(content, tokens, 2, lang.iso_code)
+    pos_tags = [serialise_data_model(tags) for tags in pos_tags]
+    return { "POS": pos_tags }

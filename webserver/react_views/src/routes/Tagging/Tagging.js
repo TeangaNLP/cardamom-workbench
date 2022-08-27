@@ -217,7 +217,7 @@ const Tagging = ({ fileInfo, userId }) => {
   const updateAutoTags = (posTags) => {
     let newTags = { ...tags };
     for (let tag of posTags) {
-      let tokenId = tag.id;
+      let tokenId = tag.token_id;
       // If type is auto but key does not exist then update.
       if (!newTags.hasOwnProperty(tokenId)) {
         newTags[tokenId] = tag;
@@ -236,8 +236,7 @@ const Tagging = ({ fileInfo, userId }) => {
   const autoTag = () => {
     const data = new FormData();
     data.append("tokens", JSON.stringify(tokenData));
-    data.append("content", fileInfo.content);
-    data.append("lang_id", fileInfo.lang_id)
+    data.append("file_data", JSON.stringify(fileInfo));
     axios
       .post("http://localhost:5001/api/auto_tag", data, {
         headers: {
@@ -256,7 +255,8 @@ const Tagging = ({ fileInfo, userId }) => {
 
   // Convert tags into their values.
   const convertTags = (tag) => {
-    if (tag["features"].length == 0) {
+    console.log(tag, tag.hasOwnProperty("features"))
+    if (!tag.hasOwnProperty("features") || tag["features"].length == 0) {
       return [reverseLookup[tag["tag"]]]
     } else {
       let values = [];
@@ -284,12 +284,13 @@ const Tagging = ({ fileInfo, userId }) => {
           {fetched ? tokensAndGaps.map((token, i) => {
             const text = fileInfo.content;
             const tokenData = text.substring(token.start_index, token.end_index);
+            console.log(token, tags);
             const tokenId = token.id;
 
             let tagList = []
             if (tags.hasOwnProperty(tokenId)) {
               const defaultTag = tags[tokenId];
-              if (token.start_index === defaultTag.start_index) {
+              if (token.id === defaultTag.token_id) {
                 tagList = convertTags(defaultTag);
               }
             }

@@ -1,5 +1,7 @@
 from .Train_Taggers import load_tagger
 
+from model import POSInstanceModel
+
 
 def cardamom_postag(string, tokens, provenance, matrix_language=None):
 
@@ -52,9 +54,14 @@ def cardamom_postag(string, tokens, provenance, matrix_language=None):
 
     # POS-tag tokens and create output list
 
-    pos_list = [{'type': 'auto', 'start_index': i.get('start_index'), 'end_index': i.get('end_index'),
-                 'tag': tagger_dict.get(corp_langs.get(i.get('language'))).tag([i.get('token')])[0][1],
-                 'provenance': provenance, 'features' : []} for i in tokens]
+    # pos_list = [{'type': 'auto', 'token_id': i.get('id'), 'start_index': i.get('start_index'), 'end_index': i.get('end_index'),
+    #              'tag': tagger_dict.get(corp_langs.get(i.get('language'))).tag([i.get('token')])[0][1],
+    #              'provenance': provenance, 'features' : []} for i in tokens]
+
+    pos_list = [POSInstanceModel(
+        token_id=i.get("id"), 
+        tag = tagger_dict.get(corp_langs.get(i.get('language'))).tag([i.get('token')])[0][1],
+        type_="auto") for i in tokens]
 
     return pos_list
 

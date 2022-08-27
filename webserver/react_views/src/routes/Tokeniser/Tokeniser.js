@@ -359,9 +359,8 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
   // Buttons
   const autoTokenise = () => {
     const data = new FormData();
-    data.append("data", fileInfo.content);
+    data.append("file_data", JSON.stringify(fileInfo));
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
-    data.append("lang_id", fileInfo.lang_id);
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
