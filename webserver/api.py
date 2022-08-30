@@ -193,18 +193,21 @@ def push_postags():
     pos_tags = data.get('tags')
     session = get_session()
     for token_id in pos_tags:
-        pos_instance = model.POSInstanceModel(token_id = int(token_id), tag = pos_tags[token_id]["tag"], type_=pos_tags[token_id]["type"])
-        session.add(pos_instance)
-        session.commit()
-        session.flush()
-        session.refresh(pos_instance)
-        if pos_tags[token_id]['features']:
-            for f_key_val in pos_tags[token_id]['features']:
-                f_key = f_key_val["feature"]
-                f_val = f_key_val["value"]
-                session.add(model.POSFeaturesModel(posinstance_id = pos_instance.id, feature = f_key, value = f_val))
+        if pos_tags[token_id]["tag"] == None: 
+            continue 
+        else:
+            pos_instance = model.POSInstanceModel(token_id = int(token_id), tag = pos_tags[token_id]["tag"], type_=pos_tags[token_id]["type"])
+            session.add(pos_instance)
             session.commit()
             session.flush()
+            session.refresh(pos_instance)
+            if pos_tags[token_id].get('features'):
+                for f_key_val in pos_tags[token_id]['features']:
+                    f_key = f_key_val["feature"]
+                    f_val = f_key_val["value"]
+                    session.add(model.POSFeaturesModel(posinstance_id = pos_instance.id, feature = f_key, value = f_val))
+                    session.commit()
+                    session.flush()
     response_body = {
             "response": "success"
         }
