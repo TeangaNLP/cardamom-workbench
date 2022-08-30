@@ -4,8 +4,10 @@ COPY requirements.txt /tmp
 RUN pip install -r /tmp/requirements.txt
 
 RUN mkdir -p /code
+RUN mkdir -p /code/technologies
 COPY *.py /code/
-COPY technologies/ /code/technologies/
+COPY technologies/* /code/technologies/
+COPY language_models/ /code/language_models/ 
 COPY static/ /code/static/
 COPY templates/ /code/templates/
 COPY wait-for-it.sh /code/

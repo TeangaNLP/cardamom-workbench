@@ -5,12 +5,12 @@ import axios from "axios";
 
 import "./Tokeniser.css";
 
-const Tokeniser = (props) => {
+const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
   let [tokenData, setTokenData] = useState([]);
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
   let [fetched, setFetched] = useState(false);
-  let [fileState, setFileState] = useState({});
+  //let [fileInfo, setFileState] = useState({});
   let [selecting, setSelecting] = useState({
     mouseDown: false,
     mouseUp: false,
@@ -37,6 +37,7 @@ const Tokeniser = (props) => {
           end: null,
           componentStartIndex: null,
         });
+        resetMouseSelection();
       }
     },
     [selecting]
@@ -44,18 +45,35 @@ const Tokeniser = (props) => {
 
   useEffect(() => {
     // To check if file already selected before.
-    const fileId = props.fileInfo.fileId;
-    const content = props.fileInfo.content;
-    setFileState({ fileId: fileId, content: content });
+    /*
+    let file_id;
+    let content;
+    console.log(location.state);
+    if (location.state === null) {
+      file_id = props.fileInfo.file_id;
+      content = props.fileInfo.content;
+    } else if (props.fileInfo.file_id === null || location.state.file_id != props.fileInfo.file_id) {
+      file_id = location.state.file_id;
+      content = location.state.content;
+      props.setFileInfo({
+        file_id: file_id,
+        content: location.state.content
+      });
+    }
 
+
+    setFileState({ file_id: file_id, content: content });
+    */
+    console.log(fileInfo)
+    debugger;
     if (!fetched) {
       axios
-        .get("http://localhost:5001/api/annotations/" + fileId)
+        .get("http://localhost:5001/api/annotations/" + fileInfo.file_id)
         .then(function (response) {
           setOriginalTokenData(response.data.annotations);
           combineTokensAndGaps(
             response.data.annotations,
-            content
+            fileInfo.content
           );
           setFetched(true);
         })
@@ -82,12 +100,29 @@ const Tokeniser = (props) => {
     });
   };
 
+  const resetMouseSelection = () => {
+    if (window.getSelection) {
+      if (window.getSelection().empty) {  // Chrome
+        window.getSelection().empty();
+      } else if (window.getSelection().removeAllRanges) {  // Firefox
+        window.getSelection().removeAllRanges();
+      }
+    } else if (document.selection) {  // IE?
+      document.selection.empty();
+    }
+  }
+
   const handleMouseUp = (index) => {
     let selection = window.getSelection();
     let start = selecting.componentStartIndex + selection.anchorOffset;
     let end = index + selection.focusOffset;
-    console.log("Selection", selection);
-    console.log("End", start, end);
+    // Flip for backward selection;
+    if (start > end) {
+      let temp = start;
+      start = end;
+      end = temp;
+    }
+    console.log(start, end);
     selecting = setSelecting({
       ...selecting,
       mouseUp: true,
@@ -157,7 +192,7 @@ const Tokeniser = (props) => {
       return a.start_index - b.start_index;
     });
     // Update UI
-    combineTokensAndGaps(changedTokens, fileState.content);
+    combineTokensAndGaps(changedTokens, fileInfo.content);
   };
 
   const updateManualTokens = (start, end) => {
@@ -199,13 +234,11 @@ const Tokeniser = (props) => {
       return a.start_index - b.start_index;
     });
     // Update UI
-    combineTokensAndGaps(changedTokens, fileState.content);
+    combineTokensAndGaps(changedTokens, fileInfo.content);
   };
 
   const combineTokensAndGaps = (data, text) => {
     let gaps = [];
-    console.log(data, text);
-
     for (let i = 0; i < data.length; i++) {
       let currData = data[i];
       let nextData = data[i + 1];
@@ -320,16 +353,14 @@ const Tokeniser = (props) => {
         reservedTokens.push(t)
       }
     }
-    console.log(reservedTokens);
     return reservedTokens
   }
 
   // Buttons
   const autoTokenise = () => {
     const data = new FormData();
-    data.append("data", fileState.content);
+    data.append("file_data", JSON.stringify(fileInfo));
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
-    data.append("fileId", fileState.fileId);
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
@@ -338,7 +369,6 @@ const Tokeniser = (props) => {
         },
       })
       .then(function (response) {
-        console.log(response.data.annotations);
         updateAutoTokens(response.data.annotations);
       })
       .catch(function (e) {
@@ -351,7 +381,7 @@ const Tokeniser = (props) => {
     let difference = tokenData.filter((x) => !originalTokenData.includes(x));
     const data = {
       tokens: difference,
-      file_id: fileState.fileId,
+      file_id: fileInfo.file_id,
     };
     axios
       .post("http://localhost:5001/api/annotations", data, {
@@ -383,8 +413,7 @@ const Tokeniser = (props) => {
       <div onKeyPress={onEnter} className="tokenise-area">
         <div className="tokenise-text">
           {fetched ? tokensAndGaps.map((token) => {
-            console.log(fileState);
-            const text = fileState.content;
+            const text = fileInfo.content;
             const tokenValue = text.substring(token.start_index, token.end_index)
             return (
               <Token

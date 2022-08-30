@@ -6,6 +6,7 @@ from conllu import parse
 from ast import literal_eval
 import json
 from nltk import word_tokenize, sent_tokenize
+import pickle as pk
 
 op_sys = platform.system()
 if op_sys == "Windows":
@@ -247,6 +248,7 @@ def get_valid_features(language_list=None):
 
 
 def train_pos_tagger(language):
+    """Train's a POS-tagger model for a selected language"""
 
     # load in the pos-tagged corpus
     pos_tagged_text = get_pos_tags(language)
@@ -255,6 +257,80 @@ def train_pos_tagger(language):
     pos_tagger = nltk.UnigramTagger(pos_tagged_text)
 
     return pos_tagger
+
+
+def save_pos_tagger(language, models_directory="language_models", overwrite_old_model=False):
+    """Saves a POS-tagger model for a selected language in a models folder"""
+
+    # Set directories, create models directory if none exists
+    cur_dir = os.getcwd()
+    models_dir = cur_dir + slash + models_directory
+    try:
+        available_models = os.listdir(models_dir)
+    except FileNotFoundError:
+        os.mkdir(models_directory)
+        available_models = os.listdir(models_dir)
+
+    if f"{language}_tagger.pkl" not in available_models:
+        print(f"Training POS-tagger for language: {language}")
+        this_model = train_pos_tagger(language)
+        os.chdir(models_dir)
+        with open(f"{language}_tagger.pkl", "wb") as tagger_file:
+            pk.dump(this_model, tagger_file)
+        os.chdir(cur_dir)
+    elif overwrite_old_model:
+        print(f"Training POS-tagger for language: {language}")
+        this_model = train_pos_tagger(language)
+        os.chdir(models_dir)
+        with open(f"{language}_tagger.pkl", "wb") as tagger_file:
+            pk.dump(this_model, tagger_file)
+        os.chdir(cur_dir)
+
+
+def load_tagger(language, models_directory="language_models"):
+    """Loads a POS-tagger model from a .pkl file if one exists
+       If no tagger exists, one is trained instead"""
+
+    # Set directories, create models directory if none exists
+    cur_dir = os.getcwd()
+    models_dir = cur_dir + slash + models_directory
+    try:
+        available_models = os.listdir(models_dir)
+        model_filename = f"{language}_tagger.pkl"
+        if model_filename in available_models:
+            os.chdir(models_dir)
+            with open(f"{language}_tagger.pkl", "rb") as tagger_file:
+                tagger = pk.load(tagger_file)
+            os.chdir(cur_dir)
+        else:
+            tagger = train_pos_tagger(language)
+
+    except FileNotFoundError:
+        tagger = train_pos_tagger(language)
+
+    return tagger
+
+
+def save_language_taggers(language_list=None, models_dir="language_models",
+                          overwrite_old_model=False, overwrite_old_directory=False):
+    """Generate POS-tagger models for each supported language, or each in a specified list if supported"""
+
+    supported_languages = list_pos_langs()
+
+    if not language_list:
+        available_languages = supported_languages
+    elif all(lang in language_list for lang in supported_languages):
+        available_languages = language_list[:]
+    else:
+        available_languages = [lang for lang in language_list if lang in supported_languages]
+
+    if models_dir not in os.listdir():
+        os.mkdir(models_dir)
+    elif overwrite_old_directory:
+        os.mkdir(models_dir)
+
+    for lang_available in available_languages:
+        save_pos_tagger(lang_available, models_dir, overwrite_old_model)
 
 
 # if __name__ == "__main__":
@@ -269,8 +345,9 @@ def train_pos_tagger(language):
 #     # print(json.dumps(get_langfeats("Irish")))
 #     # print(json.dumps(get_valid_features(["Irish", "Old Irish"])))
 #
-#     gael_tagger = train_pos_tagger("Irish")
+#     # save_language_taggers()
 #
+#     gael_tagger = load_tagger("Irish")
 #     test = "Chonaic mé mo mhadra ag rith. Thit sé agus é á casadh."
 #     tokens = ([word_tokenize(sent) for sent in sent_tokenize(test)])
 #

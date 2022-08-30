@@ -1,4 +1,5 @@
 flask
+flask_cors
 pydantic
 sqlalchemy
 psycopg2-binary
