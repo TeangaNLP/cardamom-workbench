@@ -1,5 +1,17 @@
 FROM python:3.9-slim-buster
 
+RUN apt update\
+     && apt install -y\
+                curl\
+                nodejs\
+                npm\
+    && npm install -g n\
+    && n v18.4.0
+COPY react_views /code/react_views
+WORKDIR /code/react_views
+RUN  npm install --legacy-peer-deps\
+     && npm run build
+
 COPY requirements.txt /tmp
 RUN pip install -r /tmp/requirements.txt
 
