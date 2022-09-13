@@ -7,6 +7,11 @@ RUN apt update\
                 npm\
     && npm install -g n\
     && n v18.4.0
+
+RUN mkdir -p /code
+RUN mkdir -p /code/technologies
+RUN mkdir -p /code/templates
+
 COPY react_views /code/react_views
 WORKDIR /code/react_views
 RUN  npm install --legacy-peer-deps\
@@ -14,14 +19,11 @@ RUN  npm install --legacy-peer-deps\
 
 COPY requirements.txt /tmp
 RUN pip install -r /tmp/requirements.txt
-
-RUN mkdir -p /code
-RUN mkdir -p /code/technologies
 COPY *.py /code/
 COPY technologies/* /code/technologies/
-COPY language_models/ /code/language_models/ 
-COPY static/ /code/static/
-COPY templates/ /code/templates/
+COPY language_models/ /code/language_models/
+# COPY static/ /code/static/
+# COPY templates/ /code/templates/
 COPY wait-for-it.sh /code/
 RUN chmod +x /code/wait-for-it.sh
 WORKDIR /code
