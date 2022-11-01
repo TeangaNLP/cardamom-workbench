@@ -8,13 +8,11 @@ from orm import Base
 from typing import List, Dict
 from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
-from flask import Blueprint, request, render_template, make_response, jsonify 
+from flask import Blueprint, request, render_template, make_response, jsonify
 
-from technologies import cardamom_tokenise
-from technologies import cardamom_postag
+from technologies import cardamom_tokenise, cardamom_space, cardamom_postag
 
-api = Blueprint('api', __name__,
-                        template_folder='templates')
+api = Blueprint('api', __name__, template_folder='templates')
 
 orm.start_mappers()
 engine = create_engine(config.get_postgres_uri())
@@ -26,35 +24,39 @@ def serialise(model):
     columns = [c.key for c in class_mapper(model.__class__).columns]
     return dict((c, getattr(model, c)) for c in columns)
 
+
 def serialise_data_model(model):
     return {k: v for k, v in model.__dict__.items() if not k.startswith("_")}
 
+
 def get_tokens(file_id, objectify=False):
     session = get_session()
-    annots = session.query(model.TokenModel).filter(model.TokenModel.uploaded_file_id==file_id).all()
+    annots = session.query(model.TokenModel).filter(model.TokenModel.uploaded_file_id == file_id).all()
     if objectify:
         return annots
     annotations = [serialise(annot) for annot in annots]
     return sorted(annotations, key=lambda a: a['start_index'])
+
 
 def get_replaced_tokens(start, end, annotations):
     # fetch the saved tokens
     i = 0
     replace_tokens = []
 
-    while(i < len(annotations)):
+    while i < len(annotations):
         # if the new start is greater than annotations start
         new_set = set(range(start, end))
         overlap_set = set(range(annotations[i]["start_index"], annotations[i]["end_index"]))
 
-        if(len(new_set & overlap_set) > 0):
-            while(i < len(annotations) and end > annotations[i]["end_index"]):
+        if len(new_set & overlap_set) > 0:
+            while i < len(annotations) and end > annotations[i]["end_index"]:
                 replace_tokens.append(annotations[i])
                 i = i + 1
             replace_tokens.append(annotations[i])
             break
         i = i + 1
     return replace_tokens
+
 
 @api.route('/login_user', methods=["POST"])
 def login_user() -> Dict:
@@ -66,11 +68,12 @@ def login_user() -> Dict:
     user_data = request.form.get("user")
     password_data = request.form.get("password")
     session = get_session()
-    user = session.query(model.UserModel).filter(model.UserModel.email==user_data).one_or_none()
+    user = session.query(model.UserModel).filter(model.UserModel.email == user_data).one_or_none()
     if user:
         return jsonify({"user": user.id})
     else:
         return jsonify({"user": None})
+
 
 @api.route('/get_files/', methods=["GET"])
 def get_all_files() -> List[model.UploadedFileModel]:
@@ -82,17 +85,19 @@ def get_all_files() -> List[model.UploadedFileModel]:
     session = get_session()
     user_data = session.query(model.UserModel).filter(model.UserModel.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
-    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content.replace("\\n", "\n"), "lang_id" : file.language_id} for file in files_]
-    return  jsonify({"file_contents": file_contents})
+    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content.replace("\\n", "\n"),
+                      "lang_id": file.language_id} for file in files_]
+    return jsonify({"file_contents": file_contents})
 
-@api.route('/fileUpload', methods = ['POST'])
+
+@api.route('/fileUpload', methods=['POST'])
 def file_upload():
     """
     Uploading a file
     """
     session = get_session()
     if 'file' not in request.files:
-        print('abort(400)') 
+        print('abort(400)')
     uploaded_file = request.files["file"]
     name = uploaded_file.filename
     name, extension = name.split('.')
@@ -103,12 +108,12 @@ def file_upload():
     if extension == 'txt':
         # upload a txt file
         uploaded_file = uploaded_file.read()
-        content = uploaded_file.decode("utf-8") 
-        new_file = model.UploadedFileModel(name = name, content = content, user_id = user_id, language_id = lang.id)
+        content = uploaded_file.decode("utf-8")
+        new_file = model.UploadedFileModel(name=name, content=content, user_id=user_id, language_id=lang.id)
         session.add(new_file)
         session.commit()
         session.flush()
-        content = cardamom_tokenise(content, iso_code = iso_code)
+        content = cardamom_tokenise(content, iso_code=iso_code)
         response_body = {
             "data": content
         }
@@ -123,11 +128,12 @@ def file_upload():
         session.add(model.UploadedFileModel(name, content, user_id, lang.id))
         session.commit()
         session.flush()
-        content = cardamom_tokenise(content, iso_code = iso_code)
+        content = cardamom_tokenise(content, iso_code=iso_code)
         response_body = {
             "data": content
         }
     return response_body
+
 
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> model.UploadedFileModel:
@@ -135,13 +141,13 @@ def get_annotations(file_id) -> model.UploadedFileModel:
     return jsonify({"annotations": annotations})
 
 
-@api.route('/annotations', methods = ["POST"])
+@api.route('/annotations', methods=["POST"])
 def push_annotations():
     # assuming the annotations come as a list of dictionaries
     data = request.get_json()
     annotations, file_id = data.get('tokens'), data.get("file_id")
     session = get_session()
-    
+
     file = session.query(model.UploadedFileModel).filter(model.UploadedFileModel.id == file_id).one_or_none()
 
     # Check for tokens to be deleted
@@ -149,22 +155,22 @@ def push_annotations():
     for annotation in annotations:
         replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
         for token in replace_tokens:
-            session.query(model.TokenModel).filter(model.TokenModel.id == token["id"]).delete() 
+            session.query(model.TokenModel).filter(model.TokenModel.id == token["id"]).delete()
 
         new_annotation = model.TokenModel(
-            reserved_token = True if annotation["type"] == "manual" else False, 
-            start_index = annotation["start_index"],
-            end_index = annotation["end_index"],
-            token_language_id = file.language_id, 
-            type_ = annotation["type"],
-            uploaded_file_id = file_id
+            reserved_token=True if annotation["type"] == "manual" else False,
+            start_index=annotation["start_index"],
+            end_index=annotation["end_index"],
+            token_language_id=file.language_id,
+            type_=annotation["type"],
+            uploaded_file_id=file_id
         )
         session.add(new_annotation)
     session.commit()
     session.flush()
     response_body = {
-            "response": "success"
-        }
+        "response": "success"
+    }
     return response_body
 
 
@@ -178,25 +184,43 @@ def auto_tokenise():
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
     resv_tks = []
     for token in reserved_tokens:
-        resv_tks.append(model.TokenModel(reserved_token=True, start_index=token['start_index'], end_index=token['end_index'], token_language_id= lang_id, type_=token['type'], uploaded_file_id=uploaded_file_id))
+        resv_tks.append(model.TokenModel(reserved_token=True, start_index=token['start_index'],
+                                         end_index=token['end_index'], token_language_id=lang_id, type_=token['type'],
+                                         uploaded_file_id=uploaded_file_id))
         # resv_tks.append(model.TokenModel(reserved_token = True, start_index = token.))
-    
+
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
-    tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=resv_tks, uploaded_file_id=uploaded_file_id)
+    tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=resv_tks,
+                                       uploaded_file_id=uploaded_file_id)
     tokenised_text = [serialise_data_model(token_model) for token_model in tokenised_text]
     sorted(tokenised_text, key=lambda a: a['start_index'])
-    return { "annotations": tokenised_text }
-    
+    return {"annotations": tokenised_text}
+
+
+@api.route('/auto_space', methods=["POST"])
+def auto_space():
+    session = get_session()
+    file_data = json.loads(request.form.get("file_data"))
+    text = file_data['content'].replace("\r", "")
+    uploaded_file_id = file_data['file_id']
+
+    spaced_text = cardamom_space(text, uploaded_file_id=uploaded_file_id)
+    spaced_text = [serialise_data_model(space_model) for space_model in spaced_text]
+    sorted(spaced_text, key=lambda a: a['space_index'])
+    return {"annotations": spaced_text}
+
+
 @api.route('/pos_tag', methods=["POST"])
 def push_postags():
     data = request.get_json()
     pos_tags = data.get('tags')
     session = get_session()
     for token_id in pos_tags:
-        if pos_tags[token_id]["tag"] == None: 
-            continue 
+        if pos_tags[token_id]["tag"] is None:
+            continue
         else:
-            pos_instance = model.POSInstanceModel(token_id = int(token_id), tag = pos_tags[token_id]["tag"], type_=pos_tags[token_id]["type"])
+            pos_instance = model.POSInstanceModel(token_id=int(token_id), tag=pos_tags[token_id]["tag"],
+                                                  type_=pos_tags[token_id]["type"])
             session.add(pos_instance)
             session.commit()
             session.flush()
@@ -205,15 +229,16 @@ def push_postags():
                 for f_key_val in pos_tags[token_id]['features']:
                     f_key = f_key_val["feature"]
                     f_val = f_key_val["value"]
-                    session.add(model.POSFeaturesModel(posinstance_id = pos_instance.id, feature = f_key, value = f_val))
+                    session.add(model.POSFeaturesModel(posinstance_id=pos_instance.id, feature=f_key, value=f_val))
                     session.commit()
                     session.flush()
     response_body = {
-            "response": "success"
-        }
+        "response": "success"
+    }
     return response_body
 
-@api.route('pos_tag/<file_id>', methods = ["GET"])
+
+@api.route('pos_tag/<file_id>', methods=["GET"])
 def get_postags(file_id):
     tokens = get_tokens(file_id, objectify=True)
     token_tags = {}
@@ -224,7 +249,8 @@ def get_postags(file_id):
             tag_features = []
             for feature in features:
                 tag_features.append({"feature": feature.feature, "value": feature.value})
-            token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index, "type": token.type, "token_id": token.id}
+            token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index,
+                                    "type": token.type, "token_id": token.id}
     annotations = [serialise(annot) for annot in tokens]
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
 
@@ -240,4 +266,4 @@ def auto_tag():
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
     pos_tags = cardamom_postag(content, tokens, 2, lang.iso_code)
     pos_tags = [serialise_data_model(tags) for tags in pos_tags]
-    return { "POS": pos_tags }
+    return {"POS": pos_tags}
