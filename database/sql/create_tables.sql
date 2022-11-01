@@ -58,6 +58,15 @@ CREATE TABLE IF NOT EXISTS tokens (
   FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS spaces (
+  id SERIAL NOT NULL,
+  PRIMARY KEY (id),
+  space_index integer NOT NULL,
+  space_type varchar(10) NOT NULL,
+  uploaded_file_id serial NOT NULL,
+  FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS posinstance (
   id SERIAL NOT NULL,
   PRIMARY KEY (id),
