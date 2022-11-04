@@ -178,7 +178,7 @@ def push_annotations():
 def auto_tokenise():
     session = get_session()
     file_data = json.loads(request.form.get("file_data"))
-    text = file_data['content'].replace("\r", "")
+    text = file_data['content'].replace("\r\n", "\n").replace("\r", "\n")
     lang_id = file_data['lang_id']
     uploaded_file_id = file_data['file_id']
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
@@ -201,7 +201,7 @@ def auto_tokenise():
 def auto_space():
     session = get_session()
     file_data = json.loads(request.form.get("file_data"))
-    text = file_data['content'].replace("\r", "")
+    text = file_data['content'].replace("\r\n", "\n").replace("\r", "\n")
     uploaded_file_id = file_data['file_id']
 
     spaced_text = cardamom_space(text, uploaded_file_id=uploaded_file_id)
