@@ -6,6 +6,7 @@ import model
 
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -27,6 +28,7 @@ class UploadedFile(Base):
     # user = relationship("User", backref = backref('uploaded_files'))
     # file_language = relationship("Language", back_populates = "uploaded_files")
 
+
 class Language(Base):
     __tablename__ = 'languages'
 
@@ -38,12 +40,14 @@ class Language(Base):
     # uploaded_files = relationship("UploadedFile", back_populates = "file_language")
     # tokens = relationship("Token", back_populates = "token_language")
 
+
 class Provenance(Base):
     __tablename__ = 'provenances'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(String(255), nullable=False)
     reference_id = Column(Integer)
+
 
 class POSInstance(Base):
     __tablename__ = 'posinstance'
@@ -77,11 +81,20 @@ class Token(Base):
     end_index = Column(Integer, nullable=False)
     token_language_id = Column(Integer, ForeignKey("languages.id"), nullable=False)
     type = Column(String(255), nullable=False)
-    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable = False)
+    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
     
     # file = relationship("UploadedFile", backref = backref('tokens'))
     # token_language = relationship("Language", back_populates = "tokens")
     # pos_instance = relationship("POSInstance", back_populates = "token")
+
+
+class Space(Base):
+    __tablename__ = 'spaces'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    space_index = Column(Integer, nullable=False)
+    space_type = Column(String(10), nullable=False)
+    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
 
 
 def start_mappers():
@@ -107,5 +120,8 @@ def start_mappers():
     mapper(model.TokenModel, Token, properties={
         "file": relationship(model.UploadedFileModel),
         "token_language": relationship(model.LanguageModel),
-        "pos_instance": relationship(model.POSInstanceModel),
+        "pos_instance": relationship(model.POSInstanceModel)
+    })
+    mapper(model.SpaceModel, Space, properties={
+        "file": relationship(model.UploadedFileModel)
     })

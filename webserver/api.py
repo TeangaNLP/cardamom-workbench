@@ -145,7 +145,7 @@ def get_annotations(file_id) -> model.UploadedFileModel:
 def push_annotations():
     # assuming the annotations come as a list of dictionaries
     data = request.get_json()
-    annotations, file_id = data.get('tokens'), data.get("file_id")
+    annotations, spaces, file_id = data.get('tokens'), data.get("spaces"), data.get("file_id")
     session = get_session()
 
     file = session.query(model.UploadedFileModel).filter(model.UploadedFileModel.id == file_id).one_or_none()
@@ -166,6 +166,13 @@ def push_annotations():
             uploaded_file_id=file_id
         )
         session.add(new_annotation)
+    for space in spaces:
+        new_space = model.SpaceModel(
+            space_index=space["space_index"],
+            space_type=space["space_type"],
+            uploaded_file_id=file_id
+        )
+        session.add(new_space)
     session.commit()
     session.flush()
     response_body = {
@@ -199,7 +206,6 @@ def auto_tokenise():
 
 @api.route('/auto_space', methods=["POST"])
 def auto_space():
-    session = get_session()
     file_data = json.loads(request.form.get("file_data"))
     text = file_data['content'].replace("\r\n", "\n").replace("\r", "\n")
     uploaded_file_id = file_data['file_id']
