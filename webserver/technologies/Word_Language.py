@@ -11,7 +11,7 @@ else:
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 import torch
-from src import constant
+from language_identification_word import constant
 from nltk.tokenize import word_tokenize
 
 char2id = {'<UNK>': 0, ' ': 1, 'त': 2, 'भ': 3, 'ी': 4, 'ब': 5, 'ा': 6, 'र': 7, 'ि': 8, 'श': 9, 'ह': 10, 'ु': 11,
@@ -33,7 +33,7 @@ char2id = {'<UNK>': 0, ' ': 1, 'त': 2, 'भ': 3, 'ी': 4, 'ब': 5, 'ा': 6,
            'ો': 179, 'થ': 180, 'v': 181, 'q': 182, '\xad': 183, '£': 184, '॒': 185, '॔': 186}
 
 # PATH = "{}/{}.pt".format(constant.params["model_dir"], constant.params["save_path"])
-PATH = f"saved_models{slash}MODEL_05_12{slash}model.pt"
+PATH = f"language_identification_word{slash}saved_models{slash}MODEL{slash}model.pt"
 model = torch.load(PATH, map_location=torch.device('cpu'))
 
 if constant.USE_CUDA:

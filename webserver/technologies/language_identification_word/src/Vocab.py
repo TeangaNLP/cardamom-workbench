@@ -396,8 +396,8 @@ def collate_fn(data):
             char_lengths.append(word_arr)
         # print(">max_char_length:", max_char_length)
         padded_seqs = torch.zeros(len(sequences), max(lengths), max_char_length).long()
-        for i, seq in enumerate(sequences):
-            for j, word in enumerate(sequences[i]):  # WORD-LEVEL
+        # for i, seq in enumerate(sequences):
+        #     for j, word in enumerate(sequences[i]):  # WORD-LEVEL
     # word_list = ["<pad>"] # <emo> is found
     # for i in range(len(word_list)):
     #     word2id[word_list[i]] = len(word2id)
