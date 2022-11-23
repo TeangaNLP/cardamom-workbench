@@ -110,9 +110,9 @@ def main(model_lang, input_text_list):
             print(f"origin text: {word} \tdetected lang: {lang}")
 
 
-if __name__ == "__main__":
-    input_text = [
-        "यामें द्वैत  अद्वैत पुन्न पाप सब एक कोंने में धरि जाँय"
-        "बेटवा से कहलक कि देरी होतउ तऽ एकरा उतार दोहे"
-    ]
-    main(model, input_text)
+# if __name__ == "__main__":
+#     input_text = [
+#         "यामें द्वैत  अद्वैत पुन्न पाप सब एक कोंने में धरि जाँय"
+#         "बेटवा से कहलक कि देरी होतउ तऽ एकरा उतार दोहे"
+#     ]
+#     main(model, input_text)
