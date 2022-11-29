@@ -32,7 +32,6 @@ char2id = {'<UNK>': 0, ' ': 1, 'त': 2, 'भ': 3, 'ी': 4, 'ब': 5, 'ा': 6,
            '\u200b': 169, '·': 170, 'j': 171, '@': 172, 'य़': 173, '\\': 174, '°': 175, '$': 176, '<': 177, 'લ': 178,
            'ો': 179, 'થ': 180, 'v': 181, 'q': 182, '\xad': 183, '£': 184, '॒': 185, '॔': 186}
 
-# PATH = "{}/{}.pt".format(constant.params["model_dir"], constant.params["save_path"])
 PATH = f"language_identification_word{slash}saved_models{slash}MODEL{slash}model.pt"
 model = torch.load(PATH, map_location=torch.device('cpu'))
 
