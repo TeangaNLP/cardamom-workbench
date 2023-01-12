@@ -1,5 +1,4 @@
 from nltk.tokenize import word_tokenize
-from model import TokenModel
 
 
 def cardamom_tokenise(string, provenance=None, iso_code=None, reserved_toks=None, uploaded_file_id=None):
@@ -54,7 +53,7 @@ def cardamom_tokenise(string, provenance=None, iso_code=None, reserved_toks=None
                                f"'token_language': 'en', 'provenance': 1}}, {{...}}, ...]\n"
                                f"Instead, got {type(reserved_toks).__name__} class entry:\n{reserved_toks}.")
         for indset in reserved_toks:
-            if not isinstance(indset, TokenModel):
+            if not isinstance(indset, dict):
                 raise RuntimeError(f"\nExpected array of reserved tokens where each token is of type 'dict',\neg. "
                                    f"[{{'type': 'auto', 'start_index': 0, 'end_index': 5, 'text_language': 'en',"
                                    f"'token_language': 'en', 'provenance': 1}}, {{...}}, ...]\n"
