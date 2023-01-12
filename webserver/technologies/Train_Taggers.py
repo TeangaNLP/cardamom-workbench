@@ -19,7 +19,7 @@ def list_pos_langs():
 
     # identify directories
     tech_dir = os.getcwd()
-    main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
+    main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
@@ -48,7 +48,7 @@ def get_treebank_names(language):
 
     # identify directories
     tech_dir = os.getcwd()
-    main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
+    main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
@@ -80,7 +80,7 @@ def get_treebanks(language):
 
     # identify directories
     tech_dir = os.getcwd()
-    main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
+    main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
@@ -264,7 +264,8 @@ def save_pos_tagger(language, models_directory="language_models", overwrite_old_
 
     # Set directories, create models directory if none exists
     cur_dir = os.getcwd()
-    models_dir = cur_dir + slash + models_directory
+    server_dir = cur_dir[:cur_dir.index(f"{slash}technologies")]
+    models_dir = server_dir + slash + models_directory
     try:
         available_models = os.listdir(models_dir)
     except FileNotFoundError:
@@ -293,7 +294,8 @@ def load_tagger(language, models_directory="language_models"):
 
     # Set directories, create models directory if none exists
     cur_dir = os.getcwd()
-    models_dir = cur_dir + slash + models_directory
+    server_dir = cur_dir[:cur_dir.index(f"{slash}technologies")]
+    models_dir = server_dir + slash + models_directory
     try:
         available_models = os.listdir(models_dir)
         model_filename = f"{language}_tagger.pkl"
