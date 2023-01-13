@@ -1,10 +1,7 @@
-try:
-    from .Train_Taggers import load_tagger
-except ImportError:
-    from Train_Taggers import load_tagger
+from Train_Taggers import load_tagger
 
 
-def cardamom_postag(string, tokens, matrix_language=None):
+def pos_tag(string, tokens, matrix_language=None):
 
     # Identify languages currently supported by NLTK's POS-tagger.
     corp_langs = {'af': 'Afrikaans', 'akk': 'Akkadian', 'aqz': 'Akuntsu', 'sq': 'Albanian', 'am': 'Amharic',
@@ -64,19 +61,19 @@ def cardamom_postag(string, tokens, matrix_language=None):
 
 # if __name__ == "__main__":
 #
-#     from Tokeniser import cardamom_tokenise
+#     from Tokeniser import tokenise
 #
 #     test_en = "This is some test text. It's short. It doesn't say very much. But, it is useful for the sake of " \
 #               "testing!\nI hope it works because I don't want it to be a time-waste. Críoch."
-#     toks_en = cardamom_tokenise(test_en, 'en')
+#     toks_en = tokenise(test_en, 'en')
 #     for tok_no, tok in enumerate(toks_en):
 #         tok["id"] = tok_no
 #
-#     print(cardamom_postag(test_en, toks_en, 'en'))
+#     print(pos_tag(test_en, toks_en, 'en'))
 #
 #     test_ga = "Chonaic mé mo mhadra ag rith. Thit sé agus é á casadh."
-#     toks_ga = cardamom_tokenise(test_ga, 'ga')
+#     toks_ga = tokenise(test_ga, 'ga')
 #     for tok_no, tok in enumerate(toks_ga):
 #         tok["id"] = tok_no
 #
-#     print(cardamom_postag(test_ga, toks_ga, 'ga'))
+#     print(pos_tag(test_ga, toks_ga, 'ga'))

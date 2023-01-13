@@ -1,7 +1,7 @@
 from nltk.tokenize import word_tokenize
 
 
-def cardamom_tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
+def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
     """Tokenises a string of text and returns a list containing data for each token.
        Data for each token appears in the form of a discrete dictionary:
 
@@ -193,8 +193,8 @@ def cardamom_tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_i
 #                    {"reserved_token": True, "start_index": 165, "end_index": 171, "token_language_id": "ga",
 #                     "type_": "manual", "uploaded_file_id": 3}]
 #
-#     # print(cardamom_tokenise(test_de, "de"))
-#     # print(cardamom_tokenise(test_en, "en"))
-#     # print(cardamom_tokenise(test_en, "en", res_toks_en))
-#     for token in cardamom_tokenise(test_en, "en", res_toks_en):
+#     # print(tokenise(test_de, "de"))
+#     # print(tokenise(test_en, "en"))
+#     # print(tokenise(test_en, "en", res_toks_en))
+#     for token in tokenise(test_en, "en", res_toks_en):
 #         print(f"{test_en[token.get('start_index'):token.get('end_index')]}: {token.get('reserved_token')}")
