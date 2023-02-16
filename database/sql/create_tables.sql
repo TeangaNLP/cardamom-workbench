@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS tokens (
   end_index integer NOT NULL,
   token_language_id integer,
   FOREIGN KEY (token_language_id) REFERENCES languages(id),
-  type varchar(250) NOT NULL,
+  type_ varchar(250) NOT NULL,
   PRIMARY KEY (id),
   uploaded_file_id serial NOT NULL,
   FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE

@@ -1,4 +1,8 @@
-# from model import TokenModel, POSInstanceModel
+import sys
+import os
+cur_file_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(cur_file_dir)
+from model import TokenModel, POSInstanceModel
 from Tokeniser import tokenise
 from POS_tag import pos_tag
 

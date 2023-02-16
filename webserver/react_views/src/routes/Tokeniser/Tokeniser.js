@@ -164,7 +164,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
 
       while (i < tokensAndGaps.length) {
         if (
-          tokensAndGaps[i].type != "manual" &&
+          tokensAndGaps[i].type_ != "manual" &&
           start >= tokensAndGaps[i].start_index &&
           !(tokensAndGaps[i].end_index <= start)
         ) {
@@ -223,7 +223,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
     }
     // Add new tokens
     const newToken = {
-      type: "manual",
+      type_: "manual",
       start_index: start,
       end_index: end,
       provenance: 1,
@@ -254,7 +254,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
                 ? start_index
                 : currData.start_index,
             index: 0,
-            type: "gap",
+            type_: "gap",
           });
         }
         // For end
@@ -265,7 +265,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
               start_index: start_index,
               end_index: start_index > text.length ? start_index : text.length,
               index: data.length,
-              type: "gap",
+              type_: "gap",
             });
           }
         }
@@ -282,7 +282,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
                 ? start_index
                 : currData.start_index,
             index: 0,
-            type: "gap",
+            type_: "gap",
           });
           // continue;
         }
@@ -295,7 +295,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
             start_index: start_index,
             end_index: start_index > text.length ? start_index : text.length,
             index: data.length,
-            type: "gap",
+            type_: "gap",
           });
           // continue;
         }
@@ -310,7 +310,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
               ? start_index
               : nextData.start_index,
           index: i + 1,
-          type: "gap",
+          type_: "gap",
         });
       }
     }
@@ -330,7 +330,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
         start_index: 0,
         end_index: text.length,
         index: 0,
-        type: "gap",
+        type_: "gap",
       };
       newTokensAndGaps.push(gap);
     }
@@ -343,9 +343,9 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
   const getReservedTokens = () => {
     let reservedTokens = [];
     for (let token of tokenData) {
-      if (token.type == "manual") {
+      if (token.type_ == "manual") {
         const t = {
-          type: token.type,
+          type_: token.type_,
           start_index: token.start_index,
           end_index: token.end_index,
           provenance: 1
