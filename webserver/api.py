@@ -159,11 +159,11 @@ def push_annotations():
             session.query(model.TokenModel).filter(model.TokenModel.id == token["id"]).delete() 
 
         new_annotation = model.TokenModel(
-            reserved_token = True if annotation["type"] == "manual" else False, 
+            reserved_token = True if annotation["type_"] == "manual" else False, 
             start_index = annotation["start_index"],
             end_index = annotation["end_index"],
             token_language_id = file.language_id, 
-            type_ = annotation["type"],
+            type_ = annotation["type_"],
             uploaded_file_id = file_id
         )
         session.add(new_annotation)
@@ -186,7 +186,7 @@ def auto_tokenise():
     resv_tks = []
     for token in reserved_tokens:
         tok_mod = model.TokenModel(reserved_token=True, start_index=token['start_index'],
-                                   end_index=token['end_index'], token_language_id=lang_id, type_=token['type'],
+                                   end_index=token['end_index'], token_language_id=lang_id, type_=token['type_'],
                                    uploaded_file_id=uploaded_file_id)
         resv_tks.append(serialise_data_model(tok_mod))
     
