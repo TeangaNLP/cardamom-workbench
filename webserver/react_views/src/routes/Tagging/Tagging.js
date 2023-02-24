@@ -48,7 +48,7 @@ const Tagging = ({ fileInfo, userId }) => {
   }
 
   // Create data for Cascader from hardcoded list.
-  // TODO: Reverse Lookup names have clashing values, need fix around.
+  // TODO: Reverse Lookup names have clashing values, need fix.
   const createCascaderData = () => {
     let data = [];
     let reverseLookup = {};
@@ -108,7 +108,7 @@ const Tagging = ({ fileInfo, userId }) => {
                 ? start_index
                 : currData.start_index,
             index: 0,
-            type: "gap",
+            type_: "gap",
           });
         }
         // For end
@@ -119,7 +119,7 @@ const Tagging = ({ fileInfo, userId }) => {
               start_index: start_index,
               end_index: start_index > text.length ? start_index : text.length,
               index: data.length,
-              type: "gap",
+              type_: "gap",
             });
           }
         }
@@ -136,7 +136,7 @@ const Tagging = ({ fileInfo, userId }) => {
                 ? start_index
                 : currData.start_index,
             index: 0,
-            type: "gap",
+            type_: "gap",
           });
           // continue;
         }
@@ -149,7 +149,7 @@ const Tagging = ({ fileInfo, userId }) => {
             start_index: start_index,
             end_index: start_index > text.length ? start_index : text.length,
             index: data.length,
-            type: "gap",
+            type_: "gap",
           });
           // continue;
         }
@@ -164,7 +164,7 @@ const Tagging = ({ fileInfo, userId }) => {
               ? start_index
               : nextData.start_index,
           index: i + 1,
-          type: "gap",
+          type_: "gap",
         });
       }
     }
@@ -184,7 +184,7 @@ const Tagging = ({ fileInfo, userId }) => {
         start_index: 0,
         end_index: text.length,
         index: 0,
-        type: "gap",
+        type_: "gap",
       };
       newTokensAndGaps.push(gap);
     }
@@ -218,13 +218,13 @@ const Tagging = ({ fileInfo, userId }) => {
     let newTags = { ...tags };
     for (let tag of posTags) {
       let tokenId = tag.token_id;
-      // If type is auto but key does not exist then update.
+      // If type_ is auto but key does not exist then update.
       if (!newTags.hasOwnProperty(tokenId)) {
         newTags[tokenId] = tag;
       } else {
-        // If type it auto and key exists and tag is auto then update.
+        // If type_ it auto and key exists and tag is auto then update.
         let oldTag = tags[tokenId];
-        if (oldTag.type === "auto") {
+        if (oldTag.type_ === "auto") {
           newTags[tokenId] = tag;
         }
       }

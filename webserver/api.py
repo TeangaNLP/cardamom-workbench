@@ -159,12 +159,12 @@ def push_annotations():
             session.query(model.TokenModel).filter(model.TokenModel.id == token["id"]).delete() 
 
         new_annotation = model.TokenModel(
-            reserved_token = True if annotation["type_"] == "manual" else False, 
-            start_index = annotation["start_index"],
-            end_index = annotation["end_index"],
-            token_language_id = file.language_id, 
-            type_ = annotation["type_"],
-            uploaded_file_id = file_id
+            reserved_token=True if annotation["type_"] == "manual" else False,
+            start_index=annotation["start_index"],
+            end_index=annotation["end_index"],
+            token_language_id=file.language_id,
+            type_=annotation["type_"],
+            uploaded_file_id=file_id
         )
         session.add(new_annotation)
     session.commit()
@@ -208,7 +208,7 @@ def push_postags():
             continue 
         else:
             pos_instance = model.POSInstanceModel(token_id=int(token_id), tag=pos_tags[token_id]["tag"],
-                                                  type_=pos_tags[token_id]["type"])
+                                                  type_=pos_tags[token_id]["type_"])
             session.add(pos_instance)
             session.commit()
             session.flush()
@@ -226,7 +226,7 @@ def push_postags():
     return response_body
 
 
-@api.route('pos_tag/<file_id>', methods = ["GET"])
+@api.route('pos_tag/<file_id>', methods=["GET"])
 def get_postags(file_id):
     tokens = get_tokens(file_id, objectify=True)
     token_tags = {}
@@ -238,7 +238,7 @@ def get_postags(file_id):
             for feature in features:
                 tag_features.append({"feature": feature.feature, "value": feature.value})
             token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index,
-                                    "type": token.type, "token_id": token.id}
+                                    "type_": token.type_, "token_id": token.id}
     annotations = [serialise(annot) for annot in tokens]
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
 

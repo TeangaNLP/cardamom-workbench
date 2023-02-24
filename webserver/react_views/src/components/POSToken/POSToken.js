@@ -43,7 +43,7 @@ export default function POSToken({
   return (
     <span>
       <span
-        className={`${token.type === "gap" ? "pos-gap" : "pos-token"} ${tag
+        className={`${token.type_ === "gap" ? "pos-gap" : "pos-token"} ${tag
           ? `class${tag[0][0]}`
           : defaultValue.length === 0
             ? ""
@@ -53,7 +53,7 @@ export default function POSToken({
       >
         {tokenData.replace(/\\n/g, "\u000A")}
       </span>
-      {token.type !== "gap" && showCascader ? (
+      {token.type_ !== "gap" && showCascader ? (
         <CustomCascader
           ref={ref}
           data={cascaderData}
