@@ -169,6 +169,29 @@ def push_annotations():
         session.add(new_annotation)
     session.commit()
     session.flush()
+
+    ''' #todo 
+        # implement the gaps in the backend, 
+        # we need to think how to replace the existing gaps with the new created gaps
+    extracted_annotations = get_gaps(file_id)
+    for gap in gaps:
+        replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
+        for token in replace_tokens:
+            session.query(model.TokenModel).filter(model.TokenModel.id == token["id"]).delete() 
+
+        new_annotation = model.TokenModel(
+            reserved_token=True if annotation["type_"] == "manual" else False,
+            start_index=annotation["start_index"],
+            end_index=annotation["end_index"],
+            token_language_id=file.language_id,
+            type_=annotation["type_"],
+            uploaded_file_id=file_id
+        )
+        session.add(new_annotation)
+    session.commit()
+    session.flush()
+    '''
+
     response_body = {
             "response": "success"
         }
@@ -196,7 +219,6 @@ def auto_tokenise():
     tokenised_text = [serialise_data_model(token_model) for token_model in tokenised_text]
     sorted(tokenised_text, key=lambda a: a['start_index'])
     return {"annotations": tokenised_text}
-
 
 @api.route('/pos_tag', methods=["POST"])
 def push_postags():
@@ -241,7 +263,6 @@ def get_postags(file_id):
                                     "type_": token.type_, "token_id": token.id}
     annotations = [serialise(annot) for annot in tokens]
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
-
 
 @api.route('/auto_tag', methods=["POST"])
 def auto_tag():

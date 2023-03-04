@@ -20,17 +20,22 @@ const Tagging = ({ fileInfo, userId }) => {
   useEffect(() => {
 
     console.log(fileInfo)
+    window.rawobj = fileInfo
 
     if (!fetched) {
       axios
         .get("http://localhost:5001/api/pos_tag/" + fileInfo.file_id)
         .then(function (response) {
           createCascaderData();
-          setTokenData(response.data.annotations);
+          response.data.annotations = response.data.annotations.map( 
+            (t) => {
+                return {...t, "text": fileInfo.content.substring(t.start_index, t.end_index )}  
+            })
           combineTokensAndGaps(
             response.data.annotations,
             fileInfo.content
           );
+          setTokenData(response.data.annotations);
           setTags(response.data.tags);
           setFetched(true);
         })
@@ -101,25 +106,29 @@ const Tagging = ({ fileInfo, userId }) => {
         // For start
         if (currData.start_index != 0) {
           let start_index = 0;
-          gaps.push({
-            start_index: start_index,
-            end_index:
+          let end_index = 
               start_index > currData.start_index
                 ? start_index
-                : currData.start_index,
+                : currData.start_index;
+          gaps.push({
+            start_index: start_index,
+            end_index: end_index,
             index: 0,
             type_: "gap",
+            text: text.substring(start_index, end_index )
           });
         }
         // For end
         if (i == data.length - 1) {
           if (currData.end_index != text.length) {
             let start_index = currData.end_index;
+            let end_index = start_index > text.length ? start_index : text.length;
             gaps.push({
               start_index: start_index,
-              end_index: start_index > text.length ? start_index : text.length,
+              end_index: end_index, 
               index: data.length,
               type_: "gap",
+              text: text.substring(start_index, end_index )
             });
           }
         }
@@ -129,14 +138,15 @@ const Tagging = ({ fileInfo, userId }) => {
       if (i == 0) {
         if (currData.start_index != 0) {
           let start_index = 0;
+          let end_index = start_index > currData.start_index
+                ? start_index
+                : currData.start_index;
           gaps.push({
             start_index: start_index,
-            end_index:
-              start_index > currData.start_index
-                ? start_index
-                : currData.start_index,
+            end_index: end_index,
             index: 0,
             type_: "gap",
+            text: text.substring(start_index, end_index )
           });
           // continue;
         }
@@ -145,11 +155,13 @@ const Tagging = ({ fileInfo, userId }) => {
       if (i == data.length - 1) {
         if (currData.end_index != text.length) {
           let start_index = currData.end_index;
+          let end_index = start_index > text.length ? start_index : text.length;
           gaps.push({
             start_index: start_index,
-            end_index: start_index > text.length ? start_index : text.length,
+            end_index: end_index, 
             index: data.length,
             type_: "gap",
+            text: text.substring(start_index, end_index )
           });
           // continue;
         }
@@ -157,14 +169,15 @@ const Tagging = ({ fileInfo, userId }) => {
 
       if (nextData && currData.end_index != nextData.start_index) {
         let start_index = currData.end_index;
+        let end_index = start_index > nextData.start_index
+              ? start_index
+              : nextData.start_index;
         gaps.push({
           start_index: start_index,
-          end_index:
-            start_index > nextData.start_index
-              ? start_index
-              : nextData.start_index,
+          end_index: end_index,
           index: i + 1,
           type_: "gap",
+          text: text.substring(start_index, end_index )
         });
       }
     }
@@ -180,15 +193,19 @@ const Tagging = ({ fileInfo, userId }) => {
     }
 
     if (data.length == 0 && newTokensAndGaps.length == 0) {
+      let start_index = 0;
+      let end_index = text.length
       const gap = {
-        start_index: 0,
-        end_index: text.length,
+        start_index: start_index,
+        end_index: end_index,
         index: 0,
         type_: "gap",
-      };
-      newTokensAndGaps.push(gap);
-    }
+        text: text.substring(start_index, end_index )
+    };
+    newTokensAndGaps.push(gap);
+  }
     setTokensAndGaps(newTokensAndGaps);
+    window.gapsntokens = newTokensAndGaps; 
   };
 
   // Send annotations to server.

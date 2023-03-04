@@ -3,6 +3,51 @@ import useClickOutside from "../utils/useClickOutside";
 import { CustomCascader } from "../CustomCascader";
 import "./POSToken.css";
 
+
+/*
+function POSTokenDefault(token, tokenData,
+                         tag, defaultValue,
+                         onClick, showCascader,
+                         ref, onUpdateTag,
+                         cascaderData
+){
+  return (
+    <span
+            className={`${token.type_ === "gap" ? "pos-gap" : "pos-token"} ${tag
+              ? `class${tag[0][0]}`
+              : defaultValue.length === 0
+                ? ""
+                : `class${defaultValue[0]}`
+              }`}
+            onClick={onClick}
+          >
+            {tokenData}
+          {token.type_ !== "gap" && showCascader ? (
+            <CustomCascader
+              ref={ref}
+              data={cascaderData}
+              defaultValue={tag ? tag : defaultValue}
+              onUpdateTag={onUpdateTag}
+            />
+          ) : null}
+          </span>
+  );
+}
+
+          <POSTokenDefault
+                         token={token}
+                         tokenData={tokenData}
+                         tag={tag}
+                         defaultValue={defaultValue}
+                         onClick={onClick} 
+                         showCascader={showCascader}
+                         cascaderData={cascaderData}
+                         ref={ref} 
+                         onUpdateTag={onUpdateTag}
+ 
+            />
+*/
+
 export default function POSToken({
   key,
   defaultValue,
@@ -40,27 +85,38 @@ export default function POSToken({
 
   console.log(tag);
 
+  if(!tokenData.includes("\n")){
   return (
     <span>
-      <span
-        className={`${token.type_ === "gap" ? "pos-gap" : "pos-token"} ${tag
-          ? `class${tag[0][0]}`
-          : defaultValue.length === 0
-            ? ""
-            : `class${defaultValue[0]}`
-          }`}
-        onClick={onClick}
-      >
-        {tokenData.replace(/\\n/g, "\u000A")}
-      </span>
-      {token.type_ !== "gap" && showCascader ? (
-        <CustomCascader
-          ref={ref}
-          data={cascaderData}
-          defaultValue={tag ? tag : defaultValue}
-          onUpdateTag={onUpdateTag}
-        />
-      ) : null}
+          <span
+                  className={`${token.type_ === "gap" ? "pos-gap" : "pos-token"} ${tag
+                    ? `class${tag[0][0]}`
+                    : defaultValue.length === 0
+                      ? ""
+                      : `class${defaultValue[0]}`
+                    }`}
+                  onClick={onClick}
+                >
+                  {tokenData}
+          </span>
+          {token.type_ !== "gap" && showCascader ? (
+            <CustomCascader
+              ref={ref}
+              data={cascaderData}
+              defaultValue={tag ? tag : defaultValue}
+              onUpdateTag={onUpdateTag}
+            />
+          ) : null}
     </span>
   );
+}
+else {
+  if(tokenData.includes("\n\n")){
+    return <><br/><br/></>
+  }
+  else{
+    return <><br/></>
+  }
+}
+
 }
