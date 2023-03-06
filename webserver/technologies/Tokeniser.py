@@ -1,4 +1,61 @@
 from nltk.tokenize import word_tokenize
+import regex as re
+
+
+def discrete_tokenise(string, language):
+    supported = ['latin', 'old irish']
+
+    if language not in supported:
+        raise RuntimeError(f"Language, {language}, passed to Cardamom tokeniser, but language is not supported.")
+
+    elif language == 'latin':
+        toks = word_tokenize(string)
+        for index, token in enumerate(toks):
+            if "·" in token:
+                subtoks = token.split("·")
+                subtoks = [[i, "·"] for i in subtoks]
+                subtoks = [a for b in subtoks for a in b][:-1]
+                toks = toks[:index] + subtoks + toks[index + 1:]
+
+    elif language == 'old irish':
+        saved_indices = list()
+
+        # Save indices of enclosing punctus, eg. ".i."
+        pucnt_pat = re.compile(r'(((?<=\s)|(?<=^))[.·]\w{1,5}[.·](?=\s|$))')
+        pucnt_patitir = pucnt_pat.finditer(string)
+        if pucnt_patitir:
+            for patfind in pucnt_patitir:
+                if patfind.group()[0] == patfind.group()[-1]:
+                    saved_indices.append(patfind.span())
+
+        # Save indices of punctuation marking verbal stress
+        stressed_pat = re.compile(r'(((?<=\s\w+)|(?<=^\w+))[.·-](?=\w+\s|$))')
+        stressed_patitir = stressed_pat.finditer(string)
+        if stressed_patitir:
+            for patfind in stressed_patitir:
+                saved_indices.append(patfind.span())
+        saved_indices = sorted(saved_indices)
+
+        # Tokenise strings between saved indices, and recombine with the tokens between the saved indices
+        token_list = list()
+        cur_ind = 0
+        for indeces in saved_indices:
+            next_ind = indeces[0]
+            this_string = string[cur_ind:next_ind]
+            if this_string:
+                token_list.append(word_tokenize(this_string))
+            token_list.append([string[indeces[0]:indeces[1]]])
+            cur_ind = indeces[1]
+        last_string = string[cur_ind:]
+        if last_string:
+            token_list.append(word_tokenize(last_string))
+        toks = [a for b in token_list for a in b]
+
+    else:
+        raise RuntimeError(f"Language, {language}, passed to Cardamom tokeniser, "
+                           f"should be supported but cannot be found.")
+
+    return toks
 
 
 def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
@@ -41,6 +98,8 @@ def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
     nltk_langs = ['czech', 'danish', 'dutch', 'english', 'estonian', 'finnish', 'french',
                   'german', 'greek', 'italian', 'norwegian', 'polish', 'portuguese', 'russian',
                   'slovene', 'spanish', 'swedish', 'turkish']
+    # Identify languages currently supported by Cardamom's tokenisation.
+    cardamom_langs = ['latin', 'old irish']
 
     # If reserved tokens are passed to the tokeniser, do not alter tokenisation between their indices.
     # Check to make sure reserved tokens are in order, do not overlap, and no duplicates exist.
@@ -143,6 +202,8 @@ def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
                 matrix_language = matrix_language.lower()
                 if matrix_language in nltk_langs:
                     token_list.extend(word_tokenize(tok_string, matrix_language))
+                elif matrix_language in cardamom_langs:
+                    token_list.extend(discrete_tokenise(tok_string, matrix_language))
                 else:
                     token_list.extend(word_tokenize(tok_string))
             else:
@@ -198,3 +259,30 @@ def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
 #     # print(tokenise(test_en, "en", res_toks_en))
 #     for token in tokenise(test_en, "en", res_toks_en):
 #         print(f"{test_en[token.get('start_index'):token.get('end_index')]}: {token.get('reserved_token')}")
+#
+#
+#     test_la = 'NEQVEPORROQVISQVAMESTQVIDOLOREMIPSVMQVIADOLORSITAMETCONSECTETVRADIPISCIVELIT\n\n' \
+#               'NEQVE·PORRO·QVISQVAM·EST·QVI·DOLOREM·IPSVM·QVIA·DOLOR·SIT·AMET·CONSECTETVR·ADIPISCI·VELIT\n\n' \
+#               'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit'
+#
+#     # print(discrete_tokenise(test_la, 'latin'))
+#     print(tokenise(test_la, "la"))
+#
+#     test_sga = '.i. biuusa ·oc·irbáig darfarcennsi frimaccidóndu\n\n' \
+#                '.i. niarformut fribsi as·biursa ·inso· arropad maith limsa labrad ilbelre dúibsi\n\n' \
+#                '.i. isipersin crist dagníusa sin\n\n' \
+#                '.i. ó domanicc foirbthetu ní denim gnímu macthi act rísam nem bimmi æcni et bimmi foirbthi uili\n\n' \
+#                '.i. isocprecept soscéli attó\n\n' \
+#                '.i. ished inso noguidimm .i. ' \
+#                'conducaid etargne ṅ dǽ et conaroib temel innatol domunde tarrosc fornanme\n\n' \
+#                '.i. hore nondobmolorsa et nom móidim indib\n\n.i. amal nondafrecṅdirccsa\n\n' \
+#                '.i. is inse ṅduit nitú nodnai(l) acht ishé not ail\n\n' \
+#                '.i. madarlóg pridchasa .i. armetiuth et mothoschith nímbia fochricc dar hési moprecepte\n\n' \
+#                '.i. coníarimse peccad libsi uili ɫ. aratartsa fortacht dúibsi arnap trom fuirib fornóinur\n\n' \
+#                '.i. cote mothorbese dúib madamne labrar\n\n.i. nihed notbeir ínem ciabaloingthech\n\n' \
+#                'Acht nammáa issamlid istorbe són co etercerta anasbera et conrucca inætarcne cáich\n\n' \
+#                '.i. léic uáit innabiada mílsi ettomil innahí siu dommeil do chenél arnáphé som conéit détso\n\n' \
+#                '.i. isamlid dorígeni dia corp duini ó ilballaib\n\n.i. act basamlid dúib cid immeícndarcus'
+#
+#     # print(discrete_tokenise(test_sga, 'old irish'))
+#     print(tokenise(test_sga, "sga"))
