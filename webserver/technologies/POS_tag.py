@@ -77,3 +77,10 @@ def pos_tag(string, tokens, matrix_language=None):
 #         tok["id"] = tok_no
 #
 #     print(pos_tag(test_ga, toks_ga, 'ga'))
+#
+#     test_la = "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit"
+#     toks_la = tokenise(test_la, 'la')
+#     for tok_no, tok in enumerate(toks_la):
+#         tok["id"] = tok_no
+#
+#     print([i.get("tag") for i in pos_tag(test_la, toks_la, 'la')])
