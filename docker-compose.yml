@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - postgres
+    environment:
+      - PYTHONUNBUFFERED=1
     ports:
         - "5001:80"
     command: ["./wait-for-it.sh","-t","0","postgres:5432", "--", "python3", "flask_app.py"]

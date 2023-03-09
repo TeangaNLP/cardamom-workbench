@@ -36,6 +36,7 @@ def get_tokens(file_id, objectify=False):
     if objectify:
         return annots
     annotations = [serialise(annot) for annot in annots]
+    session.close()
     return sorted(annotations, key=lambda a: a['start_index'])
 
 
@@ -262,6 +263,7 @@ def get_postags(file_id):
             token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index,
                                     "type_": token.type_, "token_id": token.id}
     annotations = [serialise(annot) for annot in tokens]
+    annotations = [{"pos_tags": [serialise(posInstance) for posInstance in tokens[idx].pos_instance], **annotation} for idx, annotation in enumerate(annotations)]
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
 
 @api.route('/auto_tag', methods=["POST"])
@@ -273,6 +275,8 @@ def auto_tag():
     content = file_data["content"]
     tokens = json.loads(request.form.get('tokens'))
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
-    pos_tags = cardamom_postag(content, tokens, lang.iso_code)
+    print(tokens)
+    print(content)
+    pos_tags = cardamom_postag(content, tokens, "en")
     pos_tags = [serialise_data_model(tags) for tags in pos_tags]
     return {"POS": pos_tags}
