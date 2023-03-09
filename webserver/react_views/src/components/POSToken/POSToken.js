@@ -84,17 +84,17 @@ export default function POSToken({
   };
 
   console.log(tag);
-
   if(!tokenData.includes("\n")){
   return (
     <span>
           <span
-                  className={`${token.type_ === "gap" ? "pos-gap" : "pos-token"} ${tag
-                    ? `class${tag[0][0]}`
-                    : defaultValue.length === 0
-                      ? ""
-                      : `class${defaultValue[0]}`
-                    }`}
+                  className={`${token.type_ === "gap" ? "pos-gap" : "pos-token"} 
+                    ${
+                      token.type_ !== "gap" && token.pos_tags.length != 0
+                    ? token.pos_tags[token.pos_tags.length - 1].tag.toLowerCase()
+                    : ""
+                    }
+                    `}
                   onClick={onClick}
                 >
                   {tokenData}

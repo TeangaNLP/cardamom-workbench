@@ -19,9 +19,6 @@ const Tagging = ({ fileInfo, userId }) => {
 
   useEffect(() => {
 
-    console.log(fileInfo)
-    window.rawobj = fileInfo
-
     if (!fetched) {
       axios
         .get("http://localhost:5001/api/pos_tag/" + fileInfo.file_id)
@@ -252,6 +249,8 @@ const Tagging = ({ fileInfo, userId }) => {
   // Auto-tag
   const autoTag = () => {
     const data = new FormData();
+    window.sentTokens = JSON.stringify(tokenData);
+    window.sentFile = JSON.stringify(fileInfo);
     data.append("tokens", JSON.stringify(tokenData));
     data.append("file_data", JSON.stringify(fileInfo));
     axios
@@ -262,6 +261,7 @@ const Tagging = ({ fileInfo, userId }) => {
       })
       .then(function (response) {
         const posTags = response.data.POS;
+        window.newAutoTags = posTags;
         updateAutoTags(posTags);
       })
       .catch(function (e) {

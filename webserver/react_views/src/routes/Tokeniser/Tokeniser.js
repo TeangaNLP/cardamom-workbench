@@ -65,7 +65,6 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
     setFileState({ file_id: file_id, content: content });
     */
     console.log(fileInfo)
-    debugger;
     if (!fetched) {
       axios
         .get("http://localhost:5001/api/annotations/" + fileInfo.file_id)
@@ -361,6 +360,8 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
     const data = new FormData();
     data.append("file_data", JSON.stringify(fileInfo));
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
+    window.sentFileI = fileInfo;
+    window.sentFileF = JSON.stringify(fileInfo);
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {

@@ -21,86 +21,86 @@
 /* border-bottom: 5px solid rgb(5, 130, 15); */
 
 /* ADJ - turquoise */
-.class1 {
+.adj {
   background-color: rgb(174, 230, 227);
 }
 
 /* ADP - orange */
-.class2 {
+.adp {
   background-color: rgb(235, 215, 178);
 }
 
 /* ADV - red */
-.class3 {
+.adv {
   background-color: rgb(219, 151, 151);
 }
 
 /* AUX - green */
-.class4 {
+.aux {
   background-color: rgb(185, 219, 182);
 }
 
 /* CCONJ - yellow */
-.class5 {
+.cconj {
   background-color: rgb(235, 237, 183);
 }
 
 /* DET - orange */
-.class6 {
+.det {
   background-color: rgb(222, 182, 109);
 }
 
 /* INTJ - blue */
-.class7 {
+.intj {
   background-color: rgb(160, 181, 235);
 }
 
 /* NOUN - turquoise */
-.class8 {
+.noun {
   background-color: rgb(148, 214, 211);
 }
 
 /* NUM - purple */
-.class9 {
+.num {
   background-color: rgb(228, 192, 235);
 }
 
 /* PART - orange */
-.class10 {
+.part {
   background-color: rgb(222, 200, 160);
 }
 
 /* PRON - light blue */
-.class11 {
+.pron {
   background-color: rgb(157, 212, 224);
 }
 
 /* PROPN - turquoise */
-.class12 {
+.propn {
   background-color: rgb(148, 214, 211);
 }
 
 /* PUNCT - grey_green */
-.class13 {
+.punct {
   background-color: rgb(173, 186, 174);
 }
 
 /* SCONJ - yellow */
-.class14 {
+.sconj {
   background-color: rgb(235, 237, 183);
 }
 
 /* SYM - grey_green */
-.class15 {
+.sym {
   background-color: rgb(173, 186, 174);
 }
 
 /* VERB - red */
-.class16 {
+.verb {
   background-color: rgb(217, 165, 165);
 }
 
 /* X - grey_green */
-.class17 {
+.x {
   background-color: rgb(173, 186, 174);
 }
