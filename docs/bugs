@@ -1,13 +1,13 @@
 # when trying to manually tokenize quisque sed + space it forces sed ex into the generated token
 
-# after tokenization loading POS tagging is loading forever.
+# after tokenization loading POS tagging is loading forever. - [SOLVED]
 
-# .i. is not being able to be tokenized
+# .i. is not being able to be tokenized - [SOLVED]
 
 # repeating tokens related to token just after line break
 
-# tokenizing ducaid in codducaid is 
-
 # autotokenizer is duplicating century "y"
+
+# (related to the above) Quotation marks (") cause text to be duplicated when auto tokenised.
 
 # auto-tagger not working at all, and can't save manual POS tags.
