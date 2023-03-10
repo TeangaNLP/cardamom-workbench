@@ -283,12 +283,18 @@ def auto_tag():
     # extract the text
     session = get_session()
     file_data = json.loads(request.form.get('file_data'))
+    file_id = file_data["file_id"]
     lang_id = file_data["lang_id"]
-    content = file_data["content"]
-    tokens = json.loads(request.form.get('tokens'))
+    file_obj = session.query(model.UploadedFileModel)\
+                        .filter(model.UploadedFileModel.id == file_id).one_or_none()
+    content = file_obj.content
+    tokens = get_tokens(file_id)
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
     print(tokens)
     print(content)
-    pos_tags = cardamom_postag(content, tokens, "en")
+    for token_ in tokens:
+        print(content[token_["start_index"]: token_["end_index"]])
+    pos_tags = cardamom_postag(content, tokens, lang)
     pos_tags = [serialise_data_model(tags) for tags in pos_tags]
+    session.close()
     return {"POS": pos_tags}
