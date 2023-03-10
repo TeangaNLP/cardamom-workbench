@@ -33,9 +33,13 @@ def serialise_data_model(model):
 def get_tokens(file_id, objectify=False):
     session = get_session()
     annots = session.query(model.TokenModel).filter(model.TokenModel.uploaded_file_id == file_id).all()
+    for idx, annotation in enumerate(annots):
+        annotation.token_language
+        annotation.pos_instance
     if objectify:
-        return annots
-    annotations = [serialise(annot) for annot in annots]
+        return session, annots
+    annotations = [{**serialise(annot),"token_language_id": annot.token_language.iso_code}\
+                                    for annot in annots]
     session.close()
     return sorted(annotations, key=lambda a: a['start_index'])
 
@@ -71,6 +75,7 @@ def login_user() -> Dict:
     password_data = request.form.get("password")
     session = get_session()
     user = session.query(model.UserModel).filter(model.UserModel.email == user_data).one_or_none()
+    session.close()
     if user:
         return jsonify({"user": user.id})
     else:
@@ -89,6 +94,7 @@ def get_all_files() -> List[model.UploadedFileModel]:
     files_ = user_data.uploaded_files
     file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content.replace("\\n", "\n"),
                       "lang_id": file.language_id} for file in files_]
+    session.close()
     return jsonify({"file_contents": file_contents})
 
 
@@ -134,12 +140,14 @@ def file_upload():
         response_body = {
             "data": content
         }
+    sessio.close()
     return response_body
 
 
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> model.UploadedFileModel:
     annotations = get_tokens(file_id)
+    print(annotations)
     return jsonify({"annotations": annotations})
 
 
@@ -153,7 +161,7 @@ def push_annotations():
     file = session.query(model.UploadedFileModel).filter(model.UploadedFileModel.id == file_id).one_or_none()
 
     # Check for tokens to be deleted
-    extracted_annotations = get_tokens(file_id)
+    extracted_annotations = get_tokens(file_id, objectify=False)
     for annotation in annotations:
         replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
         for token in replace_tokens:
@@ -170,6 +178,7 @@ def push_annotations():
         session.add(new_annotation)
     session.commit()
     session.flush()
+    session.close()
 
     ''' #todo 
         # implement the gaps in the backend, 
@@ -219,6 +228,7 @@ def auto_tokenise():
                                        uploaded_file_id=uploaded_file_id)
     tokenised_text = [serialise_data_model(token_model) for token_model in tokenised_text]
     sorted(tokenised_text, key=lambda a: a['start_index'])
+    session.close()
     return {"annotations": tokenised_text}
 
 @api.route('/pos_tag', methods=["POST"])
@@ -246,12 +256,13 @@ def push_postags():
     response_body = {
             "response": "success"
         }
+    session.close()
     return response_body
 
 
 @api.route('pos_tag/<file_id>', methods=["GET"])
 def get_postags(file_id):
-    tokens = get_tokens(file_id, objectify=True)
+    session, tokens = get_tokens(file_id, objectify=True)
     token_tags = {}
     for token in tokens:
         instances = token.pos_instance
@@ -262,8 +273,9 @@ def get_postags(file_id):
                 tag_features.append({"feature": feature.feature, "value": feature.value})
             token_tags[token.id] = {"tag": instance.tag, "features": tag_features, "start_index": token.start_index,
                                     "type_": token.type_, "token_id": token.id}
-    annotations = [serialise(annot) for annot in tokens]
+    annotations = get_tokens(file_id)
     annotations = [{"pos_tags": [serialise(posInstance) for posInstance in tokens[idx].pos_instance], **annotation} for idx, annotation in enumerate(annotations)]
+    session.close()
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
 
 @api.route('/auto_tag', methods=["POST"])
