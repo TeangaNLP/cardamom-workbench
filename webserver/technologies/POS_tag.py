@@ -37,6 +37,22 @@ def pos_tag(string, tokens, matrix_language=None):
     tokens = [{**i, **{'token': string[i.get('start_index'):i.get('end_index')]}} for i in tokens
               if i.get('type_') in ['auto', 'manual']]
 
+    unexpected_substrings = ["\\n", "\\\\", "\\\"", "\\'"]
+    for retrieved_tok in tokens:
+        from_text = retrieved_tok.get("token")
+        if any(substring in from_text for substring in unexpected_substrings):
+            found_substring = [i for i in unexpected_substrings if i in from_text]
+            if len(found_substring) > 1:
+                plurality = "s"
+            else:
+                plurality = ""
+                found_substring = found_substring[0]
+            raise RuntimeError(f"Cannot POS-tag text."
+                               f"\n    Token \"{from_text}\", at index {retrieved_tok.get('start_index')}, "
+                               f"contains unexpected substring{plurality}, \"{found_substring}\"."
+                               f"\n    Ensure alignment of text with token indices: "
+                               f"({retrieved_tok.get('start_index')} - {retrieved_tok.get('end_index')}).")
+
     # Reduce list to only tokens with a language identified
     if matrix_language:
         tokens = [i if i.get('token_language_id') else {**i, **{'token_language_id': matrix_language}} for i in tokens]
