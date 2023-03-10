@@ -294,8 +294,12 @@ def load_tagger(language, models_directory="language_models"):
 
     # Set directories, create models directory if none exists
     cur_dir = os.getcwd()
-    server_dir = cur_dir[:cur_dir.index(f"{slash}technologies")]
+    if f"{slash}code" in cur_dir:
+        server_dir = cur_dir
+    else:
+        server_dir = cur_dir[:cur_dir.index(f"{slash}technologies")]
     models_dir = server_dir + slash + models_directory
+
     try:
         available_models = os.listdir(models_dir)
         model_filename = f"{language}_tagger.pkl"

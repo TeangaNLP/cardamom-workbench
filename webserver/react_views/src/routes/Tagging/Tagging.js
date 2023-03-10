@@ -251,6 +251,7 @@ const Tagging = ({ fileInfo, userId }) => {
     const data = new FormData();
     window.sentTokens = JSON.stringify(tokenData);
     window.sentFile = JSON.stringify(fileInfo);
+    window.sentRawContent = JSON.stringify(fileInfo.content);
     data.append("tokens", JSON.stringify(tokenData));
     data.append("file_data", JSON.stringify(fileInfo));
     axios
