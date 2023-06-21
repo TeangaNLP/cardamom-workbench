@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { NavBar, Token } from "../../components/";
 import axios from "axios";
 
 import "./Tokeniser.css";
 
-const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
+const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeLink = location.pathname;
   let [tokenData, setTokenData] = useState([]);
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
@@ -19,7 +23,6 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
     end: null,
     componentStartIndex: null,
   });
-
   // Callback for saving
   const onEnter = useCallback(
     (event) => {
@@ -64,8 +67,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
 
     setFileState({ file_id: file_id, content: content });
     */
-    console.log(fileInfo)
-    if (!fetched) {
+    if (!fetched && fileInfo !== undefined) {
       axios
         .get("http://localhost:5001/api/annotations/" + fileInfo.file_id)
         .then(function (response) {
@@ -336,6 +338,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
 
     setTokenData(data);
     setTokensAndGaps(newTokensAndGaps);
+    window.tokensAndGaps = newTokensAndGaps
   };
 
   // Return manual tokens.
@@ -401,14 +404,14 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
 
   return (
     <div>
-      <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <NavBar setUser={setUser} pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
       <NavBar main={false} pages={
         [
           { path: "/editor", name: "Text Editor" },
-          { path: "/tokeniser", name: "Tokenisation" },
+          { path: activeLink, name: "Tokenisation" },
           { path: "/identification", name: "Identification" },
           { path: "/annotation", name: "Annotation" },
-          { path: "/tagging", name: "POS Tagging" }
+          { path: `/tagging/${fileInfo.filename}`, name: "POS Tagging" }
         ]
       } />
       <div onKeyPress={onEnter} className="tokenise-area">
