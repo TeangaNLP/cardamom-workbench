@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { NavBar, POSToken } from '../../components';
 import { Button } from 'react-bootstrap';
+import { useNavigate, useLocation } from "react-router-dom";
 import posTags from './tags';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import "./Tagging.css";
 import axios from 'axios';
 
-const Tagging = ({ fileInfo, userId }) => {
-
+const Tagging = ({ fileInfo, user, setUser }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeLink = location.pathname;
   let [fetched, setFetched] = useState(false); // For fetching data once.
   let [tokenData, setTokenData] = useState([]); // For tokens (not tags).
   let [tokensAndGaps, setTokensAndGaps] = useState([]); // For tokens and gaps.
@@ -40,7 +43,6 @@ const Tagging = ({ fileInfo, userId }) => {
           console.log(err);
         });
     }
-
   }, []);
 
   // Functionality
@@ -287,14 +289,14 @@ const Tagging = ({ fileInfo, userId }) => {
 
   return (
     <div>
-      <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <NavBar setUser={setUser} pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
       <NavBar main={false} pages={
         [
           { path: "/editor", name: "Text Editor" },
-          { path: "/tokeniser", name: "Tokenisation" },
+          { path: `/tokeniser/${fileInfo.filename}`, name: "Tokenisation" },
           { path: "/identification", name: "Identification" },
           { path: "/annotation", name: "Annotation" },
-          { path: "/tagging", name: "POS Tagging" }
+          { path: activeLink, name: "POS Tagging" }
         ]
       } />
       <div className='tagging-area'>
