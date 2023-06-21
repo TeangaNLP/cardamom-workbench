@@ -70,7 +70,7 @@ def signup_user() -> Dict:
     User signup route
     """
     email_data = request.form.get("email")
-    username_data = request.form.get("username")
+    username_data = request.form.get("name")
     password_data = request.form.get("password")
     session = get_session()
     user = session.query(model.UserModel).filter(model.UserModel.email == email_data).one_or_none()
@@ -88,8 +88,9 @@ def signup_user() -> Dict:
                             "id": new_user.id,
                             "name": new_user.name,
                             "email": new_user.email,
-                                 }
-                        }, message="User created successfully")
+                                 },
+                         "message":"User created successfully"
+                        })
 
 @api.route('/login_user', methods=["POST"])
 def login_user() -> Dict:
@@ -99,14 +100,14 @@ def login_user() -> Dict:
     email_data = request.form.get("email")
     password_data = request.form.get("password")
     session = get_session()
-    print(email_data, password_data)
     user = session.query(model.UserModel).filter(model.UserModel.email == email_data).one_or_none()
     if user != None and user.password == password_data:
         response = jsonify({"user": {
                                 "id": user.id,
                                 "name": user.name,
                                 "email": user.email
-                                 }
+                                 },
+                            "message": "user sucessfuly validated"
                         })
     else:
         response = jsonify({"user": None, "message": "invalid username or password"})
@@ -127,7 +128,7 @@ def get_file() -> List[model.UploadedFileModel]:
         file_contents = {
                           "filename": File.name,
                           "file_id": File.id,
-                          "content": File.content.replace("\\n", "\n"),
+                          "content": File.content,#.replace("\\n", "\n"),
                           "tokens":[{
                                 "content": File.content[token.start_index:token.end_index],
                                 **serialise_data_model(token)
@@ -171,7 +172,9 @@ def file_upload():
         print('abort(400)') 
     uploaded_file = request.files["file"]
     name = uploaded_file.filename
-    name, extension = name.split('.')[:-1] , name.split('.')[-1]
+    print(name)
+    name, extension = ".".join(name.split('.')[:-1]) , name.split('.')[-1]
+    print(name)
     user_id = request.form['user_id']
     iso_code = request.form['iso_code']
 
@@ -180,14 +183,13 @@ def file_upload():
         # upload a txt file
         uploaded_file = uploaded_file.read()
         content = uploaded_file.decode("utf-8") 
+        content = content.replace("\\n", "\n").replace("\r","")
+        print(name)
         new_file = model.UploadedFileModel(name = name, content = content, user_id = user_id, language_id = lang.id)
         session.add(new_file)
         session.commit()
         session.flush()
-        content = cardamom_tokenise(content, iso_code=iso_code)
-        response_body = {
-            "data": content
-        }
+        # content = cardamom_tokenise(content, iso_code=iso_code)
     elif extension == 'docx':
         # upload a docx file
         uploaded_file = docx.Document(uploaded_file)
@@ -199,13 +201,12 @@ def file_upload():
         session.add(model.UploadedFileModel(name, content, user_id, lang.id))
         session.commit()
         session.flush()
-        content = cardamom_tokenise(content, iso_code=iso_code)
-        response_body = {
-            "data": content
-        }
+        #content = cardamom_tokenise(content, iso_code=iso_code)
+    response_body = {
+        "status": "file uploaded" 
+    }
     session.close()
     return response_body
-
 
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> model.UploadedFileModel:
