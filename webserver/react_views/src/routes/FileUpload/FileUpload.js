@@ -3,11 +3,10 @@ import axios from "axios";
 import "./FileUpload.css";
 import { NavBar } from "../../components";
 
-export default function FileUpload(props) {
+export default function FileUpload({ user, setUser }) {
   const [selectedFile, setSelectedFile] = useState();
   const [selectedLang, setLang] = useState("ga");
 
-  const userId = props.userId;
 
   const options = [
     { value: "ga", label: "Irish" },
@@ -25,6 +24,7 @@ export default function FileUpload(props) {
   }
 
   const handleSubmission = () => {
+    const userId = user.id;
     const data = new FormData();
     data.append("file", selectedFile);
     data.append("user_id", userId);
@@ -47,6 +47,7 @@ export default function FileUpload(props) {
   return (
     <div>
       <NavBar
+	setUser={setUser}
         pages={[
           { path: "/", name: "Home" },
           { path: "/fileupload", name: "File Upload" },
