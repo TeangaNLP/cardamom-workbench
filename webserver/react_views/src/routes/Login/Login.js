@@ -1,4 +1,4 @@
-import { useRef, forwardRef, useState } from 'react';
+import { useRef, forwardRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Content, FlexboxGrid, Panel, Form, ButtonToolbar, Button, Schema } from 'rsuite';
@@ -27,19 +27,18 @@ const TextField = forwardRef((props, ref) => {
   );
 });
 
-const Login = ({setUserId}) => {
-
+const Login = ({setUser, setUserId, userId}) => {
+  const navigate = useNavigate();
   const formRef = useRef();
   const [formValue, setFormValue] = useState({
     email: '',
     password: '',
   });
-  let navigate = useNavigate();
 
   const authenticateUser = () => {
 
     const data = new FormData()
-    data.append("user", formValue.email);
+    data.append("email", formValue.email);
     data.append("password", formValue.password);
 
     axios
@@ -49,9 +48,16 @@ const Login = ({setUserId}) => {
         },
       })
       .then(function (response) {
-        const userId = response.data.user
-        setUserId(userId);
-        if (userId) navigate("/");
+	console.log(response.data.user)
+        const rawUser = response.data.user 
+        if (rawUser !== null && rawUser !== undefined){
+		const user = { ...response.data.user, isAuth: true , files: {}}
+		//setUserId(user.id);
+		setUser(user);
+		//localStorage.setItem('userId', user.id);
+		localStorage.setItem('user', JSON.stringify(user));
+		navigate("/");
+	}
         else console.log("User not authenticated");
 
       })
