@@ -3,7 +3,10 @@ import { Navigate, useParams } from 'react-router-dom';
 
 function RequireFileInfo({ children, user, fileInfo, setFileInfo, redirectTo }) {
     const { fileId } = useParams();
-    if( fileInfo !== null && fileInfo !== undefined ){
+    if( user === null || user === undefined ){
+	    return
+    }
+    else if( fileInfo !== null && fileInfo !== undefined ){
 	    return children 
     }
     else if( (fileInfo === null || fileInfo === undefined) && user.documents 

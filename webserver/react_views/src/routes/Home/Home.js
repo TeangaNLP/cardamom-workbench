@@ -55,6 +55,7 @@ const Home = ({
   return (
     <div>
       <NavBar setUser={setUser} pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <h1> Welcome {user.name} </h1>
       {isLoading ? <div>Loading...</div> : documents.length > 0 ? (
         documents.map(doc => {
           return (

@@ -32,6 +32,7 @@ const TextField = forwardRef((props, ref) => {
 const SignUp = ({setUser, setUserId, userId}) => {
   const navigate = useNavigate();
   const formRef = useRef();
+  const [statusMessage, setStatusMessage] = useState("");
   const [formValue, setFormValue] = useState({
     name: '',
     email: '',
@@ -41,6 +42,7 @@ const SignUp = ({setUser, setUserId, userId}) => {
 
   const authenticateUser = () => {
     if(formValue.password !== formValue.confirmPassword){
+	    setStatusMessage("passwords do not match")
 	    return
     }
     const data = new FormData()
@@ -56,7 +58,6 @@ const SignUp = ({setUser, setUserId, userId}) => {
       })
       .then(function (response) {
 	console.log(response.data.user)
-	alert(response.data.message)
         const rawUser = response.data.user 
         if (rawUser !== null && rawUser !== undefined){
 		const user = { ...response.data.user, isAuth: true , files: {}}
@@ -85,6 +86,7 @@ const SignUp = ({setUser, setUserId, userId}) => {
         <FlexboxGrid justify="center">
           <FlexboxGrid.Item colspan={12}>
             <Panel header={<h3>Sign Up</h3>} bordered>
+	      <h4 style={{color: "red" }}> {statusMessage} </h4>
               <Form onSubmit={authenticateUser} ref={formRef} onChange={setFormValue} formValue={formValue} model={model}>
                 <TextField name="name" label="Name" />
                 <TextField name="email" label="Email Address" />
@@ -92,7 +94,9 @@ const SignUp = ({setUser, setUserId, userId}) => {
                 <TextField name="confirmPassword" label="Confirm Password" type="password" autoComplete="off" />
                 <Form.Group>
                   <ButtonToolbar>
-                    <Button appearance="primary" type="submit">Register</Button>
+                    <Button appearance="primary" type="submit">Sign Up</Button>
+	  	    <span> OR </span>
+                    <Button appearance="primary" onClick={ () => navigate("/login") }>Login</Button>
                   </ButtonToolbar>
                 </Form.Group>
               </Form>

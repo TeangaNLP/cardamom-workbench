@@ -6,6 +6,7 @@ import { NavBar } from "../../components";
 export default function FileUpload({ user, setUser }) {
   const [selectedFile, setSelectedFile] = useState();
   const [selectedLang, setLang] = useState("ga");
+  const [status, setStatus] = useState("");
 
 
   const options = [
@@ -16,11 +17,13 @@ export default function FileUpload({ user, setUser }) {
 
 
   const changeHandler = (event) => {
+    setStatus("")
     setSelectedFile(event.target.files[0]);
   };
 
   const changeLang = (event) => {
     setLang(event.target.value);
+
   }
 
   const handleSubmission = () => {
@@ -38,9 +41,11 @@ export default function FileUpload({ user, setUser }) {
       })
       .then(function (response) {
         console.log("Successfully uploaded!");
+	setStatus("File Successfully uploaded!");
       })
       .catch(function () {
         console.log("Didn't upload");
+	setStatus("File upload failed.");
       });
   };
 
@@ -55,6 +60,7 @@ export default function FileUpload({ user, setUser }) {
       />
       <br />
       <h2> Cardamom Workbench</h2>
+      <h2 style={{ color: 'red' }}> {status} </h2>
 
       <div id="file-upload-form" className="uploader">
         <select

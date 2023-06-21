@@ -36,6 +36,12 @@ export default function Router() {
 		user, fileInfo, documents, logout
       }}>
       <Routes>
+        <Route path="*" element={
+		<CheckCachedUser user={user} setUser={setUser} redirectTo="/">
+			<Login setUser={setUser} setUserId={setUserId} /> 
+		</CheckCachedUser>
+		} 
+	/>
         <Route path="/login" element={
 		<CheckCachedUser user={user} setUser={setUser} redirectTo="/">
 			<Login setUser={setUser} setUserId={setUserId} /> 
@@ -73,7 +79,7 @@ export default function Router() {
         <Route path="/tagging/:fileId" element={
 		<RequireUser user={user} setUser={setUser} redirectTo="/login" >
 			<RequireFileInfo user={user} setUser={setUser}
-					fileInfo={fileInfo} setFileInfo={setFileInfo} redirectTo="/login" >
+					fileInfo={fileInfo} setFileInfo={setFileInfo} redirectTo="/" >
 				<Tagging setUser={setUser} fileInfo={fileInfo} user={user} />
 			</RequireFileInfo>
 		</RequireUser>

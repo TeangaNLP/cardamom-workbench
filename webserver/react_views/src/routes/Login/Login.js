@@ -30,12 +30,20 @@ const TextField = forwardRef((props, ref) => {
 const Login = ({setUser, setUserId, userId}) => {
   const navigate = useNavigate();
   const formRef = useRef();
+  const [statusMessage, setStatusMessage] = useState("");
   const [formValue, setFormValue] = useState({
     email: '',
     password: '',
   });
 
   const authenticateUser = () => {
+    if(formValue.password === null || formValue.password === undefined
+       || formValue.email === null || formValue.email === undefined
+       || formValue.password === '' || formValue.password === ''
+    ){
+
+	    return
+    }
 
     const data = new FormData()
     data.append("email", formValue.email);
@@ -51,17 +59,20 @@ const Login = ({setUser, setUserId, userId}) => {
 	console.log(response.data.user)
         const rawUser = response.data.user 
         if (rawUser !== null && rawUser !== undefined){
-		const user = { ...response.data.user, isAuth: true , files: {}}
+		const user = { ...response.data.user, isAuth: true , documents: {}}
 		//setUserId(user.id);
 		setUser(user);
 		//localStorage.setItem('userId', user.id);
 		localStorage.setItem('user', JSON.stringify(user));
 		navigate("/");
 	}
-        else console.log("User not authenticated");
+        else{
+		setStatusMessage(response.data.message)
+	}
 
       })
-      .catch(function () {
+      .catch(function (response) {
+	setStatusMessage(response.data.message)
         console.log("User does not exist");
       });
   }
@@ -77,12 +88,15 @@ const Login = ({setUser, setUserId, userId}) => {
         <FlexboxGrid justify="center">
           <FlexboxGrid.Item colspan={12}>
             <Panel header={<h3>Login</h3>} bordered>
+	      <h4 style={{color: "red" }}> {statusMessage} </h4>
               <Form onSubmit={authenticateUser} ref={formRef} onChange={setFormValue} formValue={formValue} model={model}>
                 <TextField name="email" label="Email Address" />
                 <TextField name="password" label="Password" type="password" autoComplete="off" />
                 <Form.Group>
                   <ButtonToolbar>
-                    <Button appearance="primary" type="submit">Submit</Button>
+                    <Button appearance="primary" type="submit">Login</Button>
+	  	    <span> OR </span>
+                    <Button appearance="primary" onClick={()=>navigate("/signup") }>Signup</Button>
                   </ButtonToolbar>
                 </Form.Group>
               </Form>
