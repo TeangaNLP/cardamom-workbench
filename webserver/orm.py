@@ -94,7 +94,8 @@ def start_mappers():
     })
     mapper(model.UploadedFileModel, UploadedFile, properties={
         "user": relationship(model.UserModel),
-        "file_language": relationship(model.LanguageModel) 
+        "file_language": relationship(model.LanguageModel), 
+        "tokens": relationship(model.TokenModel)
     })
     mapper(model.LanguageModel, Language, properties={
         "uploaded_files": relationship(model.UploadedFileModel),
