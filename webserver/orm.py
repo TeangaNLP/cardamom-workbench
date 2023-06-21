@@ -6,6 +6,7 @@ import model
 
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -27,6 +28,7 @@ class UploadedFile(Base):
     # user = relationship("User", backref = backref('uploaded_files'))
     # file_language = relationship("Language", back_populates = "uploaded_files")
 
+
 class Language(Base):
     __tablename__ = 'languages'
 
@@ -38,6 +40,7 @@ class Language(Base):
     # uploaded_files = relationship("UploadedFile", back_populates = "file_language")
     # tokens = relationship("Token", back_populates = "token_language")
 
+
 class Provenance(Base):
     __tablename__ = 'provenances'
 
@@ -45,13 +48,14 @@ class Provenance(Base):
     timestamp = Column(String(255), nullable=False)
     reference_id = Column(Integer)
 
+
 class POSInstance(Base):
     __tablename__ = 'posinstance'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     token_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
     tag = Column(String(255))
-    type = Column(String(255), nullable=False)
+    type_ = Column(String(255), nullable=False)
 
     # token = relationship("Token", back_populates = "pos_instance")
     # features = relationship("POSFeatures", back_populates = "pos_instance")
@@ -76,8 +80,8 @@ class Token(Base):
     start_index = Column(Integer, nullable=False)
     end_index = Column(Integer, nullable=False)
     token_language_id = Column(Integer, ForeignKey("languages.id"), nullable=False)
-    type = Column(String(255), nullable=False)
-    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable = False)
+    type_ = Column(String(255), nullable=False)
+    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
     
     # file = relationship("UploadedFile", backref = backref('tokens'))
     # token_language = relationship("Language", back_populates = "tokens")
@@ -90,7 +94,8 @@ def start_mappers():
     })
     mapper(model.UploadedFileModel, UploadedFile, properties={
         "user": relationship(model.UserModel),
-        "file_language": relationship(model.LanguageModel) 
+        "file_language": relationship(model.LanguageModel), 
+        "tokens": relationship(model.TokenModel)
     })
     mapper(model.LanguageModel, Language, properties={
         "uploaded_files": relationship(model.UploadedFileModel),

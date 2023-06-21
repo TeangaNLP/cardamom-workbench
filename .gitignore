@@ -1,14 +1,13 @@
 webserver/react_views/node_modules/**
+webserver/**/node_modules/
+webserver/vite_old_ui/
+webserver/vite_views/
 /database/postgres-data/
-<<<<<<< HEAD
 webserver/static
 webserver/templates/index.html
 webserver/technologies/__pycache__/
 .DS_Store
 ../.DS_Store
-=======
 /technologies/language_identification-word/my-project-env
 /technologies/language_identification-word/__pycache__
 /technologies/language_identification-word/logs
-
->>>>>>> f5ecc74b4a851a06eafefacec1145bb0e580a93a

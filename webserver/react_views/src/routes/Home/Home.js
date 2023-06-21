@@ -7,37 +7,55 @@ import axios from "axios";
 import "./Home.css";
 
 const Home = ({
-                userId,
+                user,
+		setUser,
                 documents,
                 setDocuments,
-                setFileInfo
+                setFileInfo,
+		setUserId
               }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-
-  //const userId = props.userId;
-
-  useEffect(() => {
-    // Update the document title using the browser API
-    if (!userId) {
-      navigate("/login", { replace: true });
-    }
-
-    axios
+  const [isLoading, setIsLoading] = useState(true);
+  const r = () => { 
+      const userId = user.id;
+      axios
       .get("http://localhost:5001/api/get_files?user=" + userId)
       .then(function (response) {
-        console.log(response);
-        setDocuments(response.data.file_contents);
+	const documents = response.data.file_contents
+        setDocuments(documents);
+	setUser({...user, documents:documents});
+	localStorage.setItem('user', JSON.stringify(user));
         setIsLoading(false);
       })
       .catch(function (err) {
         console.log(err);
-      });
-  }, []);
+      }); }
+
+
+    useEffect(() => {
+	if(user.documents){
+		setIsLoading(false);
+		setDocuments(user.documents)
+		return
+	}
+	r()
+    },[])
+  /*useEffect(() => {
+    // Update the document title using the browser API
+    if (userId === undefined && localStorage.getItem('userId') === null) {
+      navigate("/login", { replace: true });
+    }
+    else if(userId === undefined && localStorage.getItem('userId') !== null){
+      setUserId(localStorage.getItem('userId'));
+    }
+    r();
+
+  }, [userId]);*/
 
   return (
     <div>
-      <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <NavBar setUser={setUser} pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <h1> Welcome {user.name} </h1>
       {isLoading ? <div>Loading...</div> : documents.length > 0 ? (
         documents.map(doc => {
           return (
@@ -45,11 +63,10 @@ const Home = ({
               <ListGroup.Item
                 action
                 onClick={() => {
-                  console.log(doc)
                   setFileInfo({
                     ...doc
                   })
-                  navigate("/tokeniser")
+                  navigate(`/tokeniser/${doc.filename}`)
                   }
                 }
               >
@@ -61,5 +78,6 @@ const Home = ({
     </div>
   );
 };
+
 
 export default Home;

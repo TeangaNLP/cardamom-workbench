@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { NavBar, Token } from "../../components/";
 import axios from "axios";
 
 import "./Tokeniser.css";
 
-const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
+const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeLink = location.pathname;
   let [tokenData, setTokenData] = useState([]);
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
@@ -19,7 +23,6 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
     end: null,
     componentStartIndex: null,
   });
-
   // Callback for saving
   const onEnter = useCallback(
     (event) => {
@@ -64,9 +67,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
 
     setFileState({ file_id: file_id, content: content });
     */
-    console.log(fileInfo)
-    debugger;
-    if (!fetched) {
+    if (!fetched && fileInfo !== undefined) {
       axios
         .get("http://localhost:5001/api/annotations/" + fileInfo.file_id)
         .then(function (response) {
@@ -164,7 +165,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
 
       while (i < tokensAndGaps.length) {
         if (
-          tokensAndGaps[i].type != "manual" &&
+          tokensAndGaps[i].type_ != "manual" &&
           start >= tokensAndGaps[i].start_index &&
           !(tokensAndGaps[i].end_index <= start)
         ) {
@@ -223,7 +224,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
     }
     // Add new tokens
     const newToken = {
-      type: "manual",
+      type_: "manual",
       start_index: start,
       end_index: end,
       provenance: 1,
@@ -254,7 +255,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
                 ? start_index
                 : currData.start_index,
             index: 0,
-            type: "gap",
+            type_: "gap",
           });
         }
         // For end
@@ -265,7 +266,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
               start_index: start_index,
               end_index: start_index > text.length ? start_index : text.length,
               index: data.length,
-              type: "gap",
+              type_: "gap",
             });
           }
         }
@@ -282,7 +283,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
                 ? start_index
                 : currData.start_index,
             index: 0,
-            type: "gap",
+            type_: "gap",
           });
           // continue;
         }
@@ -295,7 +296,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
             start_index: start_index,
             end_index: start_index > text.length ? start_index : text.length,
             index: data.length,
-            type: "gap",
+            type_: "gap",
           });
           // continue;
         }
@@ -310,7 +311,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
               ? start_index
               : nextData.start_index,
           index: i + 1,
-          type: "gap",
+          type_: "gap",
         });
       }
     }
@@ -330,22 +331,23 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
         start_index: 0,
         end_index: text.length,
         index: 0,
-        type: "gap",
+        type_: "gap",
       };
       newTokensAndGaps.push(gap);
     }
 
     setTokenData(data);
     setTokensAndGaps(newTokensAndGaps);
+    window.tokensAndGaps = newTokensAndGaps
   };
 
   // Return manual tokens.
   const getReservedTokens = () => {
     let reservedTokens = [];
     for (let token of tokenData) {
-      if (token.type == "manual") {
+      if (token.type_ == "manual") {
         const t = {
-          type: token.type,
+          type_: token.type_,
           start_index: token.start_index,
           end_index: token.end_index,
           provenance: 1
@@ -361,6 +363,8 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
     const data = new FormData();
     data.append("file_data", JSON.stringify(fileInfo));
     data.append("reservedTokens", JSON.stringify(getReservedTokens()));
+    window.sentFileI = fileInfo;
+    window.sentFileF = JSON.stringify(fileInfo);
 
     axios
       .post("http://localhost:5001/api/auto_tokenise", data, {
@@ -400,14 +404,14 @@ const Tokeniser = ({ fileInfo, setFileInfo, userId }) => {
 
   return (
     <div>
-      <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <NavBar setUser={setUser} pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
       <NavBar main={false} pages={
         [
           { path: "/editor", name: "Text Editor" },
-          { path: "/tokeniser", name: "Tokenisation" },
+          { path: activeLink, name: "Tokenisation" },
           { path: "/identification", name: "Identification" },
           { path: "/annotation", name: "Annotation" },
-          { path: "/tagging", name: "POS Tagging" }
+          { path: `/tagging/${fileInfo.filename}`, name: "POS Tagging" }
         ]
       } />
       <div onKeyPress={onEnter} className="tokenise-area">

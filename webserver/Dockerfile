@@ -5,6 +5,7 @@ RUN apt update\
                 curl\
                 nodejs\
                 npm\
+		git\
     && npm install -g n\
     && n v18.4.0
 
@@ -18,6 +19,8 @@ RUN  npm install --legacy-peer-deps\
      && npm run build
 
 COPY requirements.txt /tmp
+RUN git clone https://github.com/priya-74llh/cardamom_LID.git /code/technologies/cardamom_LID/
+RUN pip install -r /code/technologies/cardamom_LID/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 COPY *.py /code/
 COPY technologies/* /code/technologies/

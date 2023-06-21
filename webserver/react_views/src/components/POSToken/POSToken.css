@@ -18,87 +18,89 @@
   cursor: not-allowed;
 }
 
-.class1 {
-  background-color: rgb(115, 200, 250);
-  border-bottom: 5px solid rgba(60, 100, 135);
+/* border-bottom: 5px solid rgb(5, 130, 15); */
+
+/* ADJ - turquoise */
+.adj {
+  background-color: rgb(174, 230, 227);
 }
 
-.class2 {
-  background-color: rgb(0, 215, 45);
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* ADP - orange */
+.adp {
+  background-color: rgb(235, 215, 178);
 }
 
-.class3 {
-  background-color: #c0c0c0;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* ADV - red */
+.adv {
+  background-color: rgb(219, 151, 151);
 }
 
-.class4 {
-  background-color: #2f4f4f;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* AUX - green */
+.aux {
+  background-color: rgb(185, 219, 182);
 }
 
-.class5 {
-  background-color: #8b4513;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* CCONJ - yellow */
+.cconj {
+  background-color: rgb(235, 237, 183);
 }
 
-.class6 {
-  background-color: #191970;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* DET - orange */
+.det {
+  background-color: rgb(222, 182, 109);
 }
 
-.class7 {
-  background-color: #b03060;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* INTJ - blue */
+.intj {
+  background-color: rgb(160, 181, 235);
 }
 
-.class8 {
-  background-color: rgb(0, 215, 45);
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* NOUN - turquoise */
+.noun {
+  background-color: rgb(148, 214, 211);
 }
 
-.class9 {
-  background-color: #ff4500;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* NUM - purple */
+.num {
+  background-color: rgb(228, 192, 235);
 }
 
-.class10 {
-  background-color: #ff4500;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* PART - orange */
+.part {
+  background-color: rgb(222, 200, 160);
 }
 
-.class11 {
-  background-color: #ff4500;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* PRON - light blue */
+.pron {
+  background-color: rgb(157, 212, 224);
 }
 
-.class12 {
-  background-color: #0000cd;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* PROPN - turquoise */
+.propn {
+  background-color: rgb(148, 214, 211);
 }
 
-.class13 {
-  background-color: #7cfc00;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* PUNCT - grey_green */
+.punct {
+  background-color: rgb(173, 186, 174);
 }
 
-.class14 {
-  background-color: rgb(0, 215, 45);
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* SCONJ - yellow */
+.sconj {
+  background-color: rgb(235, 237, 183);
 }
 
-.class15 {
-  background-color: #00ffff;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* SYM - grey_green */
+.sym {
+  background-color: rgb(173, 186, 174);
 }
 
-.class16 {
-  background-color: #00ffff;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* VERB - red */
+.verb {
+  background-color: rgb(217, 165, 165);
 }
 
-.class17 {
-  background-color: #ffff00;
-  border-bottom: 5px solid rgb(5, 130, 15);
+/* X - grey_green */
+.x {
+  background-color: rgb(173, 186, 174);
 }
