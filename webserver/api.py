@@ -8,6 +8,7 @@ from orm import Base
 from typing import List, Dict
 from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
+from sqlalchemy.pool import NullPool
 from flask import Blueprint, request, render_template, make_response, jsonify 
 
 from technologies import cardamom_tokenise
@@ -16,7 +17,7 @@ from technologies import cardamom_postag
 api = Blueprint('api', __name__, template_folder='templates')
 
 orm.start_mappers()
-engine = create_engine(config.get_postgres_uri())
+engine = create_engine(config.get_postgres_uri(), poolclass=NullPool)
 Base.metadata.create_all(engine)
 get_session = sessionmaker(bind=engine)
 
@@ -48,7 +49,6 @@ def get_replaced_tokens(start, end, annotations):
     # fetch the saved tokens
     i = 0
     replace_tokens = []
-
     while i < len(annotations):
         # if the new start is greater than annotations start
         new_set = set(range(start, end))
@@ -64,23 +64,81 @@ def get_replaced_tokens(start, end, annotations):
     return replace_tokens
 
 
+@api.route('/signup_user', methods=["POST"])
+def signup_user() -> Dict:
+    """
+    User signup route
+    """
+    email_data = request.form.get("email")
+    username_data = request.form.get("username")
+    password_data = request.form.get("password")
+    session = get_session()
+    user = session.query(model.UserModel).filter(model.UserModel.email == email_data).one_or_none()
+    if any(v == None for v in [email_data, username_data, password_data]):
+        return jsonify({"user": None, "message": "Please fill in all fields"})
+    elif user:
+        return jsonify({"user": None, "message": "This email is already registered"})
+    else:
+        new_user = model.UserModel(name = username_data, email = email_data, password = password_data )
+        session.add(new_user)
+        session.commit()
+        session.flush()
+        session.refresh(new_user)
+        return jsonify({"user": { 
+                            "id": new_user.id,
+                            "name": new_user.name,
+                            "email": new_user.email,
+                                 }
+                        }, message="User created successfully")
+
 @api.route('/login_user', methods=["POST"])
 def login_user() -> Dict:
     """
     User login route
     """
-    # for now we are just checking if the user name exist
-    # we also need to check for password
-    user_data = request.form.get("user")
+    email_data = request.form.get("email")
     password_data = request.form.get("password")
     session = get_session()
-    user = session.query(model.UserModel).filter(model.UserModel.email == user_data).one_or_none()
-    session.close()
-    if user:
-        return jsonify({"user": user.id})
+    print(email_data, password_data)
+    user = session.query(model.UserModel).filter(model.UserModel.email == email_data).one_or_none()
+    if user != None and user.password == password_data:
+        response = jsonify({"user": {
+                                "id": user.id,
+                                "name": user.name,
+                                "email": user.email
+                                 }
+                        })
     else:
-        return jsonify({"user": None})
+        response = jsonify({"user": None, "message": "invalid username or password"})
+    session.close()
+    return response
 
+@api.route('/get_file/', methods=["GET"])
+def get_file() -> List[model.UploadedFileModel]:
+    """
+    Get a file 
+    """
+    fileId = request.args.get("fileId")
+    userId = request.args.get("userId") 
+    session = get_session()
+    File = session.query(model.UploadedFileModel).filter(model.UploadedFileModel.id == fileId).one_or_none()
+    session.close()
+    if File.user_id == userId:
+        file_contents = {
+                          "filename": File.name,
+                          "file_id": File.id,
+                          "content": File.content.replace("\\n", "\n"),
+                          "tokens":[{
+                                "content": File.content[token.start_index:token.end_index],
+                                **serialise_data_model(token)
+                                } for token in File.tokens],
+                          "lang_id": File.language_id
+
+                          }
+        response_dict = {"file_contents": file_contents, "message": "sucessful"}
+    else:
+        response_dict = {"message": "Requested file is not accessible"}
+    return jsonify(response_dict)
 
 @api.route('/get_files/', methods=["GET"])
 def get_all_files() -> List[model.UploadedFileModel]:
@@ -92,8 +150,13 @@ def get_all_files() -> List[model.UploadedFileModel]:
     session = get_session()
     user_data = session.query(model.UserModel).filter(model.UserModel.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
-    file_contents = [{"filename": file.name, "file_id": file.id, "content": file.content.replace("\\n", "\n"),
-                      "lang_id": file.language_id} for file in files_]
+    file_contents = [{
+                      "filename": file.name,
+                      "file_id": file.id,
+                      "content": file.content.replace("\\n", "\n"),
+                      "lang_id": file.language_id
+                      }
+                     for file in files_]
     session.close()
     return jsonify({"file_contents": file_contents})
 
@@ -108,7 +171,7 @@ def file_upload():
         print('abort(400)') 
     uploaded_file = request.files["file"]
     name = uploaded_file.filename
-    name, extension = name.split('.')
+    name, extension = name.split('.')[:-1] , name.split('.')[-1]
     user_id = request.form['user_id']
     iso_code = request.form['iso_code']
 
@@ -140,7 +203,7 @@ def file_upload():
         response_body = {
             "data": content
         }
-    sessio.close()
+    session.close()
     return response_body
 
 
