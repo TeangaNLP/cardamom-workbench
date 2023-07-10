@@ -2,11 +2,13 @@
 
 import os
 import sys
+import json
 import gensim
 import logging
 import argparse
 import subprocess
 
+ISO_DICT = json.load(open('../iso6391to6393.json'))
 
 class StreamToLogger(object):
     """
@@ -24,6 +26,13 @@ class StreamToLogger(object):
 
     def flush(self):
         pass
+
+
+def translate_iso(code):
+    """Translates ISO639-1 codes to ISO639-3
+    :param code: str
+    :return: str"""
+    return ISO_DICT[code]
 
 
 def train_model(data_path, window=5, size=100, min_count=2, workers=5, epochs=100, alpha=0.1, sg=0,
