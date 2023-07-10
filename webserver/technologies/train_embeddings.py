@@ -8,7 +8,6 @@ import logging
 import argparse
 import subprocess
 
-ISO_DICT = json.load(open('../iso6391to6393.json'))
 
 class StreamToLogger(object):
     """
@@ -99,18 +98,18 @@ def convert_to_tf(input_file, output_file):
     return {'stdout': res.stdout, 'stderr': res.stderr}
 
 
-def translate_iso(code):
+def translate_iso(code, iso_dict):
     """Translates ISO639-1 codes to ISO639-3
     :param code: str
     :return: str"""
-    return ISO_DICT[code]
-
+    return iso_dict[code]
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--data_folder", type=str, help="Path to data folder", required=True)
     parser.add_argument("-m", "--models_folder", type=str, help="Path to models folder", required=True)
+    parser.add_argument("-iso", "--iso_dict", type=str, help="Path to a json ISO codes file", default='../iso6391to6393.json')
     parser.add_argument("-w", "--window", type=int, help="Context window size", default=5)
     parser.add_argument("-s", "--emb_size", type=int, help="Embedding size", default=100)
     parser.add_argument("-e", "--epochs", type=int, help="N of training epochs", default=100)
@@ -133,6 +132,12 @@ if __name__ == '__main__':
 
     sys.stdout = StreamToLogger(logger, logging.INFO)
     sys.stderr = StreamToLogger(logger, logging.ERROR)
+
+    # uncomment the following line if you need ISO639-1 codes
+    # translated to ISO639-3 with the `translate_iso` function
+
+    # ISO_DICT = json.load(open(args.iso_dict))
+
 
     ### TRAINING
 
