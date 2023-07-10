@@ -28,13 +28,6 @@ class StreamToLogger(object):
         pass
 
 
-def translate_iso(code):
-    """Translates ISO639-1 codes to ISO639-3
-    :param code: str
-    :return: str"""
-    return ISO_DICT[code]
-
-
 def train_model(data_path, window=5, size=100, min_count=2, workers=5, epochs=100, alpha=0.1, sg=0,
                 max_vocab_size=10 ** 6, logs=logging.INFO):
 
@@ -104,6 +97,14 @@ def convert_to_tf(input_file, output_file):
     res = subprocess.run(['python', 'gensim.scripts.word2vec2tensor', '--input', input_file,
                           '--output', output_file], capture_output=True, text=True, check=False)
     return {'stdout': res.stdout, 'stderr': res.stderr}
+
+
+def translate_iso(code):
+    """Translates ISO639-1 codes to ISO639-3
+    :param code: str
+    :return: str"""
+    return ISO_DICT[code]
+
 
 
 if __name__ == '__main__':
