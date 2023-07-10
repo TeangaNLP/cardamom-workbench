@@ -3,7 +3,7 @@
 import os
 import gensim
 
-MODEL_DIR = '../language_models/embedding_models'
+MODEL_DIR = '../language_models/embeddings'
 
 
 def get_models_by_iso(iso):
