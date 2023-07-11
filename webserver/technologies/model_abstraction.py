@@ -5,6 +5,7 @@ sys.path.append(cur_file_dir)
 from model import TokenModel, POSInstanceModel
 from Tokeniser import tokenise
 from POS_tag import pos_tag
+from embeddings import *
 
 
 def cardamom_tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
@@ -29,3 +30,7 @@ def cardamom_postag(string, tokens, matrix_language=None):
     ) for pos_model in pos_models]
 
     return pos_models
+
+
+def cardamom_get_similar_words(string, model, iso_code=None):
+    pass
