@@ -50,3 +50,12 @@ class TokenModel():
         self.token_language_id = token_language_id
         self.type_ = type_
         self.uploaded_file_id = uploaded_file_id
+
+
+class RelatedWordModel():
+    def __init__(self, query, query_language, model_name, response, similarity):
+        self.query = query
+        self.query_language = query_language
+        self.model_name = model_name
+        self.response = response
+        self.similarity = similarity

@@ -2,7 +2,7 @@ import sys
 import os
 cur_file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(cur_file_dir)
-from model import TokenModel, POSInstanceModel
+from model import TokenModel, POSInstanceModel, RelatedWordModel
 from Tokeniser import tokenise
 from POS_tag import pos_tag
 from embeddings import *
@@ -32,5 +32,14 @@ def cardamom_postag(string, tokens, matrix_language=None):
     return pos_models
 
 
-def cardamom_get_similar_words(string, model, iso_code=None):
-    pass
+def cardamom_find_similar_words(string, iso_code=None):
+
+    model_name, model = load_model(iso_code)
+    related_words = find_similar(string, model)
+    related_words = [RelatedWordModel(
+        query=string, query_language=iso_code, model_name=model_name,
+        word=related_word[0], similarity=related_word[1]
+    ) for related_word in related_words]
+
+    return related_words
+
