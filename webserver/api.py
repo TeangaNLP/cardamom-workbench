@@ -172,9 +172,7 @@ def file_upload():
         print('abort(400)') 
     uploaded_file = request.files["file"]
     name = uploaded_file.filename
-    print(name)
     name, extension = ".".join(name.split('.')[:-1]) , name.split('.')[-1]
-    print(name)
     user_id = request.form['user_id']
     iso_code = request.form['iso_code']
 
@@ -184,7 +182,6 @@ def file_upload():
         uploaded_file = uploaded_file.read()
         content = uploaded_file.decode("utf-8") 
         content = content.replace("\\n", "\n").replace("\r","")
-        print(name)
         new_file = model.UploadedFileModel(name = name, content = content, user_id = user_id, language_id = lang.id)
         session.add(new_file)
         session.commit()
@@ -211,7 +208,6 @@ def file_upload():
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> model.UploadedFileModel:
     annotations = get_tokens(file_id)
-    print(annotations)
     return jsonify({"annotations": annotations})
 
 
@@ -354,10 +350,12 @@ def auto_tag():
     content = file_obj.content
     tokens = get_tokens(file_id)
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
+    '''
     print(tokens)
     print(content)
     for token_ in tokens:
         print(content[token_["start_index"]: token_["end_index"]])
+    '''
     pos_tags = cardamom_postag(content, tokens, lang)
     pos_tags = [serialise_data_model(tags) for tags in pos_tags]
     session.close()
