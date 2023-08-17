@@ -33,11 +33,11 @@ const Home = ({
 
 
     useEffect(() => {
-	if(user.documents){
+	/*if(user.documents){
 		setIsLoading(false);
 		setDocuments(user.documents)
 		return
-	}
+	}*/
 	r()
     },[])
   /*useEffect(() => {
