@@ -350,12 +350,6 @@ def auto_tag():
     content = file_obj.content
     tokens = get_tokens(file_id)
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
-    '''
-    print(tokens)
-    print(content)
-    for token_ in tokens:
-        print(content[token_["start_index"]: token_["end_index"]])
-    '''
     pos_tags = cardamom_postag(content, tokens, lang)
     pos_tags = [serialise_data_model(tags) for tags in pos_tags]
     session.close()

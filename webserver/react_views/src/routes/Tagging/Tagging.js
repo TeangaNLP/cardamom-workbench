@@ -29,7 +29,7 @@ const Tagging = ({ fileInfo, user, setUser }) => {
           createCascaderData();
           response.data.annotations = response.data.annotations.map( 
             (t) => {
-                return {...t, "text": fileInfo.content.substring(t.start_index, t.end_index )}  
+                return {...t}  
             })
           combineTokensAndGaps(
             response.data.annotations,
@@ -293,7 +293,7 @@ const Tagging = ({ fileInfo, user, setUser }) => {
       <NavBar main={false} pages={
         [
           { path: "/editor", name: "Text Editor" },
-          { path: `/tokeniser/${fileInfo.filename}`, name: "Tokenisation" },
+          { path: `/tokeniser/${fileInfo.file_id}`, name: "Tokenisation" },
           { path: "/identification", name: "Identification" },
           { path: "/annotation", name: "Annotation" },
           { path: activeLink, name: "POS Tagging" }

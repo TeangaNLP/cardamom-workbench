@@ -66,7 +66,7 @@ const Home = ({
                   setFileInfo({
                     ...doc
                   })
-                  navigate(`/tokeniser/${doc.filename}`)
+                  navigate(`/tokeniser/${doc.file_id}`)
                   }
                 }
               >

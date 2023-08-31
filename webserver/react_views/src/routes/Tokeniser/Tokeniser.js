@@ -411,7 +411,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
           { path: activeLink, name: "Tokenisation" },
           { path: "/identification", name: "Identification" },
           { path: "/annotation", name: "Annotation" },
-          { path: `/tagging/${fileInfo.filename}`, name: "POS Tagging" }
+          { path: `/tagging/${fileInfo.file_id}`, name: "POS Tagging" }
         ]
       } />
       <div onKeyPress={onEnter} className="tokenise-area">
