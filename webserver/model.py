@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 
-
 class UserModel():
     def __init__(self, name, email, password):
         self.name = name
@@ -35,7 +34,8 @@ class POSInstanceModel():
     def __init__(self, token_id, tag, type_):
         self.token_id = token_id
         self.tag = tag
-        self.type = type_
+        self.type_ = type_
+
 
 
 class POSFeaturesModel():
@@ -51,7 +51,7 @@ class TokenModel():
         self.start_index = start_index
         self.end_index = end_index
         self.token_language_id = token_language_id
-        self.type = type_
+        self.type_ = type_
         self.uploaded_file_id = uploaded_file_id
 
 

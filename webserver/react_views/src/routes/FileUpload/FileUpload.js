@@ -3,11 +3,11 @@ import axios from "axios";
 import "./FileUpload.css";
 import { NavBar } from "../../components";
 
-export default function FileUpload(props) {
+export default function FileUpload({ user, setUser }) {
   const [selectedFile, setSelectedFile] = useState();
   const [selectedLang, setLang] = useState("ga");
+  const [status, setStatus] = useState("");
 
-  const userId = props.userId;
 
   const options = [
     { value: "ga", label: "Irish" },
@@ -17,14 +17,17 @@ export default function FileUpload(props) {
 
 
   const changeHandler = (event) => {
+    setStatus("")
     setSelectedFile(event.target.files[0]);
   };
 
   const changeLang = (event) => {
     setLang(event.target.value);
+
   }
 
   const handleSubmission = () => {
+    const userId = user.id;
     const data = new FormData();
     data.append("file", selectedFile);
     data.append("user_id", userId);
@@ -38,15 +41,18 @@ export default function FileUpload(props) {
       })
       .then(function (response) {
         console.log("Successfully uploaded!");
+	setStatus("File Successfully uploaded!");
       })
       .catch(function () {
         console.log("Didn't upload");
+	setStatus("File upload failed.");
       });
   };
 
   return (
     <div>
       <NavBar
+	setUser={setUser}
         pages={[
           { path: "/", name: "Home" },
           { path: "/fileupload", name: "File Upload" },
@@ -54,6 +60,7 @@ export default function FileUpload(props) {
       />
       <br />
       <h2> Cardamom Workbench</h2>
+      <h2 style={{ color: 'red' }}> {status} </h2>
 
       <div id="file-upload-form" className="uploader">
         <select

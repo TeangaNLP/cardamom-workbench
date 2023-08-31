@@ -26,11 +26,11 @@ export default function Token({
   return (
     <span
       ref={ref}
-      className={`token ${token.type}`}
+      className={`token ${token.type_}`}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
     >
-      {token.type == "manual" ?
+      {token.type_ == "manual" ?
         value.replace(/ /g, "⎵").replace(/\\n/g, "\u000A") :
         value.replace(/\\n/g, "\u000A")}
     </span>

@@ -55,7 +55,7 @@ class POSInstance(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     token_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
     tag = Column(String(255))
-    type = Column(String(255), nullable=False)
+    type_ = Column(String(255), nullable=False)
 
     # token = relationship("Token", back_populates = "pos_instance")
     # features = relationship("POSFeatures", back_populates = "pos_instance")
@@ -80,7 +80,7 @@ class Token(Base):
     start_index = Column(Integer, nullable=False)
     end_index = Column(Integer, nullable=False)
     token_language_id = Column(Integer, ForeignKey("languages.id"), nullable=False)
-    type = Column(String(255), nullable=False)
+    type_ = Column(String(255), nullable=False)
     uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
     
     # file = relationship("UploadedFile", backref = backref('tokens'))
@@ -103,7 +103,8 @@ def start_mappers():
     })
     mapper(model.UploadedFileModel, UploadedFile, properties={
         "user": relationship(model.UserModel),
-        "file_language": relationship(model.LanguageModel) 
+        "file_language": relationship(model.LanguageModel), 
+        "tokens": relationship(model.TokenModel)
     })
     mapper(model.LanguageModel, Language, properties={
         "uploaded_files": relationship(model.UploadedFileModel),

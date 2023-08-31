@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - postgres
+    environment:
+      - PYTHONUNBUFFERED=1
     ports:
         - "5001:80"
     # For testing purposes only

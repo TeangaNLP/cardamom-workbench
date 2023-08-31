@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { NavBar, POSToken } from '../../components';
 import { Button } from 'react-bootstrap';
+import { useNavigate, useLocation } from "react-router-dom";
 import posTags from './tags';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import "./Tagging.css";
 import axios from 'axios';
 
-const Tagging = ({ fileInfo, userId }) => {
-
+const Tagging = ({ fileInfo, user, setUser }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeLink = location.pathname;
   let [fetched, setFetched] = useState(false); // For fetching data once.
   let [tokenData, setTokenData] = useState([]); // For tokens (not tags).
   let [tokensAndGaps, setTokensAndGaps] = useState([]); // For tokens and gaps.
@@ -19,18 +22,20 @@ const Tagging = ({ fileInfo, userId }) => {
 
   useEffect(() => {
 
-    console.log(fileInfo)
-
     if (!fetched) {
       axios
         .get("http://localhost:5001/api/pos_tag/" + fileInfo.file_id)
         .then(function (response) {
           createCascaderData();
-          setTokenData(response.data.annotations);
+          response.data.annotations = response.data.annotations.map( 
+            (t) => {
+                return {...t, "text": fileInfo.content.substring(t.start_index, t.end_index )}  
+            })
           combineTokensAndGaps(
             response.data.annotations,
             fileInfo.content
           );
+          setTokenData(response.data.annotations);
           setTags(response.data.tags);
           setFetched(true);
         })
@@ -38,7 +43,6 @@ const Tagging = ({ fileInfo, userId }) => {
           console.log(err);
         });
     }
-
   }, []);
 
   // Functionality
@@ -48,7 +52,7 @@ const Tagging = ({ fileInfo, userId }) => {
   }
 
   // Create data for Cascader from hardcoded list.
-  // TODO: Reverse Lookup names have clashing values, need fix around.
+  // TODO: Reverse Lookup names have clashing values, need fix.
   const createCascaderData = () => {
     let data = [];
     let reverseLookup = {};
@@ -101,25 +105,29 @@ const Tagging = ({ fileInfo, userId }) => {
         // For start
         if (currData.start_index != 0) {
           let start_index = 0;
-          gaps.push({
-            start_index: start_index,
-            end_index:
+          let end_index = 
               start_index > currData.start_index
                 ? start_index
-                : currData.start_index,
+                : currData.start_index;
+          gaps.push({
+            start_index: start_index,
+            end_index: end_index,
             index: 0,
-            type: "gap",
+            type_: "gap",
+            text: text.substring(start_index, end_index )
           });
         }
         // For end
         if (i == data.length - 1) {
           if (currData.end_index != text.length) {
             let start_index = currData.end_index;
+            let end_index = start_index > text.length ? start_index : text.length;
             gaps.push({
               start_index: start_index,
-              end_index: start_index > text.length ? start_index : text.length,
+              end_index: end_index, 
               index: data.length,
-              type: "gap",
+              type_: "gap",
+              text: text.substring(start_index, end_index )
             });
           }
         }
@@ -129,14 +137,15 @@ const Tagging = ({ fileInfo, userId }) => {
       if (i == 0) {
         if (currData.start_index != 0) {
           let start_index = 0;
+          let end_index = start_index > currData.start_index
+                ? start_index
+                : currData.start_index;
           gaps.push({
             start_index: start_index,
-            end_index:
-              start_index > currData.start_index
-                ? start_index
-                : currData.start_index,
+            end_index: end_index,
             index: 0,
-            type: "gap",
+            type_: "gap",
+            text: text.substring(start_index, end_index )
           });
           // continue;
         }
@@ -145,11 +154,13 @@ const Tagging = ({ fileInfo, userId }) => {
       if (i == data.length - 1) {
         if (currData.end_index != text.length) {
           let start_index = currData.end_index;
+          let end_index = start_index > text.length ? start_index : text.length;
           gaps.push({
             start_index: start_index,
-            end_index: start_index > text.length ? start_index : text.length,
+            end_index: end_index, 
             index: data.length,
-            type: "gap",
+            type_: "gap",
+            text: text.substring(start_index, end_index )
           });
           // continue;
         }
@@ -157,14 +168,15 @@ const Tagging = ({ fileInfo, userId }) => {
 
       if (nextData && currData.end_index != nextData.start_index) {
         let start_index = currData.end_index;
+        let end_index = start_index > nextData.start_index
+              ? start_index
+              : nextData.start_index;
         gaps.push({
           start_index: start_index,
-          end_index:
-            start_index > nextData.start_index
-              ? start_index
-              : nextData.start_index,
+          end_index: end_index,
           index: i + 1,
-          type: "gap",
+          type_: "gap",
+          text: text.substring(start_index, end_index )
         });
       }
     }
@@ -180,15 +192,19 @@ const Tagging = ({ fileInfo, userId }) => {
     }
 
     if (data.length == 0 && newTokensAndGaps.length == 0) {
+      let start_index = 0;
+      let end_index = text.length
       const gap = {
-        start_index: 0,
-        end_index: text.length,
+        start_index: start_index,
+        end_index: end_index,
         index: 0,
-        type: "gap",
-      };
-      newTokensAndGaps.push(gap);
-    }
+        type_: "gap",
+        text: text.substring(start_index, end_index )
+    };
+    newTokensAndGaps.push(gap);
+  }
     setTokensAndGaps(newTokensAndGaps);
+    window.gapsntokens = newTokensAndGaps; 
   };
 
   // Send annotations to server.
@@ -218,13 +234,13 @@ const Tagging = ({ fileInfo, userId }) => {
     let newTags = { ...tags };
     for (let tag of posTags) {
       let tokenId = tag.token_id;
-      // If type is auto but key does not exist then update.
+      // If type_ is auto but key does not exist then update.
       if (!newTags.hasOwnProperty(tokenId)) {
         newTags[tokenId] = tag;
       } else {
-        // If type it auto and key exists and tag is auto then update.
+        // If type_ it auto and key exists and tag is auto then update.
         let oldTag = tags[tokenId];
-        if (oldTag.type === "auto") {
+        if (oldTag.type_ === "auto") {
           newTags[tokenId] = tag;
         }
       }
@@ -235,6 +251,9 @@ const Tagging = ({ fileInfo, userId }) => {
   // Auto-tag
   const autoTag = () => {
     const data = new FormData();
+    window.sentTokens = JSON.stringify(tokenData);
+    window.sentFile = JSON.stringify(fileInfo);
+    window.sentRawContent = JSON.stringify(fileInfo.content);
     data.append("tokens", JSON.stringify(tokenData));
     data.append("file_data", JSON.stringify(fileInfo));
     axios
@@ -245,6 +264,7 @@ const Tagging = ({ fileInfo, userId }) => {
       })
       .then(function (response) {
         const posTags = response.data.POS;
+        window.newAutoTags = posTags;
         updateAutoTags(posTags);
       })
       .catch(function (e) {
@@ -269,14 +289,14 @@ const Tagging = ({ fileInfo, userId }) => {
 
   return (
     <div>
-      <NavBar pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
+      <NavBar setUser={setUser} pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
       <NavBar main={false} pages={
         [
           { path: "/editor", name: "Text Editor" },
-          { path: "/tokeniser", name: "Tokenisation" },
+          { path: `/tokeniser/${fileInfo.filename}`, name: "Tokenisation" },
           { path: "/identification", name: "Identification" },
           { path: "/annotation", name: "Annotation" },
-          { path: "/tagging", name: "POS Tagging" }
+          { path: activeLink, name: "POS Tagging" }
         ]
       } />
       <div className='tagging-area'>
