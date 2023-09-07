@@ -10,6 +10,9 @@ services:
       - PYTHONUNBUFFERED=1
     ports:
         - "5001:80"
+    # For testing purposes only
+    volumes:
+      - ./webserver:/code #
     command: ["./wait-for-it.sh","-t","0","postgres:5432", "--", "python3", "flask_app.py"]
   postgres:
     build:

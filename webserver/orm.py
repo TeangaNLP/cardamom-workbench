@@ -88,6 +88,15 @@ class Token(Base):
     # pos_instance = relationship("POSInstance", back_populates = "token")
 
 
+class Space(Base):
+    __tablename__ = 'spaces'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    space_index = Column(Integer, nullable=False)
+    space_type = Column(String(10), nullable=False)
+    uploaded_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
+
+
 def start_mappers():
     mapper(model.UserModel, User, properties={
         "uploaded_files": relationship(model.UploadedFileModel)
@@ -112,5 +121,8 @@ def start_mappers():
     mapper(model.TokenModel, Token, properties={
         "file": relationship(model.UploadedFileModel),
         "token_language": relationship(model.LanguageModel),
-        "pos_instance": relationship(model.POSInstanceModel),
+        "pos_instance": relationship(model.POSInstanceModel)
+    })
+    mapper(model.SpaceModel, Space, properties={
+        "file": relationship(model.UploadedFileModel)
     })

@@ -11,8 +11,7 @@ from sqlalchemy.orm import sessionmaker, class_mapper
 from sqlalchemy.pool import NullPool
 from flask import Blueprint, request, render_template, make_response, jsonify 
 
-from technologies import cardamom_tokenise
-from technologies import cardamom_postag
+from technologies import cardamom_tokenise, cardamom_space, cardamom_postag
 
 api = Blueprint('api', __name__, template_folder='templates')
 
@@ -141,6 +140,7 @@ def get_file() -> List[model.UploadedFileModel]:
         response_dict = {"message": "Requested file is not accessible"}
     return jsonify(response_dict)
 
+
 @api.route('/get_files/', methods=["GET"])
 def get_all_files() -> List[model.UploadedFileModel]:
     """
@@ -169,7 +169,7 @@ def file_upload():
     """
     session = get_session()
     if 'file' not in request.files:
-        print('abort(400)') 
+        print('abort(400)')
     uploaded_file = request.files["file"]
     name = uploaded_file.filename
     name, extension = ".".join(name.split('.')[:-1]) , name.split('.')[-1]
@@ -205,6 +205,7 @@ def file_upload():
     session.close()
     return response_body
 
+
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> model.UploadedFileModel:
     annotations = get_tokens(file_id)
@@ -215,9 +216,9 @@ def get_annotations(file_id) -> model.UploadedFileModel:
 def push_annotations():
     # assuming the annotations come as a list of dictionaries
     data = request.get_json()
-    annotations, file_id = data.get('tokens'), data.get("file_id")
+    annotations, spaces, file_id = data.get('tokens'), data.get("spaces"), data.get("file_id")
     session = get_session()
-    
+
     file = session.query(model.UploadedFileModel).filter(model.UploadedFileModel.id == file_id).one_or_none()
 
     # Check for tokens to be deleted
@@ -225,7 +226,7 @@ def push_annotations():
     for annotation in annotations:
         replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
         for token in replace_tokens:
-            session.query(model.TokenModel).filter(model.TokenModel.id == token["id"]).delete() 
+            session.query(model.TokenModel).filter(model.TokenModel.id == token["id"]).delete()
 
         new_annotation = model.TokenModel(
             reserved_token=True if annotation["type_"] == "manual" else False,
@@ -236,6 +237,13 @@ def push_annotations():
             uploaded_file_id=file_id
         )
         session.add(new_annotation)
+    for space in spaces:
+        new_space = model.SpaceModel(
+            space_index=space["space_index"],
+            space_type=space["space_type"],
+            uploaded_file_id=file_id
+        )
+        session.add(new_space)
     session.commit()
     session.flush()
     session.close()
@@ -263,8 +271,8 @@ def push_annotations():
     '''
 
     response_body = {
-            "response": "success"
-        }
+        "response": "success"
+    }
     return response_body
 
 
@@ -272,7 +280,7 @@ def push_annotations():
 def auto_tokenise():
     session = get_session()
     file_data = json.loads(request.form.get("file_data"))
-    text = file_data['content'].replace("\r", "")
+    text = file_data['content'].replace("\r\n", "\n").replace("\r", "\n")
     lang_id = file_data['lang_id']
     uploaded_file_id = file_data['file_id']
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
