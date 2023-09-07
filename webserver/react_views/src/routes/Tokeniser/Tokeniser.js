@@ -71,6 +71,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
       axios
         .get("http://localhost:5001/api/annotations/" + fileInfo.file_id)
         .then(function (response) {
+	  window.originaltokens = response.data.annotations; 
           setOriginalTokenData(response.data.annotations);
           combineTokensAndGaps(
             response.data.annotations,
