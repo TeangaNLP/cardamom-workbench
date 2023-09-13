@@ -6,6 +6,8 @@ RUN apt update\
                 nodejs\
                 npm\
 		git\
+                ack\
+                entr\
     && npm install -g n\
     && n v18.4.0
 
@@ -29,6 +31,8 @@ COPY language_models/ /code/language_models/
 # COPY templates/ /code/templates/
 COPY wait-for-it.sh /code/
 RUN chmod +x /code/wait-for-it.sh
+COPY webserver_run.sh /code/
+RUN chmod +x /code/webserver_run.sh
 WORKDIR /code
 ENV FLASK_APP=flask_app.py FLASK_DEBUG=1 PYTHONUNBUFFERED=1
 RUN python -m nltk.downloader averaged_perceptron_tagger
