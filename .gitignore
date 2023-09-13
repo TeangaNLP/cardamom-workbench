@@ -14,3 +14,4 @@ webserver/technologies/__pycache__/
 /redis/
 /webserver/redis_client.py
 /webserver/redis_utils.py
+/docs/redis_models.md
