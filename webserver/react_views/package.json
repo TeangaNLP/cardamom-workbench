@@ -33,7 +33,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build;rm -rf ../templates;mkdir -p ../templates;mv ./build/index.html ../templates/index.html;mv -i -f ./build/static ..",
+    "build": "react-scripts build;rm -rf ../templates;mkdir -p ../templates;mv ./build/index.html ../templates/index.html;rm -rf ../static;mv -i -f ./build/static ..",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

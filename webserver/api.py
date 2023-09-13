@@ -350,7 +350,6 @@ def get_postags(file_id):
 
 @api.route('/auto_tag', methods=["POST"])
 def auto_tag():
-    # extract the text
     session = get_session()
     file_data = json.loads(request.form.get('file_data'))
     file_id = file_data["file_id"]
