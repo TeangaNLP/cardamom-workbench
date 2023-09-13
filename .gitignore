@@ -11,3 +11,6 @@ webserver/technologies/__pycache__/
 /technologies/language_identification-word/my-project-env
 /technologies/language_identification-word/__pycache__
 /technologies/language_identification-word/logs
+/redis/
+/webserver/redis_client.py
+/webserver/redis_utils.py
