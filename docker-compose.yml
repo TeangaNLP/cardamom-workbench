@@ -10,11 +10,10 @@ services:
       - PYTHONUNBUFFERED=1
     ports:
         - "5001:80"
-    # For testing purposes only
+    # ↓ volume below for testing purposes only
     volumes:
       - ./webserver:/code #
     command: ["./wait-for-it.sh","-t","0","postgres:5432", "--", "bash", "-c", "chmod +x /code/webserver_run.sh;/code/webserver_run.sh"]
-]
   postgres:
     build:
         context: ./database
