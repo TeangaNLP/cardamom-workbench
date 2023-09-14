@@ -180,7 +180,7 @@ def file_upload():
         # upload a txt file
         uploaded_file = uploaded_file.read()
         content = uploaded_file.decode("utf-8") 
-        content = content.replace("\\n", "\n").replace("\r","")
+        content = content
         new_file = model.UploadedFileModel(name = name, content = content, user_id = user_id, language_id = lang.id)
         session.add(new_file)
         session.commit()
@@ -282,7 +282,7 @@ def push_annotations():
 def auto_tokenise():
     session = get_session()
     file_data = json.loads(request.form.get("file_data"))
-    text = file_data['content'].replace("\r\n", "\n").replace("\r", "\n")
+    text = file_data['content']
     lang_id = file_data['lang_id']
     uploaded_file_id = file_data['file_id']
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
@@ -297,7 +297,9 @@ def auto_tokenise():
     tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=resv_tks,
                                        uploaded_file_id=uploaded_file_id)
     tokenised_text = [serialise_data_model(token_model) for token_model in tokenised_text]
-    sorted(tokenised_text, key=lambda a: a['start_index'])
+    tokenised_text = sorted(tokenised_text, key=lambda a: a['start_index'])
+    print(repr(text),flush=True)
+    print([(text[t['start_index']:t['end_index']],t['start_index'],t['end_index']) for t in tokenised_text],flush=True)
     session.close()
     return {"annotations": tokenised_text}
 
