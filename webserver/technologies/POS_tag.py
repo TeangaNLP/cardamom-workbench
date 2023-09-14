@@ -34,7 +34,7 @@ def pos_tag(string, tokens, matrix_language=None):
     supported_langs = sorted(list(set([i for i in corp_langs])))
 
     # Get tokens from string using their indices, add them to token dictionaries in list.
-    tokens = [{**i, **{'token': string[i.get('start_index'):i.get('end_index')]}} for i in tokens
+    tokens = [{**i, **{'token': string[i.get('start_index'):i.get('end_index')].replace("\n","").replace("\\n","")}} for i in tokens
               if i.get('type_') in ['auto', 'manual']]
 
     unexpected_substrings = ["\\n", "\\\\", "\\\"", "\\'"]

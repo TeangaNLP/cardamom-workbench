@@ -256,7 +256,7 @@ const Tagging = ({ fileInfo, user, setUser }) => {
     window.sentRawContent = JSON.stringify(fileInfo.content);
     data.append("tokens", JSON.stringify(tokenData));
     data.append("file_data", JSON.stringify(fileInfo));
-    /*
+    /**/
     axios
       .post("http://localhost:5001/api/auto_tag", data, {
         headers: {
@@ -271,7 +271,7 @@ const Tagging = ({ fileInfo, user, setUser }) => {
       .catch(function (e) {
         console.log(e);
         console.log("Could not auto tag.");
-      });*/
+      });
   }
 
   // Convert tags into their values.
