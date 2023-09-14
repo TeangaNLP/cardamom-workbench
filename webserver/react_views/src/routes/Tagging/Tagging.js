@@ -23,8 +23,9 @@ const Tagging = ({ fileInfo, user, setUser }) => {
   useEffect(() => {
 
     if (!fetched) {
+      const get_pos_tag_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/pos_tag/` + fileInfo.file_id
       axios
-        .get("http://localhost:5001/api/pos_tag/" + fileInfo.file_id)
+        .get(get_pos_tag_url)
         .then(function (response) {
           createCascaderData();
           response.data.annotations = response.data.annotations.map( 
@@ -214,8 +215,9 @@ const Tagging = ({ fileInfo, user, setUser }) => {
     const data = {
       tags: tags,
     };
+    const post_pos_tag_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/pos_tag`
     axios
-      .post("http://localhost:5001/api/pos_tag", data, {
+      .post(post_pos_tag_url, data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -257,8 +259,9 @@ const Tagging = ({ fileInfo, user, setUser }) => {
     data.append("tokens", JSON.stringify(tokenData));
     data.append("file_data", JSON.stringify(fileInfo));
     /**/
+    const post_auto_pos_tag_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tag`
     axios
-      .post("http://localhost:5001/api/auto_tag", data, {
+      .post(post_auto_pos_tag_url, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

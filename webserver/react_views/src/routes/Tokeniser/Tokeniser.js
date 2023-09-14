@@ -68,8 +68,9 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
     setFileState({ file_id: file_id, content: content });
     */
     if (!fetched && fileInfo !== undefined) {
+      const get_tokens_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` + fileInfo.file_id
       axios
-        .get("http://localhost:5001/api/annotations/" + fileInfo.file_id)
+        .get(get_tokens_url)
         .then(function (response) {
 	  window.originaltokens = response.data.annotations; 
           setOriginalTokenData(response.data.annotations);
@@ -367,8 +368,9 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
     window.sentFileI = fileInfo;
     window.sentFileF = JSON.stringify(fileInfo);
 
+    const post_auto_tokenize_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tokenise`
     axios
-      .post("http://localhost:5001/api/auto_tokenise", data, {
+      .post(post_auto_tokenize_url, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -388,8 +390,10 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
       tokens: difference,
       file_id: fileInfo.file_id,
     };
+
+    const post_tokens_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations`
     axios
-      .post("http://localhost:5001/api/annotations", data, {
+      .post(post_tokens_url, data, {
         headers: {
           "Content-Type": "application/json",
         },

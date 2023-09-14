@@ -18,8 +18,9 @@ const Home = ({
   const [isLoading, setIsLoading] = useState(true);
   const r = () => { 
       const userId = user.id;
+      const get_files_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/get_files?user=` + userId
       axios
-      .get("http://localhost:5001/api/get_files?user=" + userId)
+      .get(get_files_url)
       .then(function (response) {
 	const documents = response.data.file_contents
         setDocuments(documents);

@@ -49,7 +49,7 @@ const SignUp = ({setUser, setUserId, userId}) => {
     data.append("name", formValue.name);
     data.append("email", formValue.email);
     data.append("password", formValue.password);
-
+    const sign_up_user_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/signup_user`
     axios
       .post("http://localhost:5001/api/signup_user", data, {
         headers: {

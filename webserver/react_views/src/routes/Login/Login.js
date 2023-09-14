@@ -48,9 +48,9 @@ const Login = ({setUser, setUserId, userId}) => {
     const data = new FormData()
     data.append("email", formValue.email);
     data.append("password", formValue.password);
-
+    const login_user_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/login_user`
     axios
-      .post("http://localhost:5001/api/login_user", data, {
+      .post(login_user_url, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
