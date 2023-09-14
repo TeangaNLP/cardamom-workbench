@@ -12,6 +12,7 @@ webserver/technologies/__pycache__/
 /technologies/language_identification-word/__pycache__
 /technologies/language_identification-word/logs
 /redis/
+/webserver/__pycache__/
 /webserver/redis_client.py
 /webserver/redis_utils.py
 /docs/redis_models.md
