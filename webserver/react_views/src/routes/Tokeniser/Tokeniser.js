@@ -68,7 +68,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
     setFileState({ file_id: file_id, content: content });
     */
     if (!fetched && fileInfo !== undefined) {
-      const get_tokens_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` + fileInfo.file_id
+      const get_tokens_url = process.env.REACT_APP_PORT ? `https://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` + fileInfo.file_id : `https://${process.env.REACT_APP_HOST}/api/annotations/` + fileInfo.file_id
       axios
         .get(get_tokens_url)
         .then(function (response) {
@@ -368,7 +368,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
     window.sentFileI = fileInfo;
     window.sentFileF = JSON.stringify(fileInfo);
 
-    const post_auto_tokenize_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tokenise`
+    const post_auto_tokenize_url = process.env.REACT_APP_PORT ? `https://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tokenise` : `https://${process.env.REACT_APP_HOST}/api/auto_tokenise`
     axios
       .post(post_auto_tokenize_url, data, {
         headers: {
@@ -391,7 +391,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
       file_id: fileInfo.file_id,
     };
 
-    const post_tokens_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations`
+    const post_tokens_url = process.env.REACT_APP_PORT ? `https://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations` : `https://${process.env.REACT_APP_HOST}/api/annotations`
     axios
       .post(post_tokens_url, data, {
         headers: {

@@ -32,7 +32,9 @@ export default function FileUpload({ user, setUser }) {
     data.append("file", selectedFile);
     data.append("user_id", userId);
     data.append("iso_code", selectedLang)
-    const file_upload_url = `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/fileUpload`
+    const file_upload_url = process.env.REACT_APP_PORT ? `https://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/fileUpload` 
+		  :  `https://${process.env.REACT_APP_HOST}/api/fileUpload` 
+     
     axios
       .post(file_upload_url, data, {
         headers: {
