@@ -18,7 +18,7 @@ const Home = ({
   const [isLoading, setIsLoading] = useState(true);
   const r = () => { 
       const userId = user.id;
-      const get_files_url = process.env.REACT_APP_PORT ? `https://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/get_files?user=` + userId 
+      const get_files_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/get_files?user=` + userId 
 		  :  `https://${process.env.REACT_APP_HOST}/api/get_files?user=` + userId 
       axios
       .get(get_files_url)

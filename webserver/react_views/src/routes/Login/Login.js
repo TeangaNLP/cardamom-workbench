@@ -48,7 +48,7 @@ const Login = ({setUser, setUserId, userId}) => {
     const data = new FormData()
     data.append("email", formValue.email);
     data.append("password", formValue.password);
-    const login_user_url = process.env.REACT_APP_PORT ? `https://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/login_user` 
+    const login_user_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/login_user` 
 	  : `https://${process.env.REACT_APP_HOST}/api/login_user` 
     axios
       .post(login_user_url, data, {

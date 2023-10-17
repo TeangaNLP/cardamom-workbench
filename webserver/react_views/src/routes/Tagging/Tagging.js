@@ -23,7 +23,7 @@ const Tagging = ({ fileInfo, user, setUser }) => {
   useEffect(() => {
 
     if (!fetched) {
-      const get_pos_tag_url = process.env.REACT_APP_PORT ?  `https://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/pos_tag/` + fileInfo.file_id : `https://${process.env.REACT_APP_HOST}/api/pos_tag/` + fileInfo.file_id
+      const get_pos_tag_url = process.env.REACT_APP_PORT ?  `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/pos_tag/` + fileInfo.file_id : `https://${process.env.REACT_APP_HOST}/api/pos_tag/` + fileInfo.file_id
       axios
         .get(get_pos_tag_url)
         .then(function (response) {
@@ -215,7 +215,7 @@ const Tagging = ({ fileInfo, user, setUser }) => {
     const data = {
       tags: tags,
     };
-    const post_pos_tag_url = process.env.REACT_APP_PORT ? `https://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/pos_tag` : `https://${process.env.REACT_APP_HOST}/api/pos_tag`
+    const post_pos_tag_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/pos_tag` : `https://${process.env.REACT_APP_HOST}/api/pos_tag`
     axios
       .post(post_pos_tag_url, data, {
         headers: {
@@ -259,7 +259,7 @@ const Tagging = ({ fileInfo, user, setUser }) => {
     data.append("tokens", JSON.stringify(tokenData));
     data.append("file_data", JSON.stringify(fileInfo));
     /**/
-    const post_auto_pos_tag_url = process.env.REACT_APP_PORT ? `https://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tag` : `https://${process.env.REACT_APP_HOST}/api/auto_tag`
+    const post_auto_pos_tag_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tag` : `https://${process.env.REACT_APP_HOST}/api/auto_tag`
     axios
       .post(post_auto_pos_tag_url, data, {
         headers: {

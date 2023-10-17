@@ -2,6 +2,7 @@ import docx
 import nltk
 import config
 import json
+import time
 import orm
 import model
 from orm import Base
@@ -15,7 +16,7 @@ from technologies import cardamom_tokenise, cardamom_postag #cardamom_space, car
 api = Blueprint('api', __name__, template_folder='templates')
 
 orm.start_mappers()
-engine = create_engine(config.get_postgres_uri(), poolclass=NullPool)
+engine = create_engine(config.get_postgres_uri())
 Base.metadata.create_all(engine)
 get_session = sessionmaker(bind=engine)
 
@@ -145,8 +146,8 @@ def get_all_files() -> List[model.UploadedFileModel]:
     """
     Get user files route
     """
-    # for a user get all of their files
     user_id = request.args.get("user")
+    # for a user get all of their files
     session = get_session()
     user_data = session.query(model.UserModel).filter(model.UserModel.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
