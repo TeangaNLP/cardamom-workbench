@@ -4,10 +4,7 @@ import os
 import gensim
 from typing import Literal
 
-MODEL_DIR = '../language_models/embeddings'
-
-
-def get_models_by_iso(iso_code: str):
+def get_models_by_iso(iso_code: str, MODEL_DIR = '/code/language_models/embeddings'):
     """
     Finds all embedding models for a particular language.
     :param iso_code: ISO 639-3 language code (str)
@@ -49,7 +46,7 @@ def choose_model(lang_models: list, choice: Literal['default', 'diachronic', 're
         return filtered_models[0]
 
 
-def load_model(iso_code, compressed=True, binary=True):
+def load_model(iso_code, compressed=True, binary=True, MODEL_DIR = '/code/language_models/embeddings'):
     """
     Loads a pretrained FastText model.
     :param iso_code: iso_code of a language (str)
