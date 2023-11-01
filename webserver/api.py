@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from sqlalchemy.pool import NullPool
 from flask import Blueprint, request, render_template, make_response, jsonify 
-from technologies import cardamom_tokenise, cardamom_postag #cardamom_space, cardamom_postag
+from technologies import cardamom_tokenise, cardamom_postag, cardamom_find_similar_words #cardamom_space, cardamom_postag
 
 api = Blueprint('api', __name__, template_folder='templates')
 
@@ -366,3 +366,10 @@ def auto_tag():
     pos_tags = [serialise_data_model(tags) for tags in pos_tags]
     session.close()
     return {"POS": pos_tags}
+
+@api.route('/related_words/<word>', methods=["GET"])
+def related_words(word):
+    print(word,flush=True)
+    related_words =  [serialise_data_model(obj) for obj in cardamom_find_similar_words(word, "gle")]
+    print(related_words,flush=True)
+    return {"related_words": related_words}
