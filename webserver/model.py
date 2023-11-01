@@ -55,12 +55,12 @@ class TokenModel():
         self.uploaded_file_id = uploaded_file_id
 
 class RelatedWordModel():
-    def __init__(self, query, query_language, model_name, response, similarity):
+    def __init__(self, query, query_language, model_name, word, similarity_score):
         self.query = query
         self.query_language = query_language
         self.model_name = model_name
-        self.response = response
-        self.similarity = similarity
+        self.word = word
+        self.similarity_score = similarity_score
 
 class SpaceModel():
     def __init__(self, space_index, space_type, uploaded_file_id):
