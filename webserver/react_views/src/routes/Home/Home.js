@@ -18,8 +18,10 @@ const Home = ({
   const [isLoading, setIsLoading] = useState(true);
   const r = () => { 
       const userId = user.id;
+      const get_files_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/get_files?user=` + userId 
+		  :  `https://${process.env.REACT_APP_HOST}/api/get_files?user=` + userId 
       axios
-      .get("http://localhost:5001/api/get_files?user=" + userId)
+      .get(get_files_url)
       .then(function (response) {
 	const documents = response.data.file_contents
         setDocuments(documents);
@@ -33,11 +35,11 @@ const Home = ({
 
 
     useEffect(() => {
-	if(user.documents){
+	/*if(user.documents){
 		setIsLoading(false);
 		setDocuments(user.documents)
 		return
-	}
+	}*/
 	r()
     },[])
   /*useEffect(() => {
@@ -66,7 +68,7 @@ const Home = ({
                   setFileInfo({
                     ...doc
                   })
-                  navigate(`/tokeniser/${doc.filename}`)
+                  navigate(`/tokeniser/${doc.file_id}`)
                   }
                 }
               >

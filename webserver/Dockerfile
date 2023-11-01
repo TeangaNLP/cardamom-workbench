@@ -6,6 +6,8 @@ RUN apt update\
                 nodejs\
                 npm\
 		git\
+                ack\
+                entr\
     && npm install -g n\
     && n v18.4.0
 
@@ -23,12 +25,14 @@ RUN git clone https://github.com/priya-74llh/cardamom_LID.git /code/technologies
 RUN pip install -r /code/technologies/cardamom_LID/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 COPY *.py /code/
-COPY technologies/* /code/technologies/
+COPY technologies /code/technologies/
 COPY language_models/ /code/language_models/
 # COPY static/ /code/static/
 # COPY templates/ /code/templates/
 COPY wait-for-it.sh /code/
 RUN chmod +x /code/wait-for-it.sh
+COPY webserver_run.sh /code/
+RUN chmod +x /code/webserver_run.sh
 WORKDIR /code
 ENV FLASK_APP=flask_app.py FLASK_DEBUG=1 PYTHONUNBUFFERED=1
 RUN python -m nltk.downloader averaged_perceptron_tagger

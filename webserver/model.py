@@ -8,6 +8,7 @@ class UserModel():
         self.email = email
         self.password = password
 
+
 class UploadedFileModel():
     def __init__(self, name, content, user_id, language_id):
         self.name = name
@@ -36,11 +37,13 @@ class POSInstanceModel():
         self.type_ = type_
 
 
+
 class POSFeaturesModel():
     def __init__(self, posinstance_id, feature, value):
         self.posinstance_id = posinstance_id
         self.feature = feature
         self.value = value
+
 
 class TokenModel():
     def __init__(self, reserved_token, start_index, end_index, token_language_id, type_, uploaded_file_id):
@@ -51,7 +54,6 @@ class TokenModel():
         self.type_ = type_
         self.uploaded_file_id = uploaded_file_id
 
-
 class RelatedWordModel():
     def __init__(self, query, query_language, model_name, response, similarity):
         self.query = query
@@ -59,3 +61,9 @@ class RelatedWordModel():
         self.model_name = model_name
         self.response = response
         self.similarity = similarity
+
+class SpaceModel():
+    def __init__(self, space_index, space_type, uploaded_file_id):
+        self.space_index = space_index
+        self.space_type = space_type
+        self.uploaded_file_id = uploaded_file_id

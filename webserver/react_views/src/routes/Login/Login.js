@@ -48,9 +48,10 @@ const Login = ({setUser, setUserId, userId}) => {
     const data = new FormData()
     data.append("email", formValue.email);
     data.append("password", formValue.password);
-
+    const login_user_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/login_user` 
+	  : `https://${process.env.REACT_APP_HOST}/api/login_user` 
     axios
-      .post("http://localhost:5001/api/login_user", data, {
+      .post(login_user_url, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -60,9 +61,7 @@ const Login = ({setUser, setUserId, userId}) => {
         const rawUser = response.data.user 
         if (rawUser !== null && rawUser !== undefined){
 		const user = { ...response.data.user, isAuth: true , documents: {}}
-		//setUserId(user.id);
 		setUser(user);
-		//localStorage.setItem('userId', user.id);
 		localStorage.setItem('user', JSON.stringify(user));
 		navigate("/");
 	}

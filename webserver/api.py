@@ -2,6 +2,7 @@ import docx
 import nltk
 import config
 import json
+import time
 import orm
 import model
 from orm import Base
@@ -10,14 +11,12 @@ from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from sqlalchemy.pool import NullPool
 from flask import Blueprint, request, render_template, make_response, jsonify 
-
-from technologies import cardamom_tokenise
-from technologies import cardamom_postag
+from technologies import cardamom_tokenise, cardamom_postag #cardamom_space, cardamom_postag
 
 api = Blueprint('api', __name__, template_folder='templates')
 
 orm.start_mappers()
-engine = create_engine(config.get_postgres_uri(), poolclass=NullPool)
+engine = create_engine(config.get_postgres_uri())
 Base.metadata.create_all(engine)
 get_session = sessionmaker(bind=engine)
 
@@ -141,13 +140,14 @@ def get_file() -> List[model.UploadedFileModel]:
         response_dict = {"message": "Requested file is not accessible"}
     return jsonify(response_dict)
 
+
 @api.route('/get_files/', methods=["GET"])
 def get_all_files() -> List[model.UploadedFileModel]:
     """
     Get user files route
     """
-    # for a user get all of their files
     user_id = request.args.get("user")
+    # for a user get all of their files
     session = get_session()
     user_data = session.query(model.UserModel).filter(model.UserModel.id == user_id).one_or_none()
     files_ = user_data.uploaded_files
@@ -169,12 +169,10 @@ def file_upload():
     """
     session = get_session()
     if 'file' not in request.files:
-        print('abort(400)') 
+        print('abort(400)')
     uploaded_file = request.files["file"]
     name = uploaded_file.filename
-    print(name)
     name, extension = ".".join(name.split('.')[:-1]) , name.split('.')[-1]
-    print(name)
     user_id = request.form['user_id']
     iso_code = request.form['iso_code']
 
@@ -183,8 +181,7 @@ def file_upload():
         # upload a txt file
         uploaded_file = uploaded_file.read()
         content = uploaded_file.decode("utf-8") 
-        content = content.replace("\\n", "\n").replace("\r","")
-        print(name)
+        content = content
         new_file = model.UploadedFileModel(name = name, content = content, user_id = user_id, language_id = lang.id)
         session.add(new_file)
         session.commit()
@@ -208,10 +205,10 @@ def file_upload():
     session.close()
     return response_body
 
+
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> model.UploadedFileModel:
     annotations = get_tokens(file_id)
-    print(annotations)
     return jsonify({"annotations": annotations})
 
 
@@ -220,8 +217,9 @@ def push_annotations():
     # assuming the annotations come as a list of dictionaries
     data = request.get_json()
     annotations, file_id = data.get('tokens'), data.get("file_id")
+    # annotations, spaces, file_id = data.get('tokens'), data.get("spaces"), data.get("file_id")
     session = get_session()
-    
+
     file = session.query(model.UploadedFileModel).filter(model.UploadedFileModel.id == file_id).one_or_none()
 
     # Check for tokens to be deleted
@@ -229,7 +227,7 @@ def push_annotations():
     for annotation in annotations:
         replace_tokens = get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
         for token in replace_tokens:
-            session.query(model.TokenModel).filter(model.TokenModel.id == token["id"]).delete() 
+            session.query(model.TokenModel).filter(model.TokenModel.id == token["id"]).delete()
 
         new_annotation = model.TokenModel(
             reserved_token=True if annotation["type_"] == "manual" else False,
@@ -240,6 +238,15 @@ def push_annotations():
             uploaded_file_id=file_id
         )
         session.add(new_annotation)
+    '''
+    for space in spaces:
+        new_space = model.SpaceModel(
+            space_index=space["space_index"],
+            space_type=space["space_type"],
+            uploaded_file_id=file_id
+        )
+        session.add(new_space)
+    '''
     session.commit()
     session.flush()
     session.close()
@@ -267,8 +274,8 @@ def push_annotations():
     '''
 
     response_body = {
-            "response": "success"
-        }
+        "response": "success"
+    }
     return response_body
 
 
@@ -276,7 +283,7 @@ def push_annotations():
 def auto_tokenise():
     session = get_session()
     file_data = json.loads(request.form.get("file_data"))
-    text = file_data['content'].replace("\r", "")
+    text = file_data['content']
     lang_id = file_data['lang_id']
     uploaded_file_id = file_data['file_id']
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
@@ -291,7 +298,9 @@ def auto_tokenise():
     tokenised_text = cardamom_tokenise(text, iso_code=lang.iso_code, reserved_toks=resv_tks,
                                        uploaded_file_id=uploaded_file_id)
     tokenised_text = [serialise_data_model(token_model) for token_model in tokenised_text]
-    sorted(tokenised_text, key=lambda a: a['start_index'])
+    tokenised_text = sorted(tokenised_text, key=lambda a: a['start_index'])
+    print(repr(text),flush=True)
+    print([(text[t['start_index']:t['end_index']],t['start_index'],t['end_index']) for t in tokenised_text],flush=True)
     session.close()
     return {"annotations": tokenised_text}
 
@@ -344,7 +353,6 @@ def get_postags(file_id):
 
 @api.route('/auto_tag', methods=["POST"])
 def auto_tag():
-    # extract the text
     session = get_session()
     file_data = json.loads(request.form.get('file_data'))
     file_id = file_data["file_id"]
@@ -354,10 +362,6 @@ def auto_tag():
     content = file_obj.content
     tokens = get_tokens(file_id)
     lang = session.query(model.LanguageModel).filter(model.LanguageModel.id == lang_id).one_or_none()
-    print(tokens)
-    print(content)
-    for token_ in tokens:
-        print(content[token_["start_index"]: token_["end_index"]])
     pos_tags = cardamom_postag(content, tokens, lang)
     pos_tags = [serialise_data_model(tags) for tags in pos_tags]
     session.close()

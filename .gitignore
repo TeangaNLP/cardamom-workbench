@@ -146,3 +146,9 @@ webserver/technologies/__pycache__/
 # Mac
 .DS_Store
 ../.DS_Store
+=======
+/redis/
+/webserver/__pycache__/
+/webserver/redis_client.py
+/webserver/redis_utils.py
+/docs/redis_models.md
