@@ -1,1 +1,1 @@
-from .model_abstraction import cardamom_tokenise, cardamom_postag
+from .model_abstraction import cardamom_tokenise, cardamom_postag, cardamom_find_similar_words
