@@ -7,6 +7,3 @@ python-docx
 nltk
 conllu
 gensim
-torch
-tensorflow
-numpy
