@@ -14,7 +14,7 @@ services:
     # ↓ volume below for testing purposes only
     volumes:
       - ./webserver:/code #
-    command: ["/tmp/wait-for-it.sh","-t","0","postgres:5432", "--", "bash", "-c", "cd /code/react_views/;npm install --legacy-peer-deps;npm run build;cd /code/;chmod +x /tmp/webserver_run.sh;/tmp/webserver_run.sh"]
+    command: ["/tmp/wait-for-it.sh","-t","0","postgres:5432", "--", "bash", "-c", "cd /code/react_views/;npm run build;cd /code/;chmod +x /tmp/webserver_run.sh;/tmp/webserver_run.sh"]
   postgres:
     build:
         context: ./database
