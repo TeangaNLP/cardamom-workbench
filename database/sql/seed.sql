@@ -135,11 +135,77 @@ INSERT INTO languages (language_name, iso_code, requested) VALUES ('Yoruba', 'yo
 INSERT INTO languages (language_name, iso_code, requested) VALUES ('Yupik', 'ess', FALSE);
 
 
-INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Conaille_Muirtheimne.txt', 'The Ulaid according to historian Francis John Byrne "possibly still ruled directly in Louth as far as the Boyne in the early seventh century" at a time when Congal Cáech of the Cruthin of Dál nAraidi made a bid for the kingship of Tara.\n\nConaille Muirtheimne once formed part of the over-kingdom of the Ulaid, and it remained an ally of it for the greater part of its history. In Lebor na gCeart (the Book of Rights) the Conaille are listed among "The Territories whose King paid Tribute to the Ulaidh." In return, the king of Ulaid owed to "The Heroic King of Muirthemhne - six round goblets full of ale, ten ships from the Hero of Elga, ten steeds and ten brights cloaks."', 1, 32);
+INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Conaille_Muirtheimne.txt', 'The Ulaid according to historian Francis John Byrne "possibly still ruled directly in Louth as far as the Boyne in the early seventh century" at a time when Congal Cáech of the Cruthin of Dál nAraidi made a bid for the kingship of Tara.
 
-INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Old_Irish_Glosses.txt', '.i. biuusa ocirbáig darfarcennsi frimaccidóndu\n\n.i. niarformut fribsi asbiursa inso arropad maith limsa labrad ilbelre dúibsi\n\n.i. isipersin crist dagníusa sin\n\n.i. ó domanicc foirbthetu ní denim gnímu macthi act rísam nem bimmi æcni et bimmi foirbthi uili\n\n.i. isocprecept soscéli attó\n\n.i. ished inso noguidimm .i. conducaid etargne ṅ dǽ et conaroib temel innatol domunde tarrosc fornanme\n\n.i. hore nondobmolorsa et nom móidim indib\n\n.i. amal nondafrecṅdirccsa\n\n.i. is inse ṅduit nitú nodnai(l) acht ishé not ail\n\n.i. madarlóg pridchasa .i. armetiuth et mothoschith nímbia fochricc dar hési moprecepte\n\n.i. coníarimse peccad libsi uili ɫ. aratartsa fortacht dúibsi arnap trom fuirib fornóinur\n\n.i. cote mothorbese dúib madamne labrar\n\n.i. nihed notbeir ínem ciabaloingthech\n\nAcht nammáa issamlid istorbe són co etercerta anasbera et conrucca inætarcne cáich\n\n.i. léic uáit innabiada mílsi ettomil innahí siu dommeil do chenél arnáphé som conéit détso\n\n.i. isamlid dorígeni dia corp duini ó ilballaib\n\n.i. act basamlid dúib cid immeícndarcus', 1, 89);
+Conaille Muirtheimne once formed part of the over-kingdom of the Ulaid, and it remained an ally of it for the greater part of its history. In Lebor na gCeart (the Book of Rights) the Conaille are listed among "The Territories whose King paid Tribute to the Ulaidh." In return, the king of Ulaid owed to "The Heroic King of Muirthemhne - six round goblets full of ale, ten ships from the Hero of Elga, ten steeds and ten brights cloaks."', 1, 32);
 
-INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Thin_Lizzy.txt', 'Banna rac-cheoil as Baile Átha Cliath, Poblacht na hÉireann ab ea Thin Lizzy. Bhí siad ar cheann de na bannaí ba mhó in Éirinn ar feadh na 1970idí agus na 1980idí nuair a bhí an dordghiotáraí Phil Lynott ina phríomhamhránaí orthu. Bhí cúpla amhrán an-cháiliúil acu, mar shampla The Boys Are Back in Town, Jailbreak agus an leagan rac-cheoil a rinne siad den amhrán traidisiúnta Éireannach Whiskey in the Jar.\n\nAgus na blianta ag dul thart, bhí roinnt giotáraithe éagsúla ag Thin Lizzy, ach choimeád siad a guth sainiúil dá gcuid féin i gcónaí.\n\nBhí tionchar mór ag Van Morrison ar Philo, agus tá an giota eolais sin le fáil san agallamh le Philo sa scannán Thin Lizzy, The Rocker; A Portrait of Phillip Lynott.\n\nBhí tionchar mór ag na grúpaí ceoil Meiriceánacha ar nós Bob Seger agus Little Feat ar Lizzy chomh maith. Bhain siad úsáid as ceol de gach stíl cosúil le ceol tíre agus ceol tuaithe, ach tá aithne orthu mar rac-bhanna nó banna rac-crua.\n\nTá aithne forleathan ar Lizzy mar cheann amháin de na bannaí as an stíl rac-crua; iadsan a chuir an comhcheol de dhá giotáir (cath na dá ghiotár) ar bhun - stíl a bunaíodh ag Wishbone Ash sa Ríocht Aontaithe, agus go neamhspleách ag Lynyrd Skynyrd agus The Allman Brothers Band i SAM.\n\nCuireadh deireadh leis an mbanna sa bhliain 1983, agus fuair Phil Lynott bás sa bhliain 1986. Cuireadh an banna ar ais le chéile sa bhliain 1996 chun turas a dhéanamh.\n\nIs é Lynott fear gorm amháin, de líon an-bheag díobh, a bhain clú agus cáil amach san rac-crua. Bhí baill den chine geal agus gorm, de gach taobh den teorainn Éireannach agus idir Caitlicigh agus Protastúnaigh páirteach sa bhanna.', 1, 52);
+INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Old_Irish_Glosses.txt', '.i. biuusa ocirbáig darfarcennsi frimaccidóndu
 
-INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Cicero.txt', 'NEQVEPORROQVISQVAMESTQVIDOLOREMIPSVMQVIADOLORSITAMETCONSECTETVRADIPISCIVELIT\n\nNEQVE·PORRO·QVISQVAM·EST·QVI·DOLOREM·IPSVM·QVIA·DOLOR·SIT·AMET·CONSECTETVR·ADIPISCI·VELIT\n\nNeque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit', 1, 67);
+.i. niarformut fribsi asbiursa inso arropad maith limsa labrad ilbelre dúibsi
+
+.i. isipersin crist dagníusa sin
+
+.i. ó domanicc foirbthetu ní denim gnímu macthi act rísam nem bimmi æcni et bimmi foirbthi uili
+
+.i. isocprecept soscéli attó
+
+.i. ished inso noguidimm .i. conducaid etargne ṅ dǽ et conaroib temel innatol domunde tarrosc fornanme
+
+.i. hore nondobmolorsa et nom móidim indib
+
+.i. amal nondafrecṅdirccsa
+
+.i. is inse ṅduit nitú nodnai(l) acht ishé not ail
+
+.i. madarlóg pridchasa .i. armetiuth et mothoschith nímbia fochricc dar hési moprecepte
+
+.i. coníarimse peccad libsi uili ɫ. aratartsa fortacht dúibsi arnap trom fuirib fornóinur
+
+.i. cote mothorbese dúib madamne labrar
+
+.i. nihed notbeir ínem ciabaloingthech
+
+Acht nammáa issamlid istorbe són co etercerta anasbera et conrucca inætarcne cáich
+
+.i. léic uáit innabiada mílsi ettomil innahí siu dommeil do chenél arnáphé som conéit détso
+
+.i. isamlid dorígeni dia corp duini ó ilballaib
+
+.i. act basamlid dúib cid immeícndarcus', 1, 89);
+
+INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Thin_Lizzy.txt', 'Banna rac-cheoil as Baile Átha Cliath, Poblacht na hÉireann ab ea Thin Lizzy. Bhí siad ar cheann de na bannaí ba mhó in Éirinn ar feadh na 1970idí agus na 1980idí nuair a bhí an dordghiotáraí Phil Lynott ina phríomhamhránaí orthu. Bhí cúpla amhrán an-cháiliúil acu, mar shampla The Boys Are Back in Town, Jailbreak agus an leagan rac-cheoil a rinne siad den amhrán traidisiúnta Éireannach Whiskey in the Jar.
+
+Agus na blianta ag dul thart, bhí roinnt giotáraithe éagsúla ag Thin Lizzy, ach choimeád siad a guth sainiúil dá gcuid féin i gcónaí.
+
+Bhí tionchar mór ag Van Morrison ar Philo, agus tá an giota eolais sin le fáil san agallamh le Philo sa scannán Thin Lizzy, The Rocker; A Portrait of Phillip Lynott.
+
+Bhí tionchar mór ag na grúpaí ceoil Meiriceánacha ar nós Bob Seger agus Little Feat ar Lizzy chomh maith. Bhain siad úsáid as ceol de gach stíl cosúil le ceol tíre agus ceol tuaithe, ach tá aithne orthu mar rac-bhanna nó banna rac-crua.
+
+Tá aithne forleathan ar Lizzy mar cheann amháin de na bannaí as an stíl rac-crua; iadsan a chuir an comhcheol de dhá giotáir (cath na dá ghiotár) ar bhun - stíl a bunaíodh ag Wishbone Ash sa Ríocht Aontaithe, agus go neamhspleách ag Lynyrd Skynyrd agus The Allman Brothers Band i SAM.
+
+Cuireadh deireadh leis an mbanna sa bhliain 1983, agus fuair Phil Lynott bás sa bhliain 1986. Cuireadh an banna ar ais le chéile sa bhliain 1996 chun turas a dhéanamh.
+
+Is é Lynott fear gorm amháin, de líon an-bheag díobh, a bhain clú agus cáil amach san rac-crua. Bhí baill den chine geal agus gorm, de gach taobh den teorainn Éireannach agus idir Caitlicigh agus Protastúnaigh páirteach sa bhanna.', 1, 52);
+
+
+
+INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Thin_Lizzy_2.txt', 'Banna rac-cheoil as Baile Átha Cliath, Poblacht na hÉireann ab ea Thin Lizzy. Bhí siad ar cheann de na bannaí ba mhó in Éirinn ar feadh na 1970idí agus na 1980idí nuair a bhí an dordghiotáraí Phil Lynott ina phríomhamhránaí orthu. Bhí cúpla amhrán an-cháiliúil acu, mar shampla The Boys Are Back in Town, Jailbreak agus an leagan rac-cheoil a rinne siad den amhrán traidisiúnta Éireannach Whiskey in the Jar.
+
+Agus na blianta ag dul thart, bhí roinnt giotáraithe éagsúla ag Thin Lizzy, ach choimeád siad a guth sainiúil dá gcuid féin i gcónaí.
+
+Bhí tionchar mór ag Van Morrison ar Philo, agus tá an giota eolais sin le fáil san agallamh le Philo sa scannán Thin Lizzy, The Rocker; A Portrait of Phillip Lynott.
+
+Bhí tionchar mór ag na grúpaí ceoil Meiriceánacha ar nós Bob Seger agus Little Feat ar Lizzy chomh maith. Bhain siad úsáid as ceol de gach stíl cosúil le ceol tíre agus ceol tuaithe, ach tá aithne orthu mar rac-bhanna nó banna rac-crua.
+
+Tá aithne forleathan ar Lizzy mar cheann amháin de na bannaí as an stíl rac-crua; iadsan a chuir an comhcheol de dhá giotáir (cath na dá ghiotár) ar bhun - stíl a bunaíodh ag Wishbone Ash sa Ríocht Aontaithe, agus go neamhspleách ag Lynyrd Skynyrd agus The Allman Brothers Band i SAM.
+
+Cuireadh deireadh leis an mbanna sa bhliain 1983, agus fuair Phil Lynott bás sa bhliain 1986. Cuireadh an banna ar ais le chéile sa bhliain 1996 chun turas a dhéanamh.
+
+Is é Lynott fear gorm amháin, de líon an-bheag díobh, a bhain clú agus cáil amach san rac-crua. Bhí baill den chine geal agus gorm, de gach taobh den teorainn Éireannach agus idir Caitlicigh agus Protastúnaigh páirteach sa bhanna.', 1, 52);
+
+INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Cicero.txt', 'NEQVEPORROQVISQVAMESTQVIDOLOREMIPSVMQVIADOLORSITAMETCONSECTETVRADIPISCIVELIT
+
+NEQVE·PORRO·QVISQVAM·EST·QVI·DOLOREM·IPSVM·QVIA·DOLOR·SIT·AMET·CONSECTETVR·ADIPISCI·VELIT
+
+Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit', 1, 67);
 
