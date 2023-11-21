@@ -187,25 +187,8 @@ Cuireadh deireadh leis an mbanna sa bhliain 1983, agus fuair Phil Lynott bás sa
 
 Is é Lynott fear gorm amháin, de líon an-bheag díobh, a bhain clú agus cáil amach san rac-crua. Bhí baill den chine geal agus gorm, de gach taobh den teorainn Éireannach agus idir Caitlicigh agus Protastúnaigh páirteach sa bhanna.', 1, 52);
 
-
-
-INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Thin_Lizzy_2.txt', 'Banna rac-cheoil as Baile Átha Cliath, Poblacht na hÉireann ab ea Thin Lizzy. Bhí siad ar cheann de na bannaí ba mhó in Éirinn ar feadh na 1970idí agus na 1980idí nuair a bhí an dordghiotáraí Phil Lynott ina phríomhamhránaí orthu. Bhí cúpla amhrán an-cháiliúil acu, mar shampla The Boys Are Back in Town, Jailbreak agus an leagan rac-cheoil a rinne siad den amhrán traidisiúnta Éireannach Whiskey in the Jar.
-
-Agus na blianta ag dul thart, bhí roinnt giotáraithe éagsúla ag Thin Lizzy, ach choimeád siad a guth sainiúil dá gcuid féin i gcónaí.
-
-Bhí tionchar mór ag Van Morrison ar Philo, agus tá an giota eolais sin le fáil san agallamh le Philo sa scannán Thin Lizzy, The Rocker; A Portrait of Phillip Lynott.
-
-Bhí tionchar mór ag na grúpaí ceoil Meiriceánacha ar nós Bob Seger agus Little Feat ar Lizzy chomh maith. Bhain siad úsáid as ceol de gach stíl cosúil le ceol tíre agus ceol tuaithe, ach tá aithne orthu mar rac-bhanna nó banna rac-crua.
-
-Tá aithne forleathan ar Lizzy mar cheann amháin de na bannaí as an stíl rac-crua; iadsan a chuir an comhcheol de dhá giotáir (cath na dá ghiotár) ar bhun - stíl a bunaíodh ag Wishbone Ash sa Ríocht Aontaithe, agus go neamhspleách ag Lynyrd Skynyrd agus The Allman Brothers Band i SAM.
-
-Cuireadh deireadh leis an mbanna sa bhliain 1983, agus fuair Phil Lynott bás sa bhliain 1986. Cuireadh an banna ar ais le chéile sa bhliain 1996 chun turas a dhéanamh.
-
-Is é Lynott fear gorm amháin, de líon an-bheag díobh, a bhain clú agus cáil amach san rac-crua. Bhí baill den chine geal agus gorm, de gach taobh den teorainn Éireannach agus idir Caitlicigh agus Protastúnaigh páirteach sa bhanna.', 1, 52);
-
 INSERT INTO uploaded_files (name, content, user_id, language_id) VALUES ('Cicero.txt', 'NEQVEPORROQVISQVAMESTQVIDOLOREMIPSVMQVIADOLORSITAMETCONSECTETVRADIPISCIVELIT
 
 NEQVE·PORRO·QVISQVAM·EST·QVI·DOLOREM·IPSVM·QVIA·DOLOR·SIT·AMET·CONSECTETVR·ADIPISCI·VELIT
 
 Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit', 1, 67);
-
