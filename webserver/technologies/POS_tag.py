@@ -1,36 +1,11 @@
+from UD_Parser import create_isodict
 from Train_Taggers import load_tagger
 
 
 def pos_tag(string, tokens, matrix_language=None):
 
     # Identify languages currently supported by NLTK's POS-tagger.
-    corp_langs = {'af': 'Afrikaans', 'akk': 'Akkadian', 'aqz': 'Akuntsu', 'sq': 'Albanian', 'am': 'Amharic',
-                  'grc': 'Ancient Greek', 'hbo': 'Ancient Hebrew', 'apu': 'Apurina', 'ar': 'Arabic', 'hy': 'Armenian',
-                  'aii': 'Assyrian', 'bm': 'Bambara', 'eu': 'Basque', 'bej': 'Beja', 'be': 'Belarusian',
-                  'bn': 'Bengali', 'bho': 'Bhojpuri', 'br': 'Breton', 'bg': 'Bulgarian', 'bxr': 'Buryat',
-                  'yue': 'Cantonese', 'ca': 'Catalan', 'ceb': 'Cebuano', 'zh': 'Chinese', 'ckt': 'Chukchi',
-                  'lzh': 'Classical Chinese', 'cop': 'Coptic', 'hr': 'Croatian', 'cs': 'Czech', 'da': 'Danish',
-                  'nl': 'Dutch', 'en': 'English', 'myv': 'Erzya', 'et': 'Estonian', 'fo': 'Faroese', 'fi': 'Finnish',
-                  'fr': 'French', 'qfn': 'Frisian Dutch', 'gl': 'Galician', 'de': 'German', 'got': 'Gothic',
-                  'el': 'Greek', 'gub': 'Guajajara', 'gn': 'Guarani', 'he': 'Hebrew', 'hi': 'Hindi',
-                  'qhe': 'Hindi English', 'hit': 'Hittite', 'hu': 'Hungarian', 'is': 'Icelandic', 'id': 'Indonesian',
-                  'ga': 'Irish', 'it': 'Italian', 'ja': 'Japanese', 'jv': 'Javanese', 'urb': 'Kaapor', 'xnr': 'Kangri',
-                  'krl': 'Karelian', 'arr': 'Karo', 'kk': 'Kazakh', 'kfm': 'Khunsari', 'quc': 'Kiche',
-                  'koi': 'Komi Permyak', 'kpv': 'Komi Zyrian', 'ko': 'Korean', 'kmr': 'Kurmanji', 'la': 'Latin',
-                  'lv': 'Latvian', 'lij': 'Ligurian', 'lt': 'Lithuanian', 'olo': 'Livvi', 'nds': 'Low Saxon',
-                  'jaa': 'Madi', 'mpu': 'Makurap', 'mt': 'Maltese', 'gv': 'Manx', 'mr': 'Marathi',
-                  'gun': 'Mbya Guarani', 'mdf': 'Moksha', 'myu': 'Munduruku', 'pcm': 'Naija', 'nyq': 'Nayini',
-                  'nap': 'Neapolitan', 'sme': 'North Sami', 'no': 'Norwegian', 'cu': 'Old Church Slavonic',
-                  'orv': 'Old East Slavic', 'fro': 'Old French', 'sga': 'Old Irish', 'otk': 'Old Turkish',
-                  'fa': 'Persian', 'pl': 'Polish', 'qpm': 'Pomak', 'pt': 'Portuguese', 'ro': 'Romanian',
-                  'ru': 'Russian', 'sa': 'Sanskrit', 'gd': 'Scottish Gaelic', 'sr': 'Serbian', 'sms': 'Skolt Sami',
-                  'sk': 'Slovak', 'sl': 'Slovenian', 'soj': 'Soi', 'ajp': 'South Levantine Arabic', 'es': 'Spanish',
-                  'sv': 'Swedish', 'swl': 'Swedish Sign Language', 'gsw': 'Swiss German', 'tl': 'Tagalog',
-                  'ta': 'Tamil', 'tt': 'Tatar', 'eme': 'Teko', 'te': 'Telugu', 'th': 'Thai', 'tpn': 'Tupinamba',
-                  'tr': 'Turkish', 'qtd': 'Turkish German', 'uk': 'Ukrainian', 'xum': 'Umbrian', 'hsb': 'Upper Sorbian',
-                  'ur': 'Urdu', 'ug': 'Uyghur', 'vi': 'Vietnamese', 'wbp': 'Warlpiri', 'cy': 'Welsh',
-                  'hyw': 'Western Armenian', 'wo': 'Wolof', 'sjo': 'Xibe', 'sah': 'Yakut', 'yo': 'Yoruba',
-                  'ess': 'Yupik'}
+    corp_langs = create_isodict()
     supported_langs = sorted(list(set([i for i in corp_langs])))
 
     # Get tokens from string using their indices, add them to token dictionaries in list.
