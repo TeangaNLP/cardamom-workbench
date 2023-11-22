@@ -20,7 +20,7 @@ def get_models_by_iso(iso_code: str, MODEL_DIR = '/code/language_models/embeddin
     return lang_models
 
 
-def choose_model(lang_models: list, choice: Literal['default', 'diachronic', 'related'] = 'default'):
+def choose_model(lang_models: list, choice: Literal['default', 'diachronic', 'synchronic', 'related'] = 'default'):
     """
     :param lang_models: list of model names
     :param choice: which model to return
@@ -30,20 +30,16 @@ def choose_model(lang_models: list, choice: Literal['default', 'diachronic', 're
 
     # filtering the list of model names
     if choice == 'default':
-        if len(lang_models) == 1:
-            filtered_models = lang_models
-        else:
-            filtered_models = [m for m in lang_models if "synchronic" in m]
-    elif choice == 'diachronic':
-        filtered_models = [m for m in lang_models if "diachronic" in m]
-    elif choice == 'related':
-        filtered_models = [m for m in lang_models if "related" in m]
-
-    # checking if we have any results
-    if len(filtered_models) == 0:
-        print("No models found")
-    else:
+        filtered_models = [m for m in lang_models if "synchronic" in m]
         return filtered_models[0]
+
+    else:
+        filtered_models = [m for m in lang_models if choice in m]
+        # checking if we have any results
+        if len(filtered_models) == 0:
+            print("No models found")
+        else:
+            return filtered_models
 
 
 def load_model(iso_code, compressed=True, binary=True, MODEL_DIR = '/code/language_models/embeddings'):
@@ -73,15 +69,17 @@ def find_similar(query: str, model, n=10):
     :param n: number of words to return
     :return: a list of similar words
     """
+    # any preprocessing that we want to do before sending query to the model (lowercasing, adding language prefix etc.)
+    query = query.lower()
+
     if isinstance(model, gensim.models.keyedvectors.KeyedVectors):
         try:
             return model.similar_by_word(query, topn=n)
             # return just words, without similarity scores
             # return [result[0] for result in output]
-        except KeyError:
-            print("""This word is unknown to the model. Make sure your query is lowercase. 
-                   If it is a diachronic/multilingual model, don't forget to add a language 
-                   code to your query, e.g. gaeilge_gle""")
+        except (KeyError, TypeError) as e:
+            print("""This word is unknown to the model. Make sure your query is lowercase. If it is a diachronic/multilingual model, don't forget to add a language code to your query, e.g. gaeilge_gle""")
+            return [('', 0)]
     else:
         return model.wv.similar_by_word(query, topn=n)
         # return just words, without similarity scores

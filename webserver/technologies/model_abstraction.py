@@ -39,6 +39,6 @@ def cardamom_find_similar_words(string, iso_code=None):
     related_words = [RelatedWordModel(
         query=string, query_language=iso_code, model_name=model_name,
         word=related_word_tpl[0], similarity_score=related_word_tpl[1]
-    ) for related_word_tpl in related_words]
+        ) for related_word_tpl in related_words]
 
     return related_words
