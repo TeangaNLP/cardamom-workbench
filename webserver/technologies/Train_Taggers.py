@@ -142,6 +142,9 @@ def train_pos_tagger(language):
     # load in the pos-tagged corpus
     pos_tagged_text = get_pos_tags(language)
 
+    # put all letters in lowercase for improved tagging accuracy
+    pos_tagged_text = [[(token[0].lower(), token[1]) for token in sentence] for sentence in pos_tagged_text]
+
     # train the tagger
     pos_tagger = nltk.PerceptronTagger(pos_tagged_text)
 
@@ -243,6 +246,7 @@ def save_language_taggers(language_list=None, models_dir="language_models",
 #     # print(json.dumps(get_langfeats("Irish")))
 #     # print(json.dumps(get_valid_features(["Irish", "Old Irish"])))
 #
+#     # train_pos_tagger("Irish")
 #     save_language_taggers(overwrite_old_model=True)
 #
 #     # gael_tagger = load_tagger("Irish")

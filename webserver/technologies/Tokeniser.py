@@ -312,7 +312,7 @@ def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
 #     if f"{slash}code" in tech_dir:
 #         main_dir = tech_dir
 #     else:
-#         main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
+#         main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
 #     webserver_dir = main_dir + f"{slash}webserver"
 #
 #     # navigate to directory containing UD corpora
