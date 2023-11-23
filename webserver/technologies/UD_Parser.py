@@ -19,7 +19,7 @@ def list_ud_langs():
     if f"{slash}code" in tech_dir:
         main_dir = tech_dir
     else:
-        main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
+        main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
@@ -53,7 +53,7 @@ def get_treebank_names(language):
     if f"{slash}code" in tech_dir:
         main_dir = tech_dir
     else:
-        main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
+        main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
@@ -89,7 +89,7 @@ def get_iso(language):
     if f"{slash}code" in tech_dir:
         main_dir = tech_dir
     else:
-        main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
+        main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
@@ -148,7 +148,7 @@ def get_treebanks(language):
     if f"{slash}code" in tech_dir:
         main_dir = tech_dir
     else:
-        main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
+        main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
     # navigate to directory containing UD corpora

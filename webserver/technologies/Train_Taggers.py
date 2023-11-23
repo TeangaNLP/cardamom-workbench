@@ -1,9 +1,8 @@
 import os
 import platform
-from decimal import *
 import nltk
-from conllu import parse
 from ast import literal_eval
+from UD_Parser import combine_treebanks, list_ud_langs
 import json
 from nltk import word_tokenize, sent_tokenize
 import pickle as pk
@@ -15,127 +14,10 @@ else:
     slash = "/"
 
 
-def list_pos_langs():
-
-    # identify directories
-    tech_dir = os.getcwd()
-    if f"{slash}code" in tech_dir:
-        main_dir = tech_dir
-    else:
-        main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
-    corpora_dir = main_dir + f"{slash}CorporaUD"
-
-    # navigate to directory containing UD corpora
-    os.chdir(corpora_dir)
-
-    # navigate to directory containing most recent UD corpus
-    available_corpora = os.listdir()
-    latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
-        max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
-    )
-    os.chdir(latest_corpus)
-
-    # identify available treebanks
-    treebanks = os.listdir()
-
-    # identify languages of available treebanks
-    languages = sorted(list(set([" ".join(i[3:i.index("-")].split("_")) for i in treebanks if i[:2] == "UD"])))
-
-    # return to technologies directory
-    os.chdir(tech_dir)
-
-    return languages
-
-
-def get_treebank_names(language):
-
-    # identify directories
-    tech_dir = os.getcwd()
-    if f"{slash}code" in tech_dir:
-        main_dir = tech_dir
-    else:
-        main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
-    corpora_dir = main_dir + f"{slash}CorporaUD"
-
-    # navigate to directory containing UD corpora
-    os.chdir(corpora_dir)
-
-    # navigate to directory containing most recent UD corpus
-    available_corpora = os.listdir()
-    latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
-        max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
-    )
-    os.chdir(latest_corpus)
-
-    # identify available treebanks
-    all_treebanks = os.listdir()
-
-    # identify treebanks for the selected language
-    treebanks = [tb for tb in all_treebanks if "UD_" + "_".join(language.split(" ")) + "-" in tb]
-
-    # return to technologies directory
-    os.chdir(tech_dir)
-
-    return treebanks
-
-
-def get_treebanks(language):
-
-    # find treebanks available for the language
-    available_treebanks = get_treebank_names(language)
-
-    # identify directories
-    tech_dir = os.getcwd()
-    if f"{slash}code" in tech_dir:
-        main_dir = tech_dir
-    else:
-        main_dir = tech_dir[:tech_dir.index(f"{slash}webserver")]
-    corpora_dir = main_dir + f"{slash}CorporaUD"
-
-    # navigate to directory containing UD corpora
-    os.chdir(corpora_dir)
-
-    # navigate to directory containing most recent UD corpus
-    available_corpora = os.listdir()
-    latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
-        max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
-    )
-    os.chdir(latest_corpus)
-
-    # extract data from each treebank and put in a list
-    treebanks = list()
-    for treebank in available_treebanks:
-        os.chdir(latest_corpus + slash + treebank)
-        available_files = os.listdir()
-        retrieved_file = [file for file in available_files if ".conllu" in file]
-        if len(retrieved_file) > 1:
-            for file in retrieved_file:
-                with open(file, encoding='utf-8') as conllu_file:
-                    treebanks.append(parse(conllu_file.read()))
-        elif len(retrieved_file) == 1:
-            retrieved_file = retrieved_file[0]
-            with open(retrieved_file, encoding='utf-8') as conllu_file:
-                treebanks.append(parse(conllu_file.read()))
-        elif len(retrieved_file) < 1:
-            raise RuntimeError(f"No treebanks found for language, {language}, in folder: {treebank}")
-        os.chdir(latest_corpus)
-    if len(treebank) == 0:
-        raise RuntimeError(f"No treebanks found for language: {language}")
-
-    # return to technologies directory
-    os.chdir(tech_dir)
-
-    # combine sentences from all treebanks
-    combined_banks = [[sentence for sentence in tree] for tree in treebanks]
-    combined_banks = [i for j in combined_banks for i in j]
-
-    return combined_banks
-
-
 def get_pos_tags(language):
 
     # collect the CoNLL-U files for the language
-    treebanks = get_treebanks(language)
+    treebanks = combine_treebanks(language)
 
     # extract UD POS-tags for each treebank
     pos_tags = [[(token.get("form"), token.get("upos")) for token in sentence] for sentence in treebanks]
@@ -146,7 +28,7 @@ def get_pos_tags(language):
 def get_pos_feats(language):
 
     # collect the CoNLL-U files for the language
-    treebanks = get_treebanks(language)
+    treebanks = combine_treebanks(language)
 
     # extract UD POS-tags for each treebank
     pos_tags = [[(token.get("upos"), token.get("feats")) for token in sentence] for sentence in treebanks]
@@ -201,16 +83,14 @@ def get_langfeats(language):
 def get_valid_features(language_list=None):
     """Gets all POS-feature combinations used in UD corpora for a range of languages"""
 
-    # Specify a limited number of languages if no list is provided
+    # If no list is provided get a list of all languages for which a POS-tagged UD corpus exists
     if not language_list:
-        language_list = ["English", "French", "German", "Irish", "Latin", "Old Irish", "Spanish"]
-    # Get a list of all languages for which a POS-tagged corpus exists
-    languages = list_pos_langs()
+        language_list = list_ud_langs()
 
     # Get all treebanks for the languages specified in the language-list
     all_tbs = list()
     for language in language_list:
-        all_tbs.append(get_treebanks(language))
+        all_tbs.append(combine_treebanks(language))
     # Combine the treebanks for all languages into a single treebank containing the text from all specified languages
     one_tb = [[sentence for sentence in tree] for tree in all_tbs]
     one_tb = [i for j in one_tb for i in j]
@@ -262,8 +142,12 @@ def train_pos_tagger(language):
     # load in the pos-tagged corpus
     pos_tagged_text = get_pos_tags(language)
 
+    # put all letters in lowercase for improved tagging accuracy
+    pos_tagged_text = [[(token[0].lower(), token[1]) for token in sentence] for sentence in pos_tagged_text]
+
     # train the tagger
-    pos_tagger = nltk.UnigramTagger(pos_tagged_text)
+    pos_tagger = nltk.PerceptronTagger(load=False)
+    pos_tagger.train(pos_tagged_text)
 
     return pos_tagger
 
@@ -333,7 +217,7 @@ def save_language_taggers(language_list=None, models_dir="language_models",
                           overwrite_old_model=False, overwrite_old_directory=False):
     """Generate POS-tagger models for each supported language, or each in a specified list if supported"""
 
-    supported_languages = list_pos_langs()
+    supported_languages = list_ud_langs()
 
     if not language_list:
         available_languages = supported_languages
@@ -363,10 +247,12 @@ def save_language_taggers(language_list=None, models_dir="language_models",
 #     # print(json.dumps(get_langfeats("Irish")))
 #     # print(json.dumps(get_valid_features(["Irish", "Old Irish"])))
 #
-#     # save_language_taggers()
+#     # train_pos_tagger("Irish")
+#     # save_pos_tagger("Irish", overwrite_old_model=True)
+#     save_language_taggers(overwrite_old_model=True)
 #
-#     gael_tagger = load_tagger("Irish")
-#     test = "Chonaic mé mo mhadra ag rith. Thit sé agus é á casadh."
-#     tokens = ([word_tokenize(sent) for sent in sent_tokenize(test)])
-#
-#     print(list(gael_tagger.tag([word.lower() for word in sent]) for sent in tokens))
+#     # gael_tagger = load_tagger("Irish")
+#     # test = "Chonaic mé mo mhadra ag rith. Thit sé agus é á casadh."
+#     # tokens = ([word_tokenize(sent) for sent in sent_tokenize(test)])
+#     #
+#     # print(list(gael_tagger.tag([word.lower() for word in sent]) for sent in tokens))

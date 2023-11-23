@@ -1,5 +1,15 @@
+from UD_Parser import create_isodict
 from nltk.tokenize import word_tokenize
 import regex as re
+import os
+import platform
+
+
+op_sys = platform.system()
+if op_sys == "Windows":
+    slash = "\\"
+else:
+    slash = "/"
 
 
 def discrete_tokenise(string, language):
@@ -10,6 +20,19 @@ def discrete_tokenise(string, language):
 
     elif language == 'latin':
         toks = word_tokenize(string)
+
+        # Replace double quotes which are broken by NLTK during tokenisation
+        toks = [tok if tok not in ["``", "''"] else '"' for tok in toks]
+
+        # Separate word tokens from single quotes where they have been combined
+        for toknum, token in enumerate(toks):
+            try:
+                if len(token) > 1 and token[0] == "'":
+                    toks = toks[:toknum] + [token[:1], token[1:]] + toks[toknum + 1:]
+            except KeyError:
+                pass
+
+        # Separate tokens where, in Latin text, words are separated using the interpunct instead of spacing
         for index, token in enumerate(toks):
             if "·" in token:
                 subtoks = token.split("·")
@@ -49,6 +72,18 @@ def discrete_tokenise(string, language):
         last_string = string[cur_ind:]
         if last_string:
             token_list.append(word_tokenize(last_string))
+
+        # Replace double quotes which are broken by NLTK during tokenisation
+        token_list = [tok if tok not in ["``", "''"] else '"' for tok in token_list]
+
+        # Separate word tokens from single quotes where they have been combined
+        for toknum, token in enumerate(token_list):
+            try:
+                if len(token) > 1 and token[0] == "'":
+                    token_list = token_list[:toknum] + [token[:1], token[1:]] + token_list[toknum + 1:]
+            except KeyError:
+                pass
+
         toks = [a for b in token_list for a in b]
 
     else:
@@ -66,33 +101,7 @@ def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
          "type_": "auto", "uploaded_file_id": uploaded_file_id}, {...}, ...]"""
 
     # Identify languages for which we have corpora.
-    corp_langs = {'af': 'Afrikaans', 'akk': 'Akkadian', 'aqz': 'Akuntsu', 'sq': 'Albanian', 'am': 'Amharic',
-                  'grc': 'Ancient Greek', 'hbo': 'Ancient Hebrew', 'apu': 'Apurina', 'ar': 'Arabic', 'hy': 'Armenian',
-                  'aii': 'Assyrian', 'bm': 'Bambara', 'eu': 'Basque', 'bej': 'Beja', 'be': 'Belarusian',
-                  'bn': 'Bengali', 'bho': 'Bhojpuri', 'br': 'Breton', 'bg': 'Bulgarian', 'bxr': 'Buryat',
-                  'yue': 'Cantonese', 'ca': 'Catalan', 'ceb': 'Cebuano', 'zh': 'Chinese', 'ckt': 'Chukchi',
-                  'lzh': 'Classical Chinese', 'cop': 'Coptic', 'hr': 'Croatian', 'cs': 'Czech', 'da': 'Danish',
-                  'nl': 'Dutch', 'en': 'English', 'myv': 'Erzya', 'et': 'Estonian', 'fo': 'Faroese', 'fi': 'Finnish',
-                  'fr': 'French', 'qfn': 'Frisian Dutch', 'gl': 'Galician', 'de': 'German', 'got': 'Gothic',
-                  'el': 'Greek', 'gub': 'Guajajara', 'gn': 'Guarani', 'he': 'Hebrew', 'hi': 'Hindi',
-                  'qhe': 'Hindi English', 'hit': 'Hittite', 'hu': 'Hungarian', 'is': 'Icelandic', 'id': 'Indonesian',
-                  'ga': 'Irish', 'it': 'Italian', 'ja': 'Japanese', 'jv': 'Javanese', 'urb': 'Kaapor', 'xnr': 'Kangri',
-                  'krl': 'Karelian', 'arr': 'Karo', 'kk': 'Kazakh', 'kfm': 'Khunsari', 'quc': 'Kiche',
-                  'koi': 'Komi Permyak', 'kpv': 'Komi Zyrian', 'ko': 'Korean', 'kmr': 'Kurmanji', 'la': 'Latin',
-                  'lv': 'Latvian', 'lij': 'Ligurian', 'lt': 'Lithuanian', 'olo': 'Livvi', 'nds': 'Low Saxon',
-                  'jaa': 'Madi', 'mpu': 'Makurap', 'mt': 'Maltese', 'gv': 'Manx', 'mr': 'Marathi',
-                  'gun': 'Mbya Guarani', 'mdf': 'Moksha', 'myu': 'Munduruku', 'pcm': 'Naija', 'nyq': 'Nayini',
-                  'nap': 'Neapolitan', 'sme': 'North Sami', 'no': 'Norwegian', 'cu': 'Old Church Slavonic',
-                  'orv': 'Old East Slavic', 'fro': 'Old French', 'sga': 'Old Irish', 'otk': 'Old Turkish',
-                  'fa': 'Persian', 'pl': 'Polish', 'qpm': 'Pomak', 'pt': 'Portuguese', 'ro': 'Romanian',
-                  'ru': 'Russian', 'sa': 'Sanskrit', 'gd': 'Scottish Gaelic', 'sr': 'Serbian', 'sms': 'Skolt Sami',
-                  'sk': 'Slovak', 'sl': 'Slovenian', 'soj': 'Soi', 'ajp': 'South Levantine Arabic', 'es': 'Spanish',
-                  'sv': 'Swedish', 'swl': 'Swedish Sign Language', 'gsw': 'Swiss German', 'tl': 'Tagalog',
-                  'ta': 'Tamil', 'tt': 'Tatar', 'eme': 'Teko', 'te': 'Telugu', 'th': 'Thai', 'tpn': 'Tupinamba',
-                  'tr': 'Turkish', 'qtd': 'Turkish German', 'uk': 'Ukrainian', 'xum': 'Umbrian', 'hsb': 'Upper Sorbian',
-                  'ur': 'Urdu', 'ug': 'Uyghur', 'vi': 'Vietnamese', 'wbp': 'Warlpiri', 'cy': 'Welsh',
-                  'hyw': 'Western Armenian', 'wo': 'Wolof', 'sjo': 'Xibe', 'sah': 'Yakut', 'yo': 'Yoruba',
-                  'ess': 'Yupik'}
+    corp_langs = create_isodict()
 
     # Identify languages currently supported by NLTK's tokeniser.
     nltk_langs = ['czech', 'danish', 'dutch', 'english', 'estonian', 'finnish', 'french',
@@ -211,6 +220,17 @@ def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
         elif tok_tag == "^reserved":
             token_list.append(tok_string)
 
+    # Replace double quotes which are broken by NLTK during tokenisation
+    token_list = [tok if tok not in ["``", "''"] else '"' for tok in token_list]
+
+    # Separate word tokens from single quotes where they have been combined
+    for toknum, token in enumerate(token_list):
+        try:
+            if len(token) > 1 and token[0] == "'":
+                token_list = token_list[:toknum] + [token[:1], token[1:]] + token_list[toknum + 1:]
+        except KeyError:
+            pass
+
     # Iterate through the string to find the indices of each token, add these to a list for output.
     indexed_tokens = list()
     current_index = 0
@@ -265,13 +285,13 @@ def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
 #               'NEQVE·PORRO·QVISQVAM·EST·QVI·DOLOREM·IPSVM·QVIA·DOLOR·SIT·AMET·CONSECTETVR·ADIPISCI·VELIT\n\n' \
 #               'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit'
 #
-#     # print(discrete_tokenise(test_la, 'latin'))
+#     print(discrete_tokenise(test_la, 'latin'))
 #     print(tokenise(test_la, "la"))
 #
-#     test_sga = '.i. biuusa ·oc·irbáig darfarcennsi frimaccidóndu\n\n' \
-#                '.i. niarformut fribsi as·biursa ·inso· arropad maith limsa labrad ilbelre dúibsi\n\n' \
+#     test_sga = '.i. biuusa ocirbáig darfarcennsi frimaccidóndu\n\n' \
+#                '.i. ni·arformut fribsi as·biursa ·inso· arropad maith limsa labrad ilbelre dúibsi\n\n' \
 #                '.i. isipersin crist dagníusa sin\n\n' \
-#                '.i. ó domanicc foirbthetu ní denim gnímu macthi act rísam nem bimmi æcni et bimmi foirbthi uili\n\n' \
+#                '.i. ó dom·anicc foirbthetu ní denim gnímu macthi act rísam nem bimmi æcni et bimmi foirbthi uili\n\n' \
 #                '.i. isocprecept soscéli attó\n\n' \
 #                '.i. ished inso noguidimm .i. ' \
 #                'conducaid etargne ṅ dǽ et conaroib temel innatol domunde tarrosc fornanme\n\n' \
@@ -284,5 +304,27 @@ def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
 #                '.i. léic uáit innabiada mílsi ettomil innahí siu dommeil do chenél arnáphé som conéit détso\n\n' \
 #                '.i. isamlid dorígeni dia corp duini ó ilballaib\n\n.i. act basamlid dúib cid immeícndarcus'
 #
-#     # print(discrete_tokenise(test_sga, 'old irish'))
+#     print(discrete_tokenise(test_sga, 'old irish'))
 #     print(tokenise(test_sga, "sga"))
+#
+#     # identify directories
+#     tech_dir = os.getcwd()
+#     if f"{slash}code" in tech_dir:
+#         main_dir = tech_dir
+#     else:
+#         main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
+#     webserver_dir = main_dir + f"{slash}webserver"
+#
+#     # navigate to directory containing UD corpora
+#     os.chdir(webserver_dir)
+#
+#     file_name = "test_file.txt"
+#     with open(file_name, encoding='utf-8') as test_file:
+#         test_text = test_file.read()
+#
+#     # return to technologies directory
+#     os.chdir(tech_dir)
+#
+#     tokens = tokenise(test_text, "en")
+#     tok_list = [test_text[token.get("start_index"):token.get("end_index")] for token in tokens]
+#     print(" ".join(tok_list))

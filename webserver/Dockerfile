@@ -12,6 +12,7 @@ RUN apt update\
     && n v18.4.0
 
 RUN mkdir -p /code
+RUN mkdir -p /code/CorporaUD
 RUN mkdir -p /code/technologies
 RUN mkdir -p /code/templates
 
@@ -20,6 +21,7 @@ COPY requirements.txt /tmp
 # RUN pip install -r /code/technologies/cardamom_LID/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 COPY *.py /code/
+COPY CorporaUD /code/CorporaUD/
 COPY technologies /code/technologies/
 COPY language_models/ /code/language_models/
 # COPY static/ /code/static/
