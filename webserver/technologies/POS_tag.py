@@ -1,11 +1,11 @@
-from UD_Parser import create_isodict
+from UD_Parser import load_langsupport
 from Train_Taggers import load_tagger
 
 
 def pos_tag(string, tokens, matrix_language=None):
 
     # Identify languages currently supported by NLTK's POS-tagger.
-    corp_langs = create_isodict()
+    corp_langs = load_langsupport()
     supported_langs = sorted(list(set([i for i in corp_langs])))
 
     # Get tokens from string using their indices, add them to token dictionaries in list.
