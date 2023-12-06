@@ -1,1 +1,2 @@
 from .model_abstraction import cardamom_tokenise, cardamom_postag, cardamom_find_similar_words
+from UD_Parser import load_langsupport

@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker, class_mapper
 from sqlalchemy.pool import NullPool
 from flask import Blueprint, request, render_template, make_response, jsonify 
-from technologies import cardamom_tokenise, cardamom_postag, cardamom_find_similar_words #cardamom_space, cardamom_postag
+from technologies import cardamom_tokenise, cardamom_postag, cardamom_find_similar_words, load_langsupport #cardamom_space, cardamom_postag
 
 api = Blueprint('api', __name__, template_folder='templates')
 
@@ -351,6 +351,7 @@ def get_postags(file_id):
     session.close()
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
 
+
 @api.route('/auto_tag', methods=["POST"])
 def auto_tag():
     session = get_session()
@@ -367,9 +368,17 @@ def auto_tag():
     session.close()
     return {"POS": pos_tags}
 
+
 @api.route('/related_words/<word>', methods=["GET"])
 def related_words(word):
     print(word,flush=True)
-    related_words =  [serialise_data_model(obj) for obj in cardamom_find_similar_words(word, "gle")]
+    related_words = [serialise_data_model(obj) for obj in cardamom_find_similar_words(word, "gle")]
     print(related_words,flush=True)
     return {"related_words": related_words}
+
+
+@api.route('/get_valid_languages/', methods=["GET"])
+def get_valid_languages():
+    lang_dict = load_langsupport()
+    lang_list = sorted(lang_dict.items(), key=lambda tpl: tpl[1])
+    return {"lang_list": lang_list}
