@@ -8,4 +8,4 @@ nltk
 conllu
 gensim
 requests
-beautifulsoup4
+bs4
