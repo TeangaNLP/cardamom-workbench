@@ -1,4 +1,4 @@
-from UD_Parser import create_isodict
+from UD_Parser import load_langsupport
 from nltk.tokenize import word_tokenize
 import regex as re
 import os
@@ -101,7 +101,7 @@ def tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
          "type_": "auto", "uploaded_file_id": uploaded_file_id}, {...}, ...]"""
 
     # Identify languages for which we have corpora.
-    corp_langs = create_isodict()
+    corp_langs = load_langsupport()
 
     # Identify languages currently supported by NLTK's tokeniser.
     nltk_langs = ['czech', 'danish', 'dutch', 'english', 'estonian', 'finnish', 'french',

@@ -1,11 +1,11 @@
-from UD_Parser import create_isodict
+from UD_Parser import load_langsupport
 from Train_Taggers import load_tagger
 
 
 def pos_tag(string, tokens, matrix_language=None):
 
     # Identify languages currently supported by NLTK's POS-tagger.
-    corp_langs = create_isodict()
+    corp_langs = load_langsupport()
     supported_langs = sorted(list(set([i for i in corp_langs])))
 
     # Get tokens from string using their indices, add them to token dictionaries in list.
@@ -44,7 +44,7 @@ def pos_tag(string, tokens, matrix_language=None):
 
     # POS-tag tokens and create output list
     pos_list = [{"token_id": i.get("id"),
-                 "tag": tagger_dict.get(corp_langs.get(i.get('token_language_id'))).tag([i.get('token')])[0][1],
+                 "tag": tagger_dict.get(corp_langs.get(i.get('token_language_id'))).tag([i.get('token').lower()])[0][1],
                  "type_": "auto"} for i in tokens]
 
     return pos_list
@@ -69,7 +69,11 @@ def pos_tag(string, tokens, matrix_language=None):
 #
 #     print(pos_tag(test_ga, toks_ga, 'ga'))
 #
-#     test_la = "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit"
+#     test_la = (
+#         "NEQVEPORROQVISQVAMESTQVIDOLOREMIPSVMQVIADOLORSITAMETCONSECTETVRADIPISCIVELIT\n\n"
+#         "NEQVE·PORRO·QVISQVAM·EST·QVI·DOLOREM·IPSVM·QVIA·DOLOR·SIT·AMET·CONSECTETVR·ADIPISCI·VELIT\n\n"
+#         "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit"
+#     )
 #     toks_la = tokenise(test_la, 'la')
 #     for tok_no, tok in enumerate(toks_la):
 #         tok["id"] = tok_no

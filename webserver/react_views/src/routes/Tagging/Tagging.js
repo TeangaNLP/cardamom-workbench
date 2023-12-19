@@ -248,6 +248,15 @@ const Tagging = ({ fileInfo, user, setUser }) => {
       }
     }
     setTags(newTags);
+    setTokensAndGaps(tokensAndGaps.map(
+	    (token) => {
+		    if(newTags.hasOwnProperty(token.id)){
+			    token.pos_tags = [newTags[token.id]];
+		    }
+		    return token;
+	    })
+    );
+
   }
 
   // Auto-tag
