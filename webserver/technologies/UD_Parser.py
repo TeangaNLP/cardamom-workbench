@@ -1,8 +1,8 @@
 import os
 import platform
-from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
+from subprocess import check_output
 import pickle as pk
 from decimal import *
 from conllu import parse
@@ -23,71 +23,90 @@ def make_corpdir():
         main_dir = tech_dir
     else:
         main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
-    corpora_dir = main_dir + f"{slash}CorporaUD"
+    corpora_dir = f"{main_dir}{slash}CorporaUD"
 
     # navigate to directory containing UD corpora
     # if it doesn't exist, make it
     try:
-        os.chdir(corpora_dir)
+        os.listdir(corpora_dir)
     except FileNotFoundError:
-        os.chdir(main_dir)
-        os.mkdir("CorporaUD")
-
-    # return to technologies directory
-    os.chdir(tech_dir)
+        os.mkdir(f"{main_dir}{slash}CorporaUD")
 
 
-# def fill_corpdir():
-#     """Fill an empty UD Corpora folder if it is empty"""
-#
-#     # identify directories
-#     tech_dir = os.getcwd()
-#     if f"{slash}code" in tech_dir:
-#         main_dir = tech_dir
-#     else:
-#         main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
-#     corpora_dir = main_dir + f"{slash}CorporaUD"
-#
-#     # navigate to directory containing UD corpora
-#     try:
-#         os.chdir(corpora_dir)
-#     except FileNotFoundError:
-#         make_corpdir()
-#         os.chdir(corpora_dir)
-#
-#     # Get the html for the UD website
-#     url_UD = """https://universaldependencies.org/"""
-#     ud_response = requests.get(url_UD).text
-#     ud_soup = BeautifulSoup(ud_response, 'html.parser')
-#
-#     # Get the link to the repo for the latest UD corpora
-#     dl_path = None
-#     for link in ud_soup.find_all('a'):
-#         path = link.get('href')
-#         if path and path.startswith("""http://hdl.handle.net"""):
-#             dl_path = path
-#
-#     # If a link to the latest version to download has not been found raise an error
-#     if not dl_path:
-#         raise RuntimeError("Could not find link to download latest UD treebanks.")
-#
-#     # If a link to the latest version to download has been found, navigate to it
-#     # Get the html for the download link
-#     dl_response = requests.get(dl_path).text
-#     dl_soup = BeautifulSoup(dl_response, 'html.parser')
-#
-#     # Get the
-#     for link in dl_soup.find_all('a'):
-#         if link.get("id") == "download-all-button":
-#             path = link.get('href')
-#             print(link)
-#             break
-#
-#         # if path and link.get("id") == "download-all-button":
-#         #     print(path)
-#
-#     # return to technologies directory
-#     os.chdir(tech_dir)
+def fill_corpdir():
+    """Fill an empty UD Corpora folder if it is empty"""
+
+    # identify directories
+    tech_dir = os.getcwd()
+    if f"{slash}code" in tech_dir:
+        main_dir = tech_dir
+    else:
+        main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
+    corpora_dir = f"{main_dir}{slash}CorporaUD"
+
+    # Find or make directory containing UD corpora
+    try:
+        os.listdir(corpora_dir)
+    except FileNotFoundError:
+        make_corpdir()
+
+    # Get the html for the UD website
+    url_UD = """https://universaldependencies.org/"""
+    ud_response = requests.get(url_UD).text
+
+    # Find current version number
+    ud_version = ud_response[ud_response.find("""<h2 id="download">Download</h2>"""):]
+    ud_version = ud_version[:ud_version.find("treebanks are available at")]
+    ud_version = ud_version[ud_version.rfind("Version") + len("Version"):].strip()
+
+    # Find or make directory to contain the latest UD corpus
+    version_dir = f"{corpora_dir}{slash}ud-treebanks-v{ud_version}"
+    try:
+        os.mkdir(version_dir)
+        current_latest_treebanks = None
+    except FileExistsError:
+        current_latest_treebanks = os.listdir(version_dir)
+
+    # Reduce html file to just Current UD Languages and parse
+    ud_repos = ud_response[
+                  ud_response.find(
+                      """<h2 id="current-ud-languages">Current UD Languages</h2>"""
+                  ): ud_response.find(
+                      """<h2 id="possible-future-extensions">Possible Future Extensions</h2>"""
+                  )
+                  ]
+    ud_soup = BeautifulSoup(ud_repos, 'html.parser')
+
+    # Get the link to the repo for the latest UD corpora
+    dl_paths = list()
+    for link in ud_soup.find_all('a'):
+        path = link.get('href')
+        if (path and path.startswith("""https://github.com/UniversalDependencies/UD_""") and
+                path[-12:] == "/tree/master"):
+            dl_paths.append(path[:-12] + ".git")
+
+    # If no download links are found raise an error
+    if len(dl_paths) == 0:
+        raise RuntimeError("Could not find any treebank download links.")
+
+    # If there is already a corpus downloaded which matches the latest version number
+    if current_latest_treebanks:
+        # If the downloaded version does not contain all the same treebanks as are available for download
+        if sorted([tb[tb.find("UD_"): tb.find("/tree/master")] for tb in dl_paths]) != sorted(current_latest_treebanks):
+            raise RuntimeError(f"Treebanks found in folder matching latest UD version ({ud_version}), "
+                               f"but existing treebanks do not match those available for download."
+                               f"\n    Consider deleting folder: {version_dir}")
+        # If the downloaded version does contain all the same treebanks as are available for download
+        else:
+            return
+
+    # If there is not already a corpus downloaded which matches the latest version number, download it
+    for path in dl_paths:
+        treebank_dir_name = path[path.find("UD_"):-4]
+        treebank_dir = f"{version_dir}{slash}{treebank_dir_name}"
+        os.mkdir(treebank_dir)
+        cmd = f"git clone {path} {treebank_dir}"
+        check_output(cmd, shell=True).decode()
 
 
 def list_ud_langs():
@@ -102,29 +121,25 @@ def list_ud_langs():
         main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
-    # navigate to directory containing UD corpora
     try:
-        os.chdir(corpora_dir)
+        available_corpora = os.listdir(corpora_dir)
     except FileNotFoundError:
         make_corpdir()
-        os.chdir(corpora_dir)
+        available_corpora = os.listdir(corpora_dir)
 
-    # navigate to directory containing most recent UD corpus
-    available_corpora = os.listdir()
-    print(available_corpora)
-    latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
-        max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
-    )
-    os.chdir(latest_corpus)
+    try:
+        latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
+            max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
+        )
+    except ValueError:
+        raise RuntimeError("Could not identify most recent UD corpus:"
+                           "\n    No corpora could be found in the CorporaUD folder.")
 
     # identify available treebanks
-    treebanks = os.listdir()
+    treebanks = os.listdir(latest_corpus)
 
     # identify languages of available treebanks
     languages = sorted(list(set([" ".join(i[3:i.index("-")].split("_")) for i in treebanks if i[:2] == "UD"])))
-
-    # return to technologies directory
-    os.chdir(tech_dir)
 
     return languages
 
@@ -141,24 +156,17 @@ def get_treebank_names(language):
         main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
-    # navigate to directory containing UD corpora
-    os.chdir(corpora_dir)
-
-    # navigate to directory containing most recent UD corpus
-    available_corpora = os.listdir()
+    # identify directory containing most recent UD corpus
+    available_corpora = os.listdir(corpora_dir)
     latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
         max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
     )
-    os.chdir(latest_corpus)
 
     # identify available treebanks
-    all_treebanks = os.listdir()
+    all_treebanks = os.listdir(latest_corpus)
 
     # identify treebanks for the selected language
     treebanks = [tb for tb in all_treebanks if "UD_" + "_".join(language.split(" ")) + "-" in tb]
-
-    # return to technologies directory
-    os.chdir(tech_dir)
 
     return treebanks
 
@@ -177,21 +185,16 @@ def get_iso(language):
         main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
-    # navigate to directory containing UD corpora
-    os.chdir(corpora_dir)
-
-    # navigate to directory containing most recent UD corpus
-    available_corpora = os.listdir()
+    # identify directory containing most recent UD corpus
+    available_corpora = os.listdir(corpora_dir)
     latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
         max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
     )
-    os.chdir(latest_corpus)
 
     # get iso code from language's treebanks
     iso_code = None
     for treebank in available_treebanks:
-        os.chdir(latest_corpus + slash + treebank)
-        available_files = os.listdir()
+        available_files = os.listdir(latest_corpus + slash + treebank)
         retrieved_file = [file for file in available_files if ".conllu" in file]
         for file in retrieved_file:
             if not iso_code:
@@ -200,9 +203,6 @@ def get_iso(language):
                 if iso_code != file[:file.index("_")]:
                     raise RuntimeError(f"Multiple distinct ISO codes found in use for language, {language}: "
                                        f"{iso_code} and {file[:file.index('_')]}")
-
-    # return to technologies directory
-    os.chdir(tech_dir)
 
     return iso_code
 
@@ -230,13 +230,11 @@ def load_langsupport():
         main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
-    # navigate to the supported languages list, if it exists, and load it using pickle
+    # find the supported languages list, if it exists, and load it using pickle
     available_models = os.listdir(corpora_dir)
     if "supported_languages.pkl" in available_models:
-        os.chdir(corpora_dir)
-        with open("supported_languages.pkl", "rb") as tagger_file:
-            sup_list = pk.load(tagger_file)
-        os.chdir(tech_dir)
+        with open(f"{corpora_dir}{slash}supported_languages.pkl", "rb") as sup_file:
+            sup_list = pk.load(sup_file)
     # if it does not exist, return an empty list
     else:
         sup_list = dict()
@@ -276,10 +274,8 @@ def generate_langlist():
         supported_langs[obsolete] = old_sup.get(obsolete)
 
     # save the new list of supported languages to the language models folder
-    os.chdir(corpora_dir)
-    with open("supported_languages.pkl", "wb") as sup_file:
+    with open(f"{corpora_dir}{slash}supported_languages.pkl", "wb") as sup_file:
         pk.dump(supported_langs, sup_file)
-    os.chdir(tech_dir)
 
 
 def get_treebanks(language):
@@ -298,21 +294,16 @@ def get_treebanks(language):
         main_dir = tech_dir[:tech_dir.index(f"{slash}technologies")]
     corpora_dir = main_dir + f"{slash}CorporaUD"
 
-    # navigate to directory containing UD corpora
-    os.chdir(corpora_dir)
-
-    # navigate to directory containing most recent UD corpus
-    available_corpora = os.listdir()
+    # identify directory containing most recent UD corpus
+    available_corpora = os.listdir(corpora_dir)
     latest_corpus = corpora_dir + f"{slash}ud-treebanks-v" + str(
         max([Decimal(corpus[len("ud-treebanks-v"):]) for corpus in available_corpora if "ud-treebanks-v" in corpus])
     )
-    os.chdir(latest_corpus)
 
     # get conllu data from each treebank and put it in a list
     treebanks = list()
     for treebank in available_treebanks:
-        os.chdir(latest_corpus + slash + treebank)
-        available_files = os.listdir()
+        available_files = os.listdir(latest_corpus + slash + treebank)
         retrieved_file = [file for file in available_files if ".conllu" in file]
 
         for file in retrieved_file:
@@ -322,9 +313,6 @@ def get_treebanks(language):
                                    f"Files must be of type 'test', 'train', or 'dev'")
             with open(file, encoding='utf-8') as conllu_file:
                 treebanks.append([treebank, file_type, parse(conllu_file.read())])
-
-    # return to technologies directory
-    os.chdir(tech_dir)
 
     return treebanks
 
@@ -363,14 +351,19 @@ def combine_treebanks(language, file_type="all"):
 #     available_languages = list_ud_langs()
 #     print(len(available_languages))
 #     print(available_languages)
+#     print()
+#
+#     fill_corpdir()
 #
 #     print(get_treebank_names("Irish"))
 #     # print(get_treebanks("Irish"))
 #     # print(combine_treebanks("Ancient Greek"))
+#     print()
 #
 #     print(get_iso("Old Irish"))
 #     supported_isos = create_isodict()
 #     print(supported_isos.get("sga"))
+#     print()
 #
 #     # generate_langlist()
 #     print(load_langsupport())
