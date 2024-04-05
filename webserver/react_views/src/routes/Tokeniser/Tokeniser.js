@@ -439,7 +439,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
       <div className="tokenise-area buttons">
         <div>
           {selecting.mouseDown && !selecting.mouseUp ? (
-            <div>Selecting...</div>
+            <div>{ selecting.start  }Selecting...</div>
           ) : selecting.mouseDown && selecting.mouseUp ? (
             <div>Text Selected!</div>
           ) : (

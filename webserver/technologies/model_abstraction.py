@@ -5,7 +5,7 @@ sys.path.append(cur_file_dir)
 from model import TokenModel, POSInstanceModel, RelatedWordModel
 from Tokeniser import tokenise
 from POS_tag import pos_tag
-from embeddings import *
+# from embeddings import *
 
 
 def cardamom_tokenise(string, iso_code=None, reserved_toks=None, uploaded_file_id=None):
