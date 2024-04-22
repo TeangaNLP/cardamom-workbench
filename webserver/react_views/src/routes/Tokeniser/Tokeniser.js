@@ -120,10 +120,14 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
     let start = selecting.componentStartIndex + selection.anchorOffset;
     let end = index + selection.focusOffset;
     // Flip for backward selection;
+    let selectionType = 'selection';
     if (start > end) {
       let temp = start;
       start = end;
       end = temp;
+    }
+    else if(start === end){
+      selectionType = 'click';
     }
     console.log(start, end);
     selecting = setSelecting({
@@ -131,6 +135,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
       mouseUp: true,
       start: start,
       end: end,
+      selectionType: selectionType,
     });
     // updateTokens(start, end);
   };
@@ -439,7 +444,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
       <div className="tokenise-area buttons">
         <div>
           {selecting.mouseDown && !selecting.mouseUp ? (
-            <div>{ selecting.start  }Selecting...</div>
+            <div> previous action: { selecting.selectionType } | { selecting.componentStartIndex } :  { selecting.end } -  Selecting...</div>
           ) : selecting.mouseDown && selecting.mouseUp ? (
             <div>Text Selected!</div>
           ) : (

@@ -2,6 +2,7 @@
   margin: 1px;
   white-space: pre-wrap;
   overflow-wrap: break-word;
+  pointer-events: auto;
 }
 
 .auto {

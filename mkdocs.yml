@@ -1,0 +1,12 @@
+site_name: The Cardamom Workbench
+
+theme:
+  name: material
+
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      docstring_style: numpy
+

@@ -1,3 +1,7 @@
+"""
+    FLASK API for connecting with the 
+    cardamom workbench database
+"""
 import docx
 import nltk
 import config
@@ -22,15 +26,76 @@ get_session = sessionmaker(bind=engine)
 
 
 def serialise(model):
+    '''
+    Serialise a python data model to dict
+    Parameters
+    ----------
+    model: data_model
+        a python data class with data attributes
+
+    Returns
+    -------
+    dict
+        a dict of attributes name and their values
+
+    Raises
+    ------
+    should raise error if not data class
+
+    Side-effect
+    ----------
+    no side effects
+    '''
     columns = [c.key for c in class_mapper(model.__class__).columns]
     return dict((c, getattr(model, c)) for c in columns)
 
 
 def serialise_data_model(model):
+    '''
+    Serialise a python data model to dict
+    Parameters
+    ----------
+    model: data_model
+        a python data class with data attributes
+
+    Returns
+    -------
+    dict
+        a dict of attributes name and their values
+
+    Raises
+    ------
+    should raise error if not data class
+
+    Side-effect
+    ----------
+    no side effects
+    '''
     return {k: v for k, v in model.__dict__.items() if not k.startswith("_")}
 
 
-def get_tokens(file_id, objectify=False):
+def get_tokens(file_id, objectify=False) -> [model.TokenModel]:
+    '''
+    Get tokens from a given file id in the database
+    Parameters
+    ----------
+    file_id: data_model
+        a python data class with data attributes
+
+    Returns
+    -------
+    list of dicts
+        a dict of attributes name and their values
+
+    should return a list of data model(tokenModel)
+
+    Raises
+    ------
+
+    Side-effect
+    ----------
+    no side effects
+    '''
     session = get_session()
     annots = session.query(model.TokenModel).filter(model.TokenModel.uploaded_file_id == file_id).all()
     for idx, annotation in enumerate(annots):
@@ -43,8 +108,48 @@ def get_tokens(file_id, objectify=False):
     session.close()
     return sorted(annotations, key=lambda a: a['start_index'])
 
+@api.route('/annotations/<file_id>', methods=["GET"])
+def get_annotations(file_id):
+    '''
+    endpoint to get all annotations of a given file.
+    At the moment all annotations are either Tokens or POS
+    Parameters
+    ----------
+    file_id: str
+        a Postgred generated ID
+
+    Returns
+    -------
+    list of dicts
+        a dict of attributes name and their values
+
+    should return a list of data model(tokenModel)
+
+    Raises
+    ------
+    Side-effect
+    ----------
+    no side effects
+    '''
+    annotations = get_tokens(file_id)
+    return jsonify({"annotations": annotations})
 
 def get_replaced_tokens(start, end, annotations):
+    '''
+    Get tokens in the database that will be replaced for a given range of idxs
+    Parameters
+    ----------
+    start: int
+        a string index
+    end: int
+        a string index
+    annotations: list
+        a list of annotations ( at the moment a list of TokenModel )
+
+    Returns
+        replace_annotations
+        a list of annotations
+    '''
     # fetch the saved tokens
     i = 0
     replace_tokens = []
@@ -65,9 +170,23 @@ def get_replaced_tokens(start, end, annotations):
 
 @api.route('/signup_user', methods=["POST"])
 def signup_user() -> Dict:
-    """
+    '''
     User signup route
-    """
+    Parameters
+    ----------
+    form:
+        email: str 
+        username: str
+        password: str
+
+    Returns
+    ----------
+
+    Side-effect
+    ----------
+    persist user to database
+
+    '''
     email_data = request.form.get("email")
     username_data = request.form.get("name")
     password_data = request.form.get("password")
@@ -92,10 +211,25 @@ def signup_user() -> Dict:
                         })
 
 @api.route('/login_user', methods=["POST"])
-def login_user() -> Dict:
-    """
-    User login route
-    """
+def login_user():
+    '''
+    User signin route
+    Parameters
+    ----------
+    form:
+        email: str 
+        password: str
+
+    Returns
+    ----------
+    User:
+        the user data model or Failed login data model
+
+    Side-effect
+    ----------
+    no side effects
+
+    '''
     email_data = request.form.get("email")
     password_data = request.form.get("password")
     session = get_session()
@@ -114,10 +248,24 @@ def login_user() -> Dict:
     return response
 
 @api.route('/get_file/', methods=["GET"])
-def get_file() -> List[model.UploadedFileModel]:
-    """
-    Get a file 
-    """
+def get_file():
+    '''
+    get File route
+    Parameters
+    ----------
+    form:
+        file_id: str 
+
+    Returns
+    ----------
+    User:
+        the user data model or Failed login data model
+
+    Side-effect
+    ----------
+    no side effects
+
+    '''
     fileId = request.args.get("fileId")
     userId = request.args.get("userId") 
     session = get_session()
@@ -206,10 +354,6 @@ def file_upload():
     return response_body
 
 
-@api.route('/annotations/<file_id>', methods=["GET"])
-def get_annotations(file_id) -> model.UploadedFileModel:
-    annotations = get_tokens(file_id)
-    return jsonify({"annotations": annotations})
 
 
 @api.route('/annotations', methods=["POST"])
