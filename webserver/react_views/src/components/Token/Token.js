@@ -37,6 +37,17 @@ export default function Token({
     }
 
   return (
+    /*
+    <input
+      ref={ref}
+      className={`token ${token.type_}`}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      //onClick={handleOnClick}
+      value={token.type_ == "manual" ?
+        value.replace(/ /g, "⎵").replace(/\\n/g, "\u000A") :
+        value.replace(/\\n/g, "\u000A")}
+    />*/
     <span
       ref={ref}
       className={`token ${token.type_}`}

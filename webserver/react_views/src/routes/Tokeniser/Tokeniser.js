@@ -47,26 +47,6 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
   );
 
   useEffect(() => {
-    // To check if file already selected before.
-    /*
-    let file_id;
-    let content;
-    console.log(location.state);
-    if (location.state === null) {
-      file_id = props.fileInfo.file_id;
-      content = props.fileInfo.content;
-    } else if (props.fileInfo.file_id === null || location.state.file_id != props.fileInfo.file_id) {
-      file_id = location.state.file_id;
-      content = location.state.content;
-      props.setFileInfo({
-        file_id: file_id,
-        content: location.state.content
-      });
-    }
-
-
-    setFileState({ file_id: file_id, content: content });
-    */
     if (!fetched && fileInfo !== undefined) {
       const get_tokens_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` + fileInfo.file_id : `https://${process.env.REACT_APP_HOST}/api/annotations/` + fileInfo.file_id
       axios
