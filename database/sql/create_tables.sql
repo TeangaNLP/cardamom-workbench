@@ -29,6 +29,17 @@ CREATE TABLE IF NOT EXISTS uploaded_files (
   FOREIGN KEY (language_id) REFERENCES languages(id)
 );
 
+CREATE TABLE IF NOT EXISTS file_sections (
+  id SERIAL NOT NULL,
+  section_type varchar(250) NOT NULL,
+  section_level integer Not Null,
+  start_index integer NOT NULL,
+  end_index integer NOT NULL,
+  PRIMARY KEY (id),
+  file_id integer NOT NULL,
+  FOREIGN KEY (file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS file_translation (
   id SERIAL NOT NULL,
   text_translation varchar NOT NULL,

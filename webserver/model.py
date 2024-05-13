@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 
+
 class UserModel():
     def __init__(self, name, email, password):
         self.name = name
@@ -37,7 +38,6 @@ class POSInstanceModel():
         self.type_ = type_
 
 
-
 class POSFeaturesModel():
     def __init__(self, posinstance_id, feature, value):
         self.posinstance_id = posinstance_id
@@ -53,6 +53,16 @@ class TokenModel():
         self.token_language_id = token_language_id
         self.type_ = type_
         self.uploaded_file_id = uploaded_file_id
+
+
+class SectionModel():
+    def __init__(self, section_type, section_level, start_index, end_index, file_id):
+        self.section_type = section_type
+        self.section_level = section_level
+        self.start_index = start_index
+        self.end_index = end_index
+        self.file_id = file_id
+
 
 class RelatedWordModel():
     def __init__(self, query, query_language, model_name, word, similarity_score):

@@ -30,6 +30,16 @@ def serialise_data_model(model):
     return {k: v for k, v in model.__dict__.items() if not k.startswith("_")}
 
 
+def get_sections(file_id, objectify=False):
+    session = get_session()
+    secs = session.query(model.SectionModel).filter(model.SectionModel.file_id == file_id).all()
+    for sec_no, section in enumerate(secs):
+        pass
+    sections = "..."
+    session.close()
+    return sorted(sections, key=lambda a: a['start_index'])
+
+
 def get_tokens(file_id, objectify=False):
     session = get_session()
     annots = session.query(model.TokenModel).filter(model.TokenModel.uploaded_file_id == file_id).all()
@@ -38,8 +48,7 @@ def get_tokens(file_id, objectify=False):
         annotation.pos_instance
     if objectify:
         return session, annots
-    annotations = [{**serialise(annot),"token_language_id": annot.token_language.iso_code}\
-                                    for annot in annots]
+    annotations = [{**serialise(annot), "token_language_id": annot.token_language.iso_code} for annot in annots]
     session.close()
     return sorted(annotations, key=lambda a: a['start_index'])
 
@@ -91,6 +100,7 @@ def signup_user() -> Dict:
                          "message":"User created successfully"
                         })
 
+
 @api.route('/login_user', methods=["POST"])
 def login_user() -> Dict:
     """
@@ -112,6 +122,7 @@ def login_user() -> Dict:
         response = jsonify({"user": None, "message": "invalid username or password"})
     session.close()
     return response
+
 
 @api.route('/get_file/', methods=["GET"])
 def get_file() -> List[model.UploadedFileModel]:
@@ -304,6 +315,7 @@ def auto_tokenise():
     session.close()
     return {"annotations": tokenised_text}
 
+
 @api.route('/pos_tag', methods=["POST"])
 def push_postags():
     data = request.get_json()
@@ -351,6 +363,7 @@ def get_postags(file_id):
     session.close()
     return jsonify({"annotations": sorted(annotations, key=lambda a: a['start_index']), "tags": token_tags})
 
+
 @api.route('/auto_tag', methods=["POST"])
 def auto_tag():
     session = get_session()
@@ -366,6 +379,7 @@ def auto_tag():
     pos_tags = [serialise_data_model(tags) for tags in pos_tags]
     session.close()
     return {"POS": pos_tags}
+
 
 @api.route('/related_words/<word>', methods=["GET"])
 def related_words(word):
