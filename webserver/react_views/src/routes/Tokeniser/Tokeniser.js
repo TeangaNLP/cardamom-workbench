@@ -3,8 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { NavBar, Token } from "../../components/";
 import axios from "axios";
+import SideNavBar from "./../../components/SideNavBar/SideNavBar"; // Adjust the import based on
 
 import "./Tokeniser.css";
+import { Sidenav } from "rsuite";
+import { Box } from "@mui/material";
 
 const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
   const navigate = useNavigate();
@@ -68,16 +71,17 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
     setFileState({ file_id: file_id, content: content });
     */
     if (!fetched && fileInfo !== undefined) {
-      const get_tokens_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` + fileInfo.file_id : `https://${process.env.REACT_APP_HOST}/api/annotations/` + fileInfo.file_id
+      const get_tokens_url = process.env.REACT_APP_PORT
+        ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` +
+          fileInfo.file_id
+        : `https://${process.env.REACT_APP_HOST}/api/annotations/` +
+          fileInfo.file_id;
       axios
         .get(get_tokens_url)
         .then(function (response) {
-	  window.originaltokens = response.data.annotations; 
+          window.originaltokens = response.data.annotations;
           setOriginalTokenData(response.data.annotations);
-          combineTokensAndGaps(
-            response.data.annotations,
-            fileInfo.content
-          );
+          combineTokensAndGaps(response.data.annotations, fileInfo.content);
           setFetched(true);
         })
         .catch(function (err) {
@@ -105,15 +109,18 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
 
   const resetMouseSelection = () => {
     if (window.getSelection) {
-      if (window.getSelection().empty) {  // Chrome
+      if (window.getSelection().empty) {
+        // Chrome
         window.getSelection().empty();
-      } else if (window.getSelection().removeAllRanges) {  // Firefox
+      } else if (window.getSelection().removeAllRanges) {
+        // Firefox
         window.getSelection().removeAllRanges();
       }
-    } else if (document.selection) {  // IE?
+    } else if (document.selection) {
+      // IE?
       document.selection.empty();
     }
-  }
+  };
 
   const handleMouseUp = (index) => {
     let selection = window.getSelection();
@@ -340,7 +347,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
 
     setTokenData(data);
     setTokensAndGaps(newTokensAndGaps);
-    window.tokensAndGaps = newTokensAndGaps
+    window.tokensAndGaps = newTokensAndGaps;
   };
 
   // Return manual tokens.
@@ -352,13 +359,13 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
           type_: token.type_,
           start_index: token.start_index,
           end_index: token.end_index,
-          provenance: 1
-        }
-        reservedTokens.push(t)
+          provenance: 1,
+        };
+        reservedTokens.push(t);
       }
     }
-    return reservedTokens
-  }
+    return reservedTokens;
+  };
 
   // Buttons
   const autoTokenise = () => {
@@ -368,7 +375,9 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
     window.sentFileI = fileInfo;
     window.sentFileF = JSON.stringify(fileInfo);
 
-    const post_auto_tokenize_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tokenise` : `https://${process.env.REACT_APP_HOST}/api/auto_tokenise`
+    const post_auto_tokenize_url = process.env.REACT_APP_PORT
+      ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tokenise`
+      : `https://${process.env.REACT_APP_HOST}/api/auto_tokenise`;
     axios
       .post(post_auto_tokenize_url, data, {
         headers: {
@@ -391,7 +400,9 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
       file_id: fileInfo.file_id,
     };
 
-    const post_tokens_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations` : `https://${process.env.REACT_APP_HOST}/api/annotations`
+    const post_tokens_url = process.env.REACT_APP_PORT
+      ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations`
+      : `https://${process.env.REACT_APP_HOST}/api/annotations`;
     axios
       .post(post_tokens_url, data, {
         headers: {
@@ -409,49 +420,76 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
 
   return (
     <div>
-      <NavBar setUser={setUser} pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
-      <NavBar main={false} pages={
-        [
+      <NavBar
+        setUser={setUser}
+        pages={[
+          { path: "/", name: "Home" },
+          { path: "/fileupload", name: "File Upload" },
+        ]}
+      />
+      <SideNavBar
+        main={false}
+        pages={[
           { path: "/editor", name: "Text Editor" },
-          { path: activeLink, name: "Tokenisation" },
+          { path: `/tokeniser/${fileInfo.file_id}`, name: "Tokenisation" },
           { path: "/identification", name: "Identification" },
           { path: "/annotation", name: "Annotation" },
-          { path: `/tagging/${fileInfo.file_id}`, name: "POS Tagging" }
-        ]
-      } />
-      <div onKeyPress={onEnter} className="tokenise-area">
-        <div className="tokenise-text">
-          {fetched ? tokensAndGaps.map((token) => {
-            const text = fileInfo.content;
-            const tokenValue = text.substring(token.start_index, token.end_index)
-            return (
-              <Token
-                downHandler={handleMouseDown}
-                upHandler={handleMouseUp}
-                deselectHandler={deselect}
-                token={token}
-                value={tokenValue}
-              />
-            );
-          }) : "Loading..."}
+          { path: activeLink, name: "POS Tagging" },
+        ]}
+      />
+      <div className="remaining-box">
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: 3,
+            marginLeft: "240px", // Matches the Drawer width
+            border: 1,
+            borderColor: "grey.300",
+            borderRadius: 1,
+            boxShadow: 1,
+          }}
+        >
+          <div onKeyPress={onEnter} className="tokenise-area">
+            <div className="tokenise-text">
+              {fetched
+                ? tokensAndGaps.map((token) => {
+                    const text = fileInfo.content;
+                    const tokenValue = text.substring(
+                      token.start_index,
+                      token.end_index
+                    );
+                    return (
+                      <Token
+                        downHandler={handleMouseDown}
+                        upHandler={handleMouseUp}
+                        deselectHandler={deselect}
+                        token={token}
+                        value={tokenValue}
+                      />
+                    );
+                  })
+                : "Loading..."}
+            </div>
+          </div>
+        </Box>
+        <div className="tokenise-area buttons">
+          <div>
+            {selecting.mouseDown && !selecting.mouseUp ? (
+              <div>Selecting...</div>
+            ) : selecting.mouseDown && selecting.mouseUp ? (
+              <div>Text Selected!</div>
+            ) : (
+              <div>Nothing Selected!</div>
+            )}
+          </div>
+          <Button className="button" onClick={autoTokenise} variant="dark">
+            Auto-Tokenise
+          </Button>
+          <Button className="button" onClick={saveTokens} variant="dark">
+            Save
+          </Button>
         </div>
-      </div>
-      <div className="tokenise-area buttons">
-        <div>
-          {selecting.mouseDown && !selecting.mouseUp ? (
-            <div>Selecting...</div>
-          ) : selecting.mouseDown && selecting.mouseUp ? (
-            <div>Text Selected!</div>
-          ) : (
-            <div>Nothing Selected!</div>
-          )}
-        </div>
-        <Button className="button" onClick={autoTokenise} variant="dark">
-          Auto-Tokenise
-        </Button>
-        <Button className="button" onClick={saveTokens} variant="dark">
-          Save
-        </Button>
       </div>
     </div>
   );
