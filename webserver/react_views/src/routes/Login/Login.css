@@ -59,7 +59,7 @@
 }
 
 .typo-text {
-  margin-top: 25px !important;
+  margin-top: 35px !important;
   color: #dfe5d2 !important;
 }
 
@@ -109,6 +109,7 @@
 }
 .screenshot-img {
   width: 75%;
+  margin-top: 35px;
 }
 
 /*Start Register Style*/
