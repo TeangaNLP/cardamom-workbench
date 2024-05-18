@@ -9,7 +9,7 @@ import "./Tokeniser.css";
 import { Sidenav } from "rsuite";
 import { Box } from "@mui/material";
 
-const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
+const Tokeniser = ({ fileInfo }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const activeLink = location.pathname;
@@ -420,7 +420,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
 
   return (
     <div>
-      <NavBar
+      {/* <NavBar
         setUser={setUser}
         pages={[
           { path: "/", name: "Home" },
@@ -436,7 +436,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
           { path: "/annotation", name: "Annotation" },
           { path: activeLink, name: "POS Tagging" },
         ]}
-      />
+      /> */}
       <div className="remaining-box">
         <Box
           component="main"

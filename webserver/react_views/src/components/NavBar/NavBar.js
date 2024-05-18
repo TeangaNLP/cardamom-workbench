@@ -37,6 +37,7 @@
 // };
 // export default NavBar;
 import React from "react";
+import "./NavBar.css";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import {
   AppBar,
@@ -48,14 +49,25 @@ import {
   MenuItem,
   Box,
 } from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+
 import { AccountCircle } from "@mui/icons-material";
 import { Avatar } from "rsuite";
-
+import MenuIcon from "@mui/icons-material/Menu";
+const drawerWidth = 240;
+const navItems = ["Home", "About", "Contact"];
 const NavBar = ({ pages, setUser, main = true, user }) => {
   const location = useLocation();
   const activeLink = location.pathname;
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
+  const page = [
+    { path: "/editor", name: "Text Editor" },
+    { path: `/tokeniser`, name: "Tokenisation" },
+    { path: "/identification", name: "Identification" },
+    { path: "/annotation", name: "Annotation" },
+    // { path: activeLink, name: "POS Tagging" }
+  ];
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleMenu = (event) => {
@@ -73,15 +85,23 @@ const NavBar = ({ pages, setUser, main = true, user }) => {
   };
 
   return (
-    <AppBar position="static" color={main ? "primary" : "secondary"}>
+    // <AppBar position="static" color={main ? "primary" : "secondary"}>
+    <AppBar
+      position="fixed"
+      sx={{
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        backgroundColor: "transparent",
+        color: "black",
+      }}
+    >
       <Toolbar>
-        {main && (
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Cardamom Workbench
-          </Typography>
-        )}
+        <img
+          className="cardamom-logo-appbar"
+          src="../../cardamom-logo.png"
+        ></img>
         <Box sx={{ flexGrow: 1 }}>
-          {pages.map((page) => (
+          {/* 
+          {page.map((page) => (
             <Button
               key={page.path}
               component={Link}
@@ -89,11 +109,20 @@ const NavBar = ({ pages, setUser, main = true, user }) => {
               sx={{ color: activeLink === page.path ? "red" : "white" }}
             >
               {page.name}
-            </Button>
-          ))}
+            </Button> */}
+          {/* ))} */}
         </Box>
         {main && (
           <div>
+            <Button color="inherit" component={Link} to="/login">
+              Home
+            </Button>
+            <Button color="inherit" component={Link} to="/files">
+              Files
+            </Button>
+            <Button color="inherit" component={Link} to="/login">
+              Upload New Files
+            </Button>
             <IconButton
               size="large"
               edge="end"
@@ -111,6 +140,7 @@ const NavBar = ({ pages, setUser, main = true, user }) => {
                 {user.name}
               </Typography> */}
             </IconButton>
+
             <Menu
               id="menu-appbar"
               anchorEl={anchorEl}
