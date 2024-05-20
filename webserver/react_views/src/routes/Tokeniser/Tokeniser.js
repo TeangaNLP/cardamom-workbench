@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { NavBar, Token } from "../../components/";
 import axios from "axios";
@@ -9,7 +9,13 @@ import "./Tokeniser.css";
 import { Sidenav } from "rsuite";
 import { Box } from "@mui/material";
 
-const Tokeniser = ({ fileInfo }) => {
+const Tokeniser = ({ user }) => {
+  const { fileId } = useParams();
+  const file_id = fileId;
+  console.log(user);
+  const fileInfo = user.documents.find((e) => e.file_id == fileId);
+
+  // getAll();÷
   const navigate = useNavigate();
   const location = useLocation();
   const activeLink = location.pathname;
@@ -26,6 +32,32 @@ const Tokeniser = ({ fileInfo }) => {
     end: null,
     componentStartIndex: null,
   });
+
+  const getAll = () => {
+    const get_tokens_url = process.env.REACT_APP_PORT
+      ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` +
+        fileInfo.file_id
+      : `https://${process.env.REACT_APP_HOST}/api/annotations/` +
+        fileInfo.file_id;
+    axios
+      .get(get_tokens_url)
+      .then(function (response) {
+        window.originaltokens = response.data.annotations;
+        setOriginalTokenData(response.data.annotations);
+        combineTokensAndGaps(response.data.annotations, fileInfo.content);
+        setFetched(true);
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    if (!fetched) {
+      getAll();
+    }
+  }, []);
+
   // Callback for saving
   const onEnter = useCallback(
     (event) => {
@@ -50,6 +82,9 @@ const Tokeniser = ({ fileInfo }) => {
   );
 
   useEffect(() => {
+    console.log("use effect", fileInfo);
+    if (!fetched && fileInfo !== undefined) {
+    }
     // To check if file already selected before.
     /*
     let file_id;
@@ -70,24 +105,6 @@ const Tokeniser = ({ fileInfo }) => {
 
     setFileState({ file_id: file_id, content: content });
     */
-    if (!fetched && fileInfo !== undefined) {
-      const get_tokens_url = process.env.REACT_APP_PORT
-        ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` +
-          fileInfo.file_id
-        : `https://${process.env.REACT_APP_HOST}/api/annotations/` +
-          fileInfo.file_id;
-      axios
-        .get(get_tokens_url)
-        .then(function (response) {
-          window.originaltokens = response.data.annotations;
-          setOriginalTokenData(response.data.annotations);
-          combineTokensAndGaps(response.data.annotations, fileInfo.content);
-          setFetched(true);
-        })
-        .catch(function (err) {
-          console.log(err);
-        });
-    }
 
     // https://stackoverflow.com/a/61740188/13082658
     document.addEventListener("keydown", onEnter);

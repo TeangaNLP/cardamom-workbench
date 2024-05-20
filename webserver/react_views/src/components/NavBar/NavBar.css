@@ -3,5 +3,7 @@
 }
 .cardamom-logo-appbar {
   width: 195px;
+  z-index: 5000;
+
   margin-left: -24px;
 }

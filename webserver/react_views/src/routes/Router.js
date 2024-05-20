@@ -101,8 +101,12 @@ export default function Router() {
           />
 
           <Route
-            path="files/:file_id"
-            element={<FileDetails setUser={setUser} user={user} />}
+            path="files/:fileId"
+            element={
+              <RequireUser user={user} setUser={setUser} redirectTo="/login">
+                <FileDetails setUser={setUser} user={user} />
+              </RequireUser>
+            }
           >
             <Route
               path="text-editor"
@@ -111,8 +115,16 @@ export default function Router() {
             />
             <Route
               path="tokeniser"
-              element={<Tokeniser setUser={setUser} user={user} />}
-              e
+              element={
+                <RequireUser user={user} setUser={setUser} redirectTo="/login">
+                  <Tokeniser
+                    fileInfo={fileInfo}
+                    setFileInfo={setFileInfo}
+                    user={user}
+                    setUser={setUser}
+                  />
+                </RequireUser>
+              }
             />
             <Route
               path="identification"

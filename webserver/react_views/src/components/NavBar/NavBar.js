@@ -61,13 +61,7 @@ const NavBar = ({ pages, setUser, main = true, user }) => {
   const activeLink = location.pathname;
 
   const navigate = useNavigate();
-  const page = [
-    { path: "/editor", name: "Text Editor" },
-    { path: `/tokeniser`, name: "Tokenisation" },
-    { path: "/identification", name: "Identification" },
-    { path: "/annotation", name: "Annotation" },
-    // { path: activeLink, name: "POS Tagging" }
-  ];
+
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleMenu = (event) => {
@@ -87,7 +81,7 @@ const NavBar = ({ pages, setUser, main = true, user }) => {
   return (
     // <AppBar position="static" color={main ? "primary" : "secondary"}>
     <AppBar
-      position="fixed"
+      position="static"
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
         backgroundColor: "transparent",

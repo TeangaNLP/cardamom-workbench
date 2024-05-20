@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useParams } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -22,6 +22,8 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 const SideNavBar = ({}) => {
   const location = useLocation();
   const activeLink = location.pathname;
+  const { fileId } = useParams();
+
   const darkTheme = createTheme({
     palette: {
       mode: "light",
@@ -33,72 +35,72 @@ const SideNavBar = ({}) => {
       },
     },
   });
-
+  console.log("fileId", fileId);
   const pages = [
-    { path: "/editor", name: "Text Editor" },
-    // { path: `/tokeniser/${fileInfo.file_id}`, name: "Tokenisation" },
-    { path: "/identification", name: "Identification" },
-    { path: "/annotation", name: "Annotation" },
-    { path: activeLink, name: "POS Tagging" },
+    { path: `/files/${fileId}/text-editor`, name: "Text Editor" },
+    { path: `/files/${fileId}/tokeniser`, name: "Tokenisation" },
+    { path: `/files/${fileId}/identification`, name: "Identification" },
+    { path: `/files/${fileId}/annotation`, name: "Annotation" },
   ];
-
   return (
     <>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: 195,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: {
+        <Box sx={{ display: "flex" }}>
+          <Drawer
+            variant="permanent"
+            sx={{
               width: 195,
-              boxSizing: "border-box",
-              backgroundColor: darkTheme.palette.background.paper,
-              color: darkTheme.palette.text.primary,
-            },
-          }}
-        >
-          <Toolbar>
-            {/* <Box
+              flexShrink: 0,
+              [`& .MuiDrawer-paper`]: {
+                width: 195,
+                boxSizing: "border-box",
+                backgroundColor: darkTheme.palette.background.paper,
+                color: darkTheme.palette.text.primary,
+              },
+            }}
+          >
+            <Toolbar>
+              {/* <Box
               component="img"
               src={`${process.env.PUBLIC_URL}/cardamom-transparent.png`}
               alt="Logo"
               sx={{ width: "190px", height: "auto", mb: 2, mt: 2 }}
             /> */}
-          </Toolbar>
-          <Box sx={{ overflow: "auto", mb: 3, mt: 3 }}>
-            <List>
-              {pages.map((page, index) => {
-                const Icon = [
-                  EditIcon,
-                  TokenIcon,
-                  FaceIcon,
-                  LabelIcon,
-                  InsertDriveFileIcon,
-                ][index];
-                return (
-                  <ListItem
-                    button
-                    component={Link}
-                    to={page.path}
-                    key={page.name}
-                    selected={activeLink === page.path}
-                  >
-                    <ListItemIcon>
-                      <Icon
-                        style={{
-                          color: activeLink === page.path ? "red" : "inherit",
-                        }}
-                      />
-                    </ListItemIcon>
-                    <ListItemText primary={page.name} />
-                  </ListItem>
-                );
-              })}
-            </List>
-          </Box>
-        </Drawer>
+            </Toolbar>
+            <Box sx={{ overflow: "auto", mb: 3, mt: 3 }}>
+              <List>
+                {pages.map((page, index) => {
+                  const Icon = [
+                    EditIcon,
+                    TokenIcon,
+                    FaceIcon,
+                    LabelIcon,
+                    InsertDriveFileIcon,
+                  ][index];
+                  return (
+                    <ListItem
+                      button
+                      component={Link}
+                      to={page.path}
+                      key={page.name}
+                      selected={activeLink === page.path}
+                    >
+                      <ListItemIcon>
+                        <Icon
+                          style={{
+                            color: activeLink === page.path ? "red" : "inherit",
+                          }}
+                        />
+                      </ListItemIcon>
+                      <ListItemText primary={page.name} />
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
+          </Drawer>
+        </Box>
       </ThemeProvider>
     </>
   );
