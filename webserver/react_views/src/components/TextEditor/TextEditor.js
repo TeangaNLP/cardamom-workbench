@@ -12,9 +12,9 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // Import Quill's snow theme CSS
+import "./TextEditor.css";
 
 const TextEditor = ({ user }) => {
   const location = useLocation();

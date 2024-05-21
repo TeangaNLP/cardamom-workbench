@@ -5,3 +5,7 @@
 p {
   color: "#565454" !important;
 }
+
+.MuiSnackbarContent-message {
+  width: 100% !important;
+}
