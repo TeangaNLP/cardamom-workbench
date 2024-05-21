@@ -3,7 +3,17 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
+.tag {
+  cursor: pointer;
+  position: relative; /* Ensure span is positioned relative for absolute cursor */
+}
 
+.cursor {
+  width: 1px;
+  height: 1em;
+  background-color: black;
+  position: absolute;
+}
 .auto {
   background-color: #aed6f1;
 }

@@ -61,6 +61,7 @@ const Tokeniser = ({ user }) => {
   // Callback for saving
   const onEnter = useCallback(
     (event) => {
+      console.log("enter called");
       if (
         event.keyCode == 13 &&
         selecting.start != null &&
