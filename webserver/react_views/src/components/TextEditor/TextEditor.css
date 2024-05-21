@@ -1,3 +1,7 @@
 .secondary-bar {
-    background-color: #3D414B;
+  background-color: #3d414b;
+}
+
+p {
+  color: "#565454" !important;
 }
