@@ -34,11 +34,25 @@ export default function Token({
     upHandler(token.start_index);
   };
 
+  // const handleOnClick = (e) => {
+  //   const get_similar_words_url = process.env.REACT_APP_PORT
+  //     ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/related_words/` +
+  //       value
+  //     : `https://${process.env.REACT_APP_HOST}/api/related_words/` + value;
+  //   axios
+  //     .get(get_similar_words_url)
+  //     .then(function (response) {
+  //       console.log(response);
+  //     })
+  //     .catch(function (err) {
+  //       console.log(err);
+  //     });
+  // };
   const handleSpanClick = () => {
     // Clear cursor position when clicking outside a word
     setCursorPosition(null);
   };
-  const handleOnClick = (e, wordIndex) => {
+  const handleSingleOnClick = (e, wordIndex) => {
     console.log(e);
 
     // console.log()
@@ -80,11 +94,17 @@ export default function Token({
 
   return (
     <span
+      ref={ref}
       className={`tag green ${token.type_} ${isActive ? "orange" : ""}`}
       style={{ position: "relative" }}
-      onClick={(e) => handleOnClick(e)}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onClick={(e) => handleSingleOnClick(e)}
     >
-      {words}
+      {token.type_ == "manual"
+        ? value.replace(/\\n/g, "\u000A")
+        : value.replace(/\\n/g, "\u000A")}
+
       {cursorPosition !== null && (
         <span
           className="cursor"

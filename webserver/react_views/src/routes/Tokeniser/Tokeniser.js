@@ -438,23 +438,6 @@ const Tokeniser = ({ user }) => {
 
   return (
     <div>
-      {/* <NavBar
-        setUser={setUser}
-        pages={[
-          { path: "/", name: "Home" },
-          { path: "/fileupload", name: "File Upload" },
-        ]}
-      />
-      <SideNavBar
-        main={false}
-        pages={[
-          { path: "/editor", name: "Text Editor" },
-          { path: `/tokeniser/${fileInfo.file_id}`, name: "Tokenisation" },
-          { path: "/identification", name: "Identification" },
-          { path: "/annotation", name: "Annotation" },
-          { path: activeLink, name: "POS Tagging" },
-        ]}
-      /> */}
       <div className="remaining-box">
         <Box
           component="main"

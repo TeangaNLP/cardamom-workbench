@@ -18,11 +18,17 @@ import {
   Label as LabelIcon,
 } from "@mui/icons-material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import SplitscreenIcon from "@mui/icons-material/Splitscreen";
+import CalendarViewMonthIcon from "@mui/icons-material/CalendarViewMonth";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import CenterFocusWeakIcon from "@mui/icons-material/CenterFocusWeak";
+import { useTheme } from "@mui/material/styles";
 
 const SideNavBar = ({}) => {
   const location = useLocation();
   const activeLink = location.pathname;
   const { fileId } = useParams();
+  const theme = useTheme();
 
   const darkTheme = createTheme({
     palette: {
@@ -55,7 +61,7 @@ const SideNavBar = ({}) => {
               [`& .MuiDrawer-paper`]: {
                 width: 195,
                 boxSizing: "border-box",
-                backgroundColor: darkTheme.palette.background.paper,
+                // backgroundColor: darkTheme.palette.background.paper,
                 color: darkTheme.palette.text.primary,
               },
             }}
@@ -73,10 +79,10 @@ const SideNavBar = ({}) => {
                 {pages.map((page, index) => {
                   const Icon = [
                     EditIcon,
-                    TokenIcon,
-                    FaceIcon,
-                    LabelIcon,
-                    InsertDriveFileIcon,
+                    SplitscreenIcon,
+                    CenterFocusWeakIcon,
+                    EditNoteIcon,
+                    ,
                   ][index];
                   return (
                     <ListItem
@@ -89,7 +95,10 @@ const SideNavBar = ({}) => {
                       <ListItemIcon>
                         <Icon
                           style={{
-                            color: activeLink === page.path ? "red" : "inherit",
+                            color:
+                              activeLink === page.path
+                                ? theme.palette.primary.main
+                                : "inherit",
                           }}
                         />
                       </ListItemIcon>
