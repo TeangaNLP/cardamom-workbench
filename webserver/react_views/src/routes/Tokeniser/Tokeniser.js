@@ -7,7 +7,7 @@ import SideNavBar from "./../../components/SideNavBar/SideNavBar"; // Adjust the
 
 import "./Tokeniser.css";
 import { Sidenav } from "rsuite";
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 
 const Tokeniser = ({ user }) => {
   const { fileId } = useParams();
@@ -30,6 +30,7 @@ const Tokeniser = ({ user }) => {
     end: null,
     componentStartIndex: null,
   });
+  const [loading, setLoading] = useState(false);
 
   const fetchDocuments = async () => {
     try {
@@ -104,6 +105,10 @@ const Tokeniser = ({ user }) => {
   useEffect(() => {
     if (!fetched) {
       getAll();
+      setLoading(true);
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 250);
     }
 
     // To check if file already selected before.
@@ -458,63 +463,69 @@ const Tokeniser = ({ user }) => {
 
   return (
     <div>
-      <div className="remaining-box">
-        <Box
-          run
-          later
-          component="main"
-          sx={{
-            flexGrow: 1,
-            p: 3,
-            marginLeft: "240px", // Matches the Drawer width
-            border: 1,
-            borderColor: "grey.300",
-            borderRadius: 1,
-            boxShadow: 1,
-          }}
-        >
-          <div onKeyPress={onEnter} className="tokenise-area">
-            <div className="tokenise-text">
-              {fetched
-                ? tokensAndGaps.map((token, i) => {
-                    const text = fileInfo.content;
-                    const tokenValue = text.substring(
-                      token.start_index,
-                      token.end_index
-                    );
-                    return (
-                      <Token
-                        key={i}
-                        downHandler={handleMouseDown}
-                        upHandler={handleMouseUp}
-                        deselectHandler={deselect}
-                        token={token}
-                        value={tokenValue}
-                      />
-                    );
-                  })
-                : "Loading..."}
-            </div>
-          </div>
+      {loading ? (
+        <Box sx={{ textAlign: "center", mt: 2 }}>
+          <CircularProgress />
         </Box>
-        <div className="tokenise-area buttons">
-          <div>
-            {selecting.mouseDown && !selecting.mouseUp ? (
-              <div>Selecting...</div>
-            ) : selecting.mouseDown && selecting.mouseUp ? (
-              <div>Text Selected!</div>
-            ) : (
-              <div>Nothing Selected!</div>
-            )}
+      ) : (
+        <div className="remaining-box">
+          <Box
+            run
+            later
+            component="main"
+            sx={{
+              flexGrow: 1,
+              p: 3,
+              marginLeft: "240px", // Matches the Drawer width
+              border: 1,
+              borderColor: "grey.300",
+              borderRadius: 1,
+              boxShadow: 1,
+            }}
+          >
+            <div onKeyPress={onEnter} className="tokenise-area">
+              <div className="tokenise-text">
+                {fetched
+                  ? tokensAndGaps.map((token, i) => {
+                      const text = fileInfo.content;
+                      const tokenValue = text.substring(
+                        token.start_index,
+                        token.end_index
+                      );
+                      return (
+                        <Token
+                          key={i}
+                          downHandler={handleMouseDown}
+                          upHandler={handleMouseUp}
+                          deselectHandler={deselect}
+                          token={token}
+                          value={tokenValue}
+                        />
+                      );
+                    })
+                  : "Loading..."}
+              </div>
+            </div>
+          </Box>
+          <div className="tokenise-area buttons">
+            <div>
+              {selecting.mouseDown && !selecting.mouseUp ? (
+                <div>Selecting...</div>
+              ) : selecting.mouseDown && selecting.mouseUp ? (
+                <div>Text Selected!</div>
+              ) : (
+                <div>Nothing Selected!</div>
+              )}
+            </div>
+            <Button className="button" onClick={autoTokenise} variant="dark">
+              Auto-Tokenise
+            </Button>
+            <Button className="button" onClick={saveTokens} variant="dark">
+              Save
+            </Button>
           </div>
-          <Button className="button" onClick={autoTokenise} variant="dark">
-            Auto-Tokenise
-          </Button>
-          <Button className="button" onClick={saveTokens} variant="dark">
-            Save
-          </Button>
         </div>
-      </div>
+      )}
     </div>
   );
 };
