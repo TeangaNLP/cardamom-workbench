@@ -119,7 +119,7 @@ const NavBar = ({ pages, setUser, main = true, user }) => {
               Home
             </Button>
 
-            <Button color="inherit" component={Link} to="/login">
+            <Button color="inherit" component={Link} to="/fileupload">
               Upload New Files
             </Button>
             <IconButton
