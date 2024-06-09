@@ -25,13 +25,36 @@ import DraftsIcon from "@mui/icons-material/Drafts";
 import SideNavBar from "../../components/SideNavBar/SideNavBar";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 
-const FileDetails = ({ user }) => {
+const FileDetails = ({ user, setUser }) => {
   const { fileId } = useParams();
+  const [documentsList, setDocuments] = React.useState([]);
+
   const [fileInfo, setFileInfo] = React.useState("");
+  const navigate = useNavigate();
 
   const getAll = () => {
-    const file_Info = user.documents.find((e) => e.file_id == fileId);
-    setFileInfo(file_Info);
+    console.log("getting all");
+    const userId = user.id;
+    const get_files_url = process.env.REACT_APP_PORT
+      ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/get_files?user=` +
+        userId
+      : `https://${process.env.REACT_APP_HOST}/api/get_files?user=` + userId;
+    axios
+      .get(get_files_url)
+      .then(function (response) {
+        const documents = response.data.file_contents;
+        console.log("res", response.data);
+        // setIsLoading(false);
+        const file_Info = documents.find((e) => e.file_id == fileId);
+        console.log("file_Info- > ", file_Info);
+        setFileInfo(file_Info);
+
+        // setDocuments(documents);
+        console.log(documents);
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
   };
   React.useEffect(() => {
     getAll();
@@ -39,7 +62,7 @@ const FileDetails = ({ user }) => {
 
   return (
     <div>
-      <NavBar />
+      <NavBar setUser={setUser} />
       <SideNavBar />
       <Box
         sx={{

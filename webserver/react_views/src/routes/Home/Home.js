@@ -44,6 +44,7 @@ const Home = ({
         const documents = response.data.file_contents;
         setDocuments(documents);
         setUser({ ...user, documents: documents });
+        console.log("somehow this gets called");
         localStorage.setItem("user", JSON.stringify(user));
         setIsLoading(false);
       })

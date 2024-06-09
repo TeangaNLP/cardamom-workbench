@@ -8,33 +8,31 @@ export default function FileUpload({ user, setUser }) {
   const [selectedLang, setLang] = useState("ga");
   const [status, setStatus] = useState("");
 
-
   const options = [
     { value: "ga", label: "Irish" },
     { value: "en", label: "English" },
     { value: "sga", label: "Old Irish" },
   ];
 
-
   const changeHandler = (event) => {
-    setStatus("")
+    setStatus("");
     setSelectedFile(event.target.files[0]);
   };
 
   const changeLang = (event) => {
     setLang(event.target.value);
-
-  }
+  };
 
   const handleSubmission = () => {
     const userId = user.id;
     const data = new FormData();
     data.append("file", selectedFile);
     data.append("user_id", userId);
-    data.append("iso_code", selectedLang)
-    const file_upload_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/fileUpload` 
-		  :  `https://${process.env.REACT_APP_HOST}/api/fileUpload` 
-     
+    data.append("iso_code", selectedLang);
+    const file_upload_url = process.env.REACT_APP_PORT
+      ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/fileUpload`
+      : `https://${process.env.REACT_APP_HOST}/api/fileUpload`;
+
     axios
       .post(file_upload_url, data, {
         headers: {
@@ -43,18 +41,18 @@ export default function FileUpload({ user, setUser }) {
       })
       .then(function (response) {
         console.log("Successfully uploaded!");
-	setStatus("File Successfully uploaded!");
+        setStatus("File Successfully uploaded!");
       })
       .catch(function () {
         console.log("Didn't upload");
-	setStatus("File upload failed.");
+        setStatus("File upload failed.");
       });
   };
 
   return (
     <div>
       <NavBar
-	setUser={setUser}
+        setUser={setUser}
         pages={[
           { path: "/", name: "Home" },
           { path: "/fileupload", name: "File Upload" },
@@ -62,13 +60,10 @@ export default function FileUpload({ user, setUser }) {
       />
       <br />
       <h2> Cardamom Workbench</h2>
-      <h2 style={{ color: 'red' }}> {status} </h2>
+      <h2 style={{ color: "red" }}> {status} </h2>
 
       <div id="file-upload-form" className="uploader">
-        <select
-          options={options}
-          onChange={changeLang}
-        >
+        <select options={options} onChange={changeLang}>
           {options.map((option, index) => {
             return (
               <option value={option.value} key={option.value}>
@@ -77,7 +72,6 @@ export default function FileUpload({ user, setUser }) {
             );
           })}
         </select>
-
 
         <label htmlFor="file-upload" id="file-drag">
           <input

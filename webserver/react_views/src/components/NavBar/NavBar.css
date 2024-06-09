@@ -7,3 +7,7 @@
 
   margin-left: -24px;
 }
+
+.cardamom-anchor {
+  z-index: 5000;
+}

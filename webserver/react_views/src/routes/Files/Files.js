@@ -27,12 +27,13 @@ import { styled } from "@mui/material/styles";
 
 import { tableCellClasses } from "@mui/material/TableCell";
 
-export default function Files({ user }) {
+export default function Files({ user, setUser }) {
   const [documentsList, setDocuments] = React.useState([]);
   const navigate = useNavigate();
 
   const handleAction = (file) => {
     console.log("got file", file);
+    console.log("why does this URL break", file);
     navigate(`/files/${file.file_id}/text-editor`); // Replace `/details` with your desired route
   };
   const [isLoading, setIsLoading] = React.useState(true);
@@ -46,6 +47,7 @@ export default function Files({ user }) {
       .get(get_files_url)
       .then(function (response) {
         const documents = response.data.file_contents;
+        console.log("res", response.data);
         setIsLoading(false);
         setDocuments(documents);
         console.log(documents);
@@ -83,7 +85,7 @@ export default function Files({ user }) {
 
   return (
     <div>
-      <NavBar />
+      <NavBar setUser={setUser} />
       <Box
         sx={{
           marginTop: "24px",

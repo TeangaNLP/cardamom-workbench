@@ -74,8 +74,12 @@ const NavBar = ({ pages, setUser, main = true, user }) => {
 
   const handleLogout = () => {
     setUser(null);
+    console.log("remove user", localStorage.getItem("user"));
     localStorage.removeItem("user");
-    location.reload();
+    console.log("is it remove user", localStorage.getItem("user"));
+    navigate("/login"); // Navigate to the login page
+
+    // location.reload();
   };
 
   return (
@@ -89,10 +93,13 @@ const NavBar = ({ pages, setUser, main = true, user }) => {
       }}
     >
       <Toolbar>
-        <img
-          className="cardamom-logo-appbar"
-          src="../../cardamom-logo.png"
-        ></img>
+        <Link className="cardamom-anchor" to="/files">
+          <img
+            className="cardamom-logo-appbar"
+            src="../../cardamom-logo.png"
+            alt="Cardamom Logo"
+          />
+        </Link>
         <Box sx={{ flexGrow: 1 }}>
           {/* 
           {page.map((page) => (
@@ -108,12 +115,10 @@ const NavBar = ({ pages, setUser, main = true, user }) => {
         </Box>
         {main && (
           <div>
-            <Button color="inherit" component={Link} to="/login">
+            <Button color="inherit" component={Link} to="/files">
               Home
             </Button>
-            <Button color="inherit" component={Link} to="/files">
-              Files
-            </Button>
+
             <Button color="inherit" component={Link} to="/login">
               Upload New Files
             </Button>

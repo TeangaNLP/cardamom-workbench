@@ -11,9 +11,6 @@ import { Box } from "@mui/material";
 
 const Tokeniser = ({ user }) => {
   const { fileId } = useParams();
-  const file_id = fileId;
-  console.log(user);
-  const fileInfo = user.documents.find((e) => e.file_id == fileId);
 
   // getAll();÷
   const navigate = useNavigate();
@@ -23,6 +20,7 @@ const Tokeniser = ({ user }) => {
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
   let [fetched, setFetched] = useState(false);
+  let [fileInfo, setFileInfo] = useState(null);
   //let [fileInfo, setFileState] = useState({});
   let [selecting, setSelecting] = useState({
     mouseDown: false,
@@ -33,30 +31,51 @@ const Tokeniser = ({ user }) => {
     componentStartIndex: null,
   });
 
-  const getAll = () => {
-    const get_tokens_url = process.env.REACT_APP_PORT
-      ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` +
-        fileInfo.file_id
-      : `https://${process.env.REACT_APP_HOST}/api/annotations/` +
-        fileInfo.file_id;
-    axios
-      .get(get_tokens_url)
-      .then(function (response) {
-        window.originaltokens = response.data.annotations;
-        setOriginalTokenData(response.data.annotations);
-        combineTokensAndGaps(response.data.annotations, fileInfo.content);
-        setFetched(true);
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+  const fetchDocuments = async () => {
+    try {
+      const userId = user.id;
+      const get_files_url = process.env.REACT_APP_PORT
+        ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/get_files?user=${userId}`
+        : `https://${process.env.REACT_APP_HOST}/api/get_files?user=${userId}`;
+
+      const response = await axios.get(get_files_url);
+      const documents = response.data.file_contents;
+      console.log("res", response.data);
+
+      const file_Info = documents.find((e) => e.file_id == fileId);
+      console.log("file_Info- > ", file_Info);
+      setFileInfo(file_Info);
+      console.log(documents);
+      return file_Info;
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  useEffect(() => {
-    if (!fetched) {
-      getAll();
+  const fetchAnnotations = async (fileInfo) => {
+    try {
+      console.log("shoudl run later");
+      console.log("file info ", fileInfo);
+
+      const get_tokens_url = process.env.REACT_APP_PORT
+        ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/${fileInfo.file_id}`
+        : `https://${process.env.REACT_APP_HOST}/api/annotations/${fileInfo.file_id}`;
+
+      console.log("got tokens");
+      const response = await axios.get(get_tokens_url);
+      window.originaltokens = response.data.annotations;
+      setOriginalTokenData(response.data.annotations);
+      combineTokensAndGaps(response.data.annotations, fileInfo.content);
+      setFetched(true);
+    } catch (err) {
+      console.log(err);
     }
-  }, []);
+  };
+
+  const getAll = async () => {
+    const file_info_details = await fetchDocuments();
+    await fetchAnnotations(file_info_details);
+  };
 
   // Callback for saving
   const onEnter = useCallback(
@@ -83,9 +102,10 @@ const Tokeniser = ({ user }) => {
   );
 
   useEffect(() => {
-    console.log("use effect", fileInfo);
-    if (!fetched && fileInfo !== undefined) {
+    if (!fetched) {
+      getAll();
     }
+
     // To check if file already selected before.
     /*
     let file_id;
@@ -440,6 +460,8 @@ const Tokeniser = ({ user }) => {
     <div>
       <div className="remaining-box">
         <Box
+          run
+          later
           component="main"
           sx={{
             flexGrow: 1,
@@ -454,7 +476,7 @@ const Tokeniser = ({ user }) => {
           <div onKeyPress={onEnter} className="tokenise-area">
             <div className="tokenise-text">
               {fetched
-                ? tokensAndGaps.map((token) => {
+                ? tokensAndGaps.map((token, i) => {
                     const text = fileInfo.content;
                     const tokenValue = text.substring(
                       token.start_index,
@@ -462,6 +484,7 @@ const Tokeniser = ({ user }) => {
                     );
                     return (
                       <Token
+                        key={i}
                         downHandler={handleMouseDown}
                         upHandler={handleMouseUp}
                         deselectHandler={deselect}
