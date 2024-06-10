@@ -67,9 +67,13 @@ const Login = ({ setUser, setUserId, userId }) => {
           }, 1200);
         } else {
           console.log("response.data.message", response.data.message);
-          setStatusMessage(response.data.message);
+          // setStatusMessage(response.data.message);
           setSaveSuccess(false);
           setErrorSuccess(true);
+
+          setTimeout(() => {
+            setErrorSuccess(false);
+          }, 3000);
         }
       })
       .catch(function (response) {

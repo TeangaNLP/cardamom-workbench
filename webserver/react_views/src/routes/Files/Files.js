@@ -94,7 +94,7 @@ export default function Files({ user, setUser }) {
           justifyContent: "center",
         }}
       >
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ border: "1px solid #d3cfcf" }}>
           <Table sx={{ minWidth: 700 }} aria-label="customized table">
             <TableHead>
               <TableRow>
