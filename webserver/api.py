@@ -14,15 +14,17 @@ api = Blueprint('api', __name__, template_folder='templates')
 
 # def serialise_data_model(model):
 #     return {k: v for k, v in model.__dict__.items() if not k.startswith("_")}
-#   
+#
+
 @api.route('/signup_user', methods=["POST"])
 def signup_user() -> Dict:
 
     email_data = request.form.get("email")
     username_data = request.form.get("name")
     password_data = request.form.get("password")
-
-    service = UserService(g.uow)
+    if any(v is None for v in [email_data, username_data, password_data]):
+            return {"user": None, "message": "Please fill in all fields"}
+    service = UserService(g.uows['user_uow'])
 
     return jsonify(service.signup_user(username_data, email_data, password_data))
 
@@ -30,7 +32,8 @@ def signup_user() -> Dict:
 def login_user() -> Dict:
     email_data = request.form.get("email")
     password_data = request.form.get("password")
-    service = UserService(g.uow)
+    service = UserService(g.uows['user_uow'])
+    
     response = service.login_user(email_data, password_data)
     return jsonify(response)
 
@@ -38,14 +41,14 @@ def login_user() -> Dict:
 def get_file() -> List[model.UploadedFileModel]:
     fileId = request.args.get("fileId")
     userId = request.args.get("userId") 
-    service = FileService(g.uow)
+    service = FileService(g.uows["file_uow"])
     return jsonify(service.get_file_by_id(userId, fileId))
 
 
 @api.route('/get_files/', methods=["GET"])
 def get_all_files() -> List[model.UploadedFileModel]:
     user_id = request.args.get("user")
-    result = FileService(g.uow).get_all_files(user_id)
+    result = FileService(g.uows["file_uow"]).get_all_files(user_id)
     return jsonify({"file_contents": result})
 
 
@@ -56,7 +59,7 @@ def file_upload():
     uploaded_file = request.files["file"]
     user_id = request.form['user_id']
     iso_code = request.form['iso_code']
-    file_service = FileService(g.uow)
+    file_service = FileService(g.uows["file_uow"])
     file_service.upload_file(uploaded_file, user_id, iso_code)
     response_body = {
         "status": "file uploaded" 
@@ -66,7 +69,7 @@ def file_upload():
 
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> model.UploadedFileModel:
-    annotation_service = AnnotationService(g.uow)
+    annotation_service = AnnotationService(g.uows["annotation_uow"])
     annotations = annotation_service.get_tokens(file_id)
     return jsonify({"annotations": annotations})
 
@@ -75,7 +78,7 @@ def get_annotations(file_id) -> model.UploadedFileModel:
 def push_annotations():
     data = request.get_json()
     annotations, file_id = data.get('tokens'), data.get("file_id")
-    annotation_service = AnnotationService(g.uow)
+    annotation_service = AnnotationService(g.uows["annotation_uow"])
     annotation_service.process_annotations(annotations, file_id)
     '''
     for space in spaces:
@@ -117,24 +120,24 @@ def push_annotations():
 def auto_tokenise():
     file_data = json.loads(request.form.get("file_data"))
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
-    return {"annotations": AnnotationService(g.uow).auto_tokenise(file_data, reserved_tokens)}
+    return {"annotations": AnnotationService(g.uows["annotation_uow"]).auto_tokenise(file_data, reserved_tokens)}
 
 @api.route('/pos_tag', methods=["POST"])
 def push_postags():
     data = request.get_json()
     pos_tags = data.get('tags')
-    pos_service = POSService(g.uow)
+    pos_service = POSService(g.uows["pos_uow"])
     pos_service.add_pos_tags(pos_tags)
     return jsonify({"response": "success"}), 200
 
 @api.route('pos_tag/<file_id>', methods=["GET"])
 def get_postags(file_id):
-    return jsonify(POSService(g.uow).get_postags(file_id))
+    return jsonify(POSService(g.uows["pos_uow"]).get_postags(file_id))
     
 @api.route('/auto_tag', methods=["POST"])
 def auto_tag():
     file_data = json.loads(request.form.get('file_data'))
-    return {"POS": POSService(g.uow).auto_tag(file_data)}
+    return {"POS": POSService(g.uows["pos_uow"]).auto_tag(file_data)}
 
 @api.route('/related_words/<word>', methods=["GET"])
 def related_words(word):
