@@ -6,26 +6,28 @@ from api import api
 from orm import Base, start_mappers
 from views import views
 from unit_of_work.unitOfWork import SqlAlchemyUnitOfWork
+from repositories import userRepository, fileRepository, posRepository, annotationRepository 
 
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = config.get_postgres_uri()
 
     engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-    Base.metadata.create_all(engine)  # Create tables, ensuring they exist
+    Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     
-    # # Add session to the app context
     @app.before_request
     def before_request():
-        print("Unit of work is being instantiated")
-        g.uow = SqlAlchemyUnitOfWork(Session)
-
-    # @app.teardown_appcontext
-    # def teardown_db(exception=None):
-    #     uow = getattr(g, 'uow', None)
-    #     if uow is not None:
-    #         uow.__exit__(exception)
+        g.uows = {}
+        concrete_uows = [
+            ('user_uow', SqlAlchemyUnitOfWork(Session, userRepository.UserRepository)),
+            ('file_uow', SqlAlchemyUnitOfWork(Session, fileRepository.FileRepository)),
+            ('pos_uow', SqlAlchemyUnitOfWork(Session, posRepository.POSRepository)),
+            ('annotation_uow', SqlAlchemyUnitOfWork(Session, annotationRepository.AnnotationRepository)),
+            # Add other unit of work initializations here
+        ]
+        for name, concrete_uow in concrete_uows:
+            g.uows[name] = concrete_uow
 
     start_mappers()
 
