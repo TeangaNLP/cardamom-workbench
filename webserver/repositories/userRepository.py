@@ -19,4 +19,5 @@ class UserRepository:
             "name": user.name,
             "email": user.email,
             # Add other fields as necessary
+            
         }
