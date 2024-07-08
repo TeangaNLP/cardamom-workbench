@@ -1,11 +1,11 @@
 from unit_of_work.unitOfWork import SqlAlchemyUnitOfWork
 from sqlalchemy.inspection import inspect
-from technologies import  cardamom_postag
+from technologies import cardamom_postag
 
 class POSService:
     def __init__(self, uow: SqlAlchemyUnitOfWork):
         self.uow = uow
-    
+
     def serialise_data_model(self, model):
         return {k: v for k, v in model.__dict__.items() if not k.startswith("_")}
 

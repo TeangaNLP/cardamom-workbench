@@ -1,4 +1,4 @@
-from model import POSInstanceModel, POSFeaturesModel
+from model import POSInstanceModel, POSFeaturesModel, TokenModel
 from sqlalchemy.orm import Session
 
 class POSRepository:
@@ -13,7 +13,18 @@ class POSRepository:
             session (Session): SQLAlchemy session object.
         """
         self.session = session
+    def get_tokens(self, file_id: int):
+        """
+        Retrieve all tokens associated with a file ID from the database.
 
+        Args:
+            file_id (int): The ID of the file whose tokens are to be retrieved.
+
+        Returns:
+            list[TokenModel]: A list of token models associated with the file.
+        """
+        return self.session.query(TokenModel).filter(TokenModel.uploaded_file_id == file_id).all()
+    
     def add_pos_instance(self, token_id: int, tag: str, type_: str) -> POSInstanceModel:
         """
         Add a new POS instance to the database.
