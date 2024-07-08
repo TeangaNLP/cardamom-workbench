@@ -2,10 +2,31 @@ from unit_of_work.unitOfWork import SqlAlchemyUnitOfWork
 from utilities import process_txt_file, process_docx_file, serialise_data_model
 
 class FileService:
+    """
+    Service class for handling file-related operations using SQLAlchemy unit of work pattern.
+    """
+
     def __init__(self, uow: SqlAlchemyUnitOfWork):
+        """
+        Initializes the FileService with a SQLAlchemy unit of work instance.
+
+        Args:
+            uow (SqlAlchemyUnitOfWork): The SQLAlchemy unit of work instance.
+        """
         self.uow = uow
 
     def upload_file(self, uploaded_file, user_id, iso_code):
+        """
+        Uploads a file to the system, processing its content based on the file extension.
+
+        Args:
+            uploaded_file (FileStorage): The uploaded file object.
+            user_id (int): ID of the user uploading the file.
+            iso_code (str): ISO code of the language associated with the file.
+
+        Raises:
+            ValueError: If the ISO code is invalid or the file extension is unsupported.
+        """
         name = uploaded_file.filename
         name, extension = ".".join(name.split('.')[:-1]), uploaded_file.filename.split('.')[-1]
 
@@ -24,6 +45,15 @@ class FileService:
             uow.commit()
 
     def get_all_files(self, user_id):
+        """
+        Retrieves all files associated with a specific user.
+
+        Args:
+            user_id (int): ID of the user.
+
+        Returns:
+            list: List of dictionaries representing file contents.
+        """
         with self.uow as uow:
             files_ = uow.repo.get_all_files(user_id)
             file_contents = [{
@@ -35,9 +65,19 @@ class FileService:
             return file_contents
 
     def get_file_by_id(self, user_id, file_id):
+        """
+        Retrieves a specific file by its ID and user ID.
+
+        Args:
+            user_id (int): ID of the user requesting the file.
+            file_id (int): ID of the file.
+
+        Returns:
+            dict: Dictionary containing file details and tokens if accessible, otherwise an error message.
+        """
         with self.uow as uow:
-            file = uow.repo.get(file_id)
-            if file.user_id == user_id:
+            file = uow.repo.get_file_by_id(file_id)
+            if file and file.user_id == user_id:
                 file_contents = {
                     "filename": file.name,
                     "file_id": file.id,
