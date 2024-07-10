@@ -1,7 +1,7 @@
 import nltk
 import json
 from services.posService import POSService
-from services.fileservice import FileService
+from services.fileService import FileService
 from services.annotationService import AnnotationService
 from services.userService import UserService
 import model
@@ -223,7 +223,8 @@ def auto_tag():
         Dict: A JSON response containing the POS tags.
     """
     file_data = json.loads(request.form.get('file_data'))
-    return {"POS": POSService(g.uows["pos_uow"]).auto_tag(file_data)}
+    pos_tags = POSService(g.uows["pos_uow"]).auto_tag(file_data)
+    return {"POS": pos_tags}
 
 @api.route('/related_words/<word>', methods=["GET"])
 def related_words(word):

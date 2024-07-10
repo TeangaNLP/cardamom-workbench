@@ -1,6 +1,6 @@
-from sqlalchemy.inspection import inspect
 from unit_of_work.unitOfWork import SqlAlchemyUnitOfWork
 from model import TokenModel
+from utilities import serialise
 from technologies import cardamom_tokenise
 
 class AnnotationService:
@@ -43,19 +43,6 @@ class AnnotationService:
                 break
             i += 1
         return replace_tokens
-    
-    def serialise(self, model):
-        """
-        Serializes a SQLAlchemy model object into a dictionary.
-
-        Args:
-            model: SQLAlchemy model object.
-
-        Returns:
-            dict: Serialized representation of the model object.
-        """
-        columns = [c.key for c in inspect(model).mapper.column_attrs]
-        return {c: getattr(model, c) for c in columns}
 
     def get_tokens(self, file_id, objectify=False):
         """
@@ -69,14 +56,14 @@ class AnnotationService:
             list or tuple: List of token annotations or tuple with session and annotations if objectify is True.
         """
         with self.uow as uow:
-            annots = uow.repo.get_tokens(file_id)
+            annots = uow.repo.get(file_id)
             for idx, annotation in enumerate(annots):
                 annotation.token_language
                 annotation.pos_instance
             if objectify:
                 return self.uow.session, annots
             annotations = [{
-                **self.serialise(annot),
+                **serialise(annot),
                 "token_language_id": annot.token_language.iso_code
             } for annot in annots]
             return sorted(annotations, key=lambda a: a['start_index'])
@@ -101,9 +88,10 @@ class AnnotationService:
             for annotation in annotations:
                 replace_tokens = self.get_replaced_tokens(annotation["start_index"], annotation["end_index"], extracted_annotations)
                 for token in replace_tokens:
-                    uow.repo.delete_token_by_id(token["id"])
-                uow.repo.add_annotation(annotation, file, file_id)
+                    uow.repo.delete(token["id"])
+                uow.repo.add(annotation, file, file_id)
                 uow.commit()
+                uow.flush()
 
     def serialise_data_model(self, model):
         """

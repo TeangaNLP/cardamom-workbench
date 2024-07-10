@@ -1,4 +1,4 @@
-from model import UploadedFileModel, LanguageModel
+from model import UploadedFileModel, LanguageModel, UserModel
 from sqlalchemy.orm import Session
 
 class FileRepository:
@@ -14,7 +14,7 @@ class FileRepository:
         """
         self.session = session
 
-    def get_by_id(self, file_id: int) -> UploadedFileModel:
+    def get(self, file_id: int) -> UploadedFileModel:
         """
         Retrieve a file by its ID from the database.
 
@@ -26,7 +26,7 @@ class FileRepository:
         """
         return self.session.query(UploadedFileModel).filter(UploadedFileModel.id == file_id).one_or_none()
 
-    def get_all_files(self, user_id: int) -> list[UploadedFileModel]:
+    def get_all(self, user_id: int) -> list[UploadedFileModel]:
         """
         Retrieve all files associated with a specific user ID.
 
@@ -36,7 +36,7 @@ class FileRepository:
         Returns:
             list[UploadedFileModel]: A list of file models associated with the user.
         """
-        return self.session.query(UploadedFileModel).filter(UploadedFileModel.user_id == user_id).all()
+        return self.session.query(UserModel).filter(UserModel.id == user_id).one_or_none()
 
     def get_language_by_iso_code(self, iso_code: str) -> LanguageModel:
         """

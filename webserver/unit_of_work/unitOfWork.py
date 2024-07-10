@@ -65,6 +65,8 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
         Commit changes in the current session.
         """
         self.session.commit()
+    def flush(self):
+        self.session.flush()
 
     def rollback(self):
         """

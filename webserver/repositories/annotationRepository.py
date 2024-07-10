@@ -26,7 +26,7 @@ class AnnotationRepository:
         """
         return self.session.query(LanguageModel).filter(LanguageModel.id == lang_id).one_or_none()
     
-    def get_tokens(self, file_id: int) -> list[TokenModel]:
+    def get(self, file_id: int) -> list[TokenModel]:
         """
         Retrieve all tokens associated with a file ID from the database.
 
@@ -50,7 +50,7 @@ class AnnotationRepository:
         """
         return self.session.query(UploadedFileModel).filter(UploadedFileModel.id == file_id).one_or_none()
 
-    def delete_token_by_id(self, token_id: int):
+    def delete(self, token_id: int):
         """
         Delete a token by its ID from the database.
 
@@ -58,8 +58,9 @@ class AnnotationRepository:
             token_id (int): The ID of the token to be deleted.
         """
         self.session.query(TokenModel).filter(TokenModel.id == token_id).delete()
+        self.session.commit()
 
-    def add_annotation(self, annotation_data: dict, file: UploadedFileModel, file_id: int):
+    def add(self, annotation_data: dict, file: UploadedFileModel, file_id: int):
         """
         Add a new annotation to the database.
 
@@ -79,20 +80,4 @@ class AnnotationRepository:
         self.session.add(new_annotation)
         self.session.flush()
 
-    def commit(self):
-        """
-        Commit the current transaction in the SQLAlchemy session.
-        """
-        self.session.commit()
-
-    def flush(self):
-        """
-        Flush pending changes in the SQLAlchemy session.
-        """
-        self.session.flush()
-
-    def close(self):
-        """
-        Close the SQLAlchemy session.
-        """
-        self.session.close()
+    

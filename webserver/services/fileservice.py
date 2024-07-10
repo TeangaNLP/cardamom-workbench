@@ -55,7 +55,8 @@ class FileService:
             list: List of dictionaries representing file contents.
         """
         with self.uow as uow:
-            files_ = uow.repo.get_all_files(user_id)
+            user_data = uow.repo.get_all(user_id)
+            files_ = user_data.uploaded_files
             file_contents = [{
                 "filename": file.name,
                 "file_id": file.id,
@@ -76,7 +77,7 @@ class FileService:
             dict: Dictionary containing file details and tokens if accessible, otherwise an error message.
         """
         with self.uow as uow:
-            file = uow.repo.get_file_by_id(file_id)
+            file = uow.repo.get(file_id)
             if file and file.user_id == user_id:
                 file_contents = {
                     "filename": file.name,
@@ -91,5 +92,4 @@ class FileService:
                 response_dict = {"file_contents": file_contents, "message": "successful"}
             else:
                 response_dict = {"message": "Requested file is not accessible"}
-            uow.commit()
             return response_dict

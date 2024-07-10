@@ -1,4 +1,4 @@
-from model import POSInstanceModel, POSFeaturesModel, TokenModel
+from model import POSInstanceModel, POSFeaturesModel, TokenModel, UploadedFileModel, LanguageModel
 from sqlalchemy.orm import Session
 
 class POSRepository:
@@ -13,6 +13,28 @@ class POSRepository:
             session (Session): SQLAlchemy session object.
         """
         self.session = session
+    def get_language_by_id(self, lang_id: int) -> LanguageModel:
+        """
+        Retrieve a language by its ID from the database.
+
+        Args:
+            lang_id (int): The ID of the language to be retrieved.
+
+        Returns:
+            LanguageModel: The language model if found, otherwise None.
+        """
+        return self.session.query(LanguageModel).filter(LanguageModel.id == lang_id).one_or_none()
+    def get_file_by_id(self, file_id: int) -> UploadedFileModel:
+        """
+        Retrieve a file by its ID from the database.
+
+        Args:
+            file_id (int): The ID of the file to be retrieved.
+
+        Returns:
+            UploadedFileModel: The file model if found, otherwise None.
+        """
+        return self.session.query(UploadedFileModel).filter(UploadedFileModel.id == file_id).one_or_none()
     def get_tokens(self, file_id: int):
         """
         Retrieve all tokens associated with a file ID from the database.
@@ -57,6 +79,7 @@ class POSRepository:
         self.session.add(pos_feature)
         self.session.commit()
         self.session.flush()
+        self.session.refresh(pos_feature)
 
     def close(self):
         """

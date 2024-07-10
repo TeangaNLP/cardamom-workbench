@@ -36,19 +36,3 @@ class UserRepository:
         """
         print(email)
         return self.session.query(UserModel).filter(UserModel.email == email).one_or_none()
-
-    def user_to_dict(self, user: UserModel) -> dict:
-        """
-        Convert a user model to a dictionary.
-
-        Args:
-            user (UserModel): The user model to be converted.
-
-        Returns:
-            dict: A dictionary representation of the user model.
-        """
-        return {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email
-        }
