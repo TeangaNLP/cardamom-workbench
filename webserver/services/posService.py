@@ -16,18 +16,6 @@ class POSService:
         """
         self.uow = uow
 
-    def serialise_data_model(self, model):
-        """
-        Serializes a SQLAlchemy model object into a dictionary, excluding private attributes.
-
-        Args:
-            model: SQLAlchemy model object.
-
-        Returns:
-            dict: Serialized representation of the model object.
-        """
-        return {k: v for k, v in model.__dict__.items() if not k.startswith("_")}
-
     def get_postags(self, file_id):
         """
         Retrieves POS tags associated with a file.

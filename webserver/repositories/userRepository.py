@@ -23,6 +23,7 @@ class UserRepository:
         """
         self.session.add(user)
         self.session.flush()
+        self.session.commit()
 
     def get(self, email: str):
         """
@@ -34,5 +35,15 @@ class UserRepository:
         Returns:
             UserModel: The user model if found, otherwise None.
         """
-        print(email)
         return self.session.query(UserModel).filter(UserModel.email == email).one_or_none()
+    def delete(self, email: str):
+        """
+        Delete a user from the database based on their email.
+
+        Args:
+            email (str): The email of the user to be deleted.
+        """
+        user = self.get(email)
+        if user:
+            self.session.delete(user)
+            self.session.commit()
