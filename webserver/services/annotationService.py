@@ -1,6 +1,6 @@
 from unit_of_work.unitOfWork import SqlAlchemyUnitOfWork
 from model import TokenModel
-from utilities import serialise
+from utilities import serialize_model_to_dict
 from technologies import cardamom_tokenise
 
 class AnnotationService:
@@ -63,7 +63,7 @@ class AnnotationService:
             if objectify:
                 return self.uow.session, annots
             annotations = [{
-                **serialise(annot),
+                **serialize_model_to_dict(annot),
                 "token_language_id": annot.token_language.iso_code
             } for annot in annots]
             return sorted(annotations, key=lambda a: a['start_index'])

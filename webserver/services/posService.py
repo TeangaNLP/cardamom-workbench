@@ -1,5 +1,5 @@
 from unit_of_work.unitOfWork import SqlAlchemyUnitOfWork
-from utilities import serialise
+from utilities import serialize_model_to_dict, serialise_data_model
 from technologies import cardamom_postag
 
 class POSService:
@@ -61,9 +61,9 @@ class POSService:
                     }
 
             annotations = sorted([{
-                **serialise(token),
+                **serialize_model_to_dict(token),
                 "token_language_id": token.token_language.iso_code} for token in tokens], key=lambda a: a['start_index'])
-            annotations = [{"pos_tags": [serialise(posInstance) for posInstance in tokens[idx].pos_instance], **annotation} for idx, annotation in enumerate(annotations)]
+            annotations = [{"pos_tags": [serialize_model_to_dict(posInstance) for posInstance in tokens[idx].pos_instance], **annotation} for idx, annotation in enumerate(annotations)]
 
             return {
                 "annotations": sorted(annotations, key=lambda a: a['start_index']),
@@ -91,13 +91,13 @@ class POSService:
                 annotation.token_language
                 annotation.pos_instance
             annotations = [{
-                **serialise(annot),
+                **serialize_model_to_dict(annot),
                 "token_language_id": annot.token_language.iso_code
             } for annot in annots]
             tokens = sorted(annotations, key=lambda a: a['start_index'])
             lang = uow.repo.get_language_by_id(lang_id)
             pos_tags = cardamom_postag(content, tokens, lang)
-            pos_tags = [self.serialise_data_model(tags) for tags in pos_tags]
+            pos_tags = [serialise_data_model(tags) for tags in pos_tags]
             print(pos_tags)
             return pos_tags
 

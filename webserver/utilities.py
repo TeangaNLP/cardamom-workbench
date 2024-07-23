@@ -10,7 +10,7 @@ def process_docx_file(uploaded_file):
     text = [para.text for para in doc.paragraphs]
     return '\n'.join(text)
 
-def serialise(model):
+def serialize_model_to_dict(model):
     columns = [c.key for c in class_mapper(model.__class__).columns]
     return dict((c, getattr(model, c)) for c in columns)
 
