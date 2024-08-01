@@ -16,6 +16,7 @@ api = Blueprint('api', __name__, template_folder='templates')
 #     return {k: v for k, v in model.__dict__.items() if not k.startswith("_")}
 #
 
+
 @api.route('/signup_user', methods=["POST"])
 def signup_user() -> Dict:
     """
@@ -36,6 +37,7 @@ def signup_user() -> Dict:
     service = UserService(g.uows['user_uow'])
     return jsonify(service.signup_user(username_data, email_data, password_data))
 
+
 @api.route('/login_user', methods=["POST"])
 def login_user() -> Dict:
     """
@@ -53,6 +55,7 @@ def login_user() -> Dict:
     response = service.login_user(email_data, password_data)
     return jsonify(response)
 
+
 @api.route('/get_file/', methods=["GET"])
 def get_file() -> List[model.UploadedFileModel]:
     """
@@ -67,6 +70,7 @@ def get_file() -> List[model.UploadedFileModel]:
     userId = request.args.get("userId")
     service = FileService(g.uows["file_uow"])
     return jsonify(service.get_file_by_id(userId, fileId))
+
 
 @api.route('/get_files/', methods=["GET"])
 def get_all_files() -> List[model.UploadedFileModel]:
@@ -104,6 +108,7 @@ def file_upload():
         "status": "file uploaded"
     }
     return response_body
+
 
 @api.route('/annotations/<file_id>', methods=["GET"])
 def get_annotations(file_id) -> model.UploadedFileModel:
@@ -184,6 +189,7 @@ def auto_tokenise():
     reserved_tokens = json.loads(request.form.get("reservedTokens"))
     return {"annotations": AnnotationService(g.uows["annotation_uow"]).auto_tokenise(file_data, reserved_tokens)}
 
+
 @api.route('/pos_tag', methods=["POST"])
 def push_postags():
     """
@@ -200,6 +206,7 @@ def push_postags():
     pos_service.add_pos_tags(pos_tags)
     return jsonify({"response": "success"}), 200
 
+
 @api.route('pos_tag/<file_id>', methods=["GET"])
 def get_postags(file_id):
     """
@@ -211,7 +218,8 @@ def get_postags(file_id):
         Dict: A JSON response containing the POS tags.
     """
     return jsonify(POSService(g.uows["pos_uow"]).get_postags(file_id))
-    
+
+
 @api.route('/auto_tag', methods=["POST"])
 def auto_tag():
     """
@@ -226,9 +234,10 @@ def auto_tag():
     pos_tags = POSService(g.uows["pos_uow"]).auto_tag(file_data)
     return {"POS": pos_tags}
 
+
 @api.route('/related_words/<word>', methods=["GET"])
 def related_words(word):
-    print(word,flush=True)
-    related_words =  [serialise_data_model(obj) for obj in cardamom_find_similar_words(word, "gle")]
-    print(related_words,flush=True)
+    print(word, flush=True)
+    related_words = [serialise_data_model(obj) for obj in cardamom_find_similar_words(word, "gle")]
+    print(related_words, flush=True)
     return {"related_words": related_words}
