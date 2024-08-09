@@ -9,3 +9,4 @@ conllu
 gensim
 requests
 bs4
+scipy==1.12.0
