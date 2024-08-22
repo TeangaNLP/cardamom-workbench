@@ -307,7 +307,7 @@ const Tagging = ({ fileInfo, user, setUser }) => {
         [
           { path: "/editor", name: "Text Editor" },
           { path: `/tokeniser/${fileInfo.file_id}`, name: "Tokenisation" },
-          { path: "/identification", name: "Identification" },
+          { path: "/identification", name: "Languages" },
           { path: "/annotation", name: "Annotation" },
           { path: activeLink, name: "POS Tagging" }
         ]

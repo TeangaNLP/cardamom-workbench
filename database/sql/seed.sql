@@ -193,6 +193,6 @@ NEQVE·PORRO·QVISQVAM·EST·QVI·DOLOREM·IPSVM·QVIA·DOLOR·SIT·AMET·CONSEC
 
 Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit', 1, 67);
 
-INSERT INTO file_sections (section_type, section_level, start_index, end_index, file_id) VALUES ("Epistle 1", 0, 0, 20, 1);
-INSERT INTO file_sections (section_type, section_level, start_index, end_index, file_id) VALUES ("Epistle 2", 0, 20, 50, 1);
-INSERT INTO file_sections (section_type, section_level, start_index, end_index, file_id) VALUES ("Gloss 1", 1, 30, 40, 1);
+INSERT INTO file_sections (section_type, section_level, start_index, end_index, file_id) VALUES ('Epistle 1', 0, 0, 20, 1);
+INSERT INTO file_sections (section_type, section_level, start_index, end_index, file_id) VALUES ('Epistle 2', 0, 20, 50, 1);
+INSERT INTO file_sections (section_type, section_level, start_index, end_index, file_id) VALUES ('Gloss 1', 1, 30, 40, 1);
