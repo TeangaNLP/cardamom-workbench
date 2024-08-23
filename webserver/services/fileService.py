@@ -1,6 +1,7 @@
 from unit_of_work.unitOfWork import SqlAlchemyUnitOfWork
 from utilities import process_txt_file, process_docx_file, serialise_data_model
 
+
 class FileService:
     """
     Service class for handling file-related operations using SQLAlchemy unit of work pattern.

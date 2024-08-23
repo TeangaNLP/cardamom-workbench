@@ -8,7 +8,7 @@ import model
 from typing import List, Dict
 from sqlalchemy.pool import NullPool
 from flask import g, Blueprint, request, render_template, make_response, jsonify
-from technologies import  cardamom_find_similar_words #cardamom_space, cardamom_postag
+from technologies import cardamom_find_similar_words  # cardamom_space, cardamom_postag
 
 api = Blueprint('api', __name__, template_folder='templates')
 
