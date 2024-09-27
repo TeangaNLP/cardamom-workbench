@@ -1,3 +1,157 @@
-.login-form {
+/* .login-form {
     margin-top: 100px;
+} */
+
+/*Start Global Style*/
+/* * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+} */
+.main-div {
+  /* background: #e9ebee; */
+  display: flex;
+  background-color: #fafafa;
+
+  justify-content: center;
+  align-items: center;
+  /* height: 100vh; */
+  font-family: sans-serif;
 }
+.box-container {
+  width: 100%;
+  margin: auto;
+  padding: 0px 0px 0px 0px;
+  height: 100%;
+}
+
+.loginbox {
+  padding: 35px;
+}
+.login,
+.register {
+  width: 50%;
+}
+.cardamom-logo {
+  margin-top: 35px;
+}
+/*Start Login Style*/
+.login {
+  float: right;
+  background-color: #fafafa;
+  height: 100%;
+  border-radius: 10px 0 0 10px;
+  text-align: center;
+  padding-top: 100px;
+}
+.login h1 {
+  margin-bottom: 40px;
+  font-size: 2.5em;
+}
+
+.signup-div {
+  display: inline-block;
+}
+
+.signup-link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.typo-text {
+  margin-top: 35px !important;
+  color: #dfe5d2 !important;
+}
+
+.login span {
+  float: left;
+}
+.login a {
+  float: right;
+  text-decoration: none;
+  color: #000;
+  transition: 0.3s all ease-in-out;
+}
+
+.login button {
+  width: 100%;
+  margin: 30px 0;
+  padding: 10px;
+  border: none;
+
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.3s all ease-in-out;
+}
+
+.login p {
+  display: inline-block;
+  margin: 0px 10px 30px;
+}
+.login ul {
+  list-style: none;
+  margin-bottom: 40px;
+}
+.login ul li {
+  display: inline-block;
+  margin-right: 30px;
+  cursor: pointer;
+}
+.login ul li:hover {
+  opacity: 0.6;
+}
+.login ul li:last-child {
+  margin-right: 0;
+}
+.login .copyright {
+  display: inline-block;
+  float: none;
+}
+.screenshot-img {
+  width: 75%;
+  margin-top: 35px;
+}
+
+/*Start Register Style*/
+.register {
+  float: left;
+  background-image: linear-gradient(135deg, #373c2b 85%, #dfe5d2 15%);
+  height: 100vh;
+  color: #fff;
+  border-radius: 0 10px 10px 0;
+  text-align: center;
+  padding: 100px 0;
+}
+.left-box {
+  margin-top: 10%;
+}
+.register h2 {
+  margin: 30px 30px;
+  color: #dfe5d2;
+  color: #aba12a;
+  font-size: 24px;
+  letter-spacing: 3px;
+}
+.register p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+.register button {
+  background-color: transparent;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 10px 20px;
+  color: #fff;
+  font-size: 20px;
+  text-transform: uppercase;
+  transition: 0.2s all ease-in-out;
+}
+/* .register button:hover {
+  color: #9526a9;
+  background-color: #fff;
+  cursor: pointer;
+} */
+
+/* .para {
+  color: #b0bad2 !important;
+} */

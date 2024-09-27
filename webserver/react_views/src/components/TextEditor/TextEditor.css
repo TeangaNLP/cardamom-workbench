@@ -1,0 +1,11 @@
+.secondary-bar {
+  background-color: #3d414b;
+}
+
+p {
+  color: "#565454" !important;
+}
+
+.MuiSnackbarContent-message {
+  width: 100% !important;
+}

@@ -1,12 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { NavBar, Token } from "../../components/";
 import axios from "axios";
+import SideNavBar from "./../../components/SideNavBar/SideNavBar"; // Adjust the import based on
 
 import "./Tokeniser.css";
+import { Sidenav } from "rsuite";
+import { Box, CircularProgress } from "@mui/material";
 
-const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
+const Tokeniser = ({ user }) => {
+  const { fileId } = useParams();
+
+  // getAll();÷
   const navigate = useNavigate();
   const location = useLocation();
   const activeLink = location.pathname;
@@ -14,6 +20,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
   let [originalTokenData, setOriginalTokenData] = useState([]);
   let [tokensAndGaps, setTokensAndGaps] = useState([]);
   let [fetched, setFetched] = useState(false);
+  let [fileInfo, setFileInfo] = useState(null);
   //let [fileInfo, setFileState] = useState({});
   let [selecting, setSelecting] = useState({
     mouseDown: false,
@@ -23,9 +30,58 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
     end: null,
     componentStartIndex: null,
   });
+  const [loading, setLoading] = useState(false);
+
+  const fetchDocuments = async () => {
+    try {
+      const userId = user.id;
+      const get_files_url = process.env.REACT_APP_PORT
+        ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/get_files?user=${userId}`
+        : `https://${process.env.REACT_APP_HOST}/api/get_files?user=${userId}`;
+
+      const response = await axios.get(get_files_url);
+      const documents = response.data.file_contents;
+      console.log("res", response.data);
+
+      const file_Info = documents.find((e) => e.file_id == fileId);
+      console.log("file_Info- > ", file_Info);
+      setFileInfo(file_Info);
+      console.log(documents);
+      return file_Info;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchAnnotations = async (fileInfo) => {
+    try {
+      console.log("shoudl run later");
+      console.log("file info ", fileInfo);
+
+      const get_tokens_url = process.env.REACT_APP_PORT
+        ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/${fileInfo.file_id}`
+        : `https://${process.env.REACT_APP_HOST}/api/annotations/${fileInfo.file_id}`;
+
+      console.log("got tokens");
+      const response = await axios.get(get_tokens_url);
+      window.originaltokens = response.data.annotations;
+      setOriginalTokenData(response.data.annotations);
+      combineTokensAndGaps(response.data.annotations, fileInfo.content);
+      setFetched(true);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getAll = async () => {
+    const file_info_details = await fetchDocuments();
+    await fetchAnnotations(file_info_details);
+  };
+
   // Callback for saving
   const onEnter = useCallback(
     (event) => {
+      console.log("enter called");
       if (
         event.keyCode == 13 &&
         selecting.start != null &&
@@ -47,6 +103,14 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
   );
 
   useEffect(() => {
+    if (!fetched) {
+      getAll();
+      setLoading(true);
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 250);
+    }
+
     // To check if file already selected before.
     /*
     let file_id;
@@ -67,23 +131,6 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
 
     setFileState({ file_id: file_id, content: content });
     */
-    if (!fetched && fileInfo !== undefined) {
-      const get_tokens_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations/` + fileInfo.file_id : `https://${process.env.REACT_APP_HOST}/api/annotations/` + fileInfo.file_id
-      axios
-        .get(get_tokens_url)
-        .then(function (response) {
-	  window.originaltokens = response.data.annotations; 
-          setOriginalTokenData(response.data.annotations);
-          combineTokensAndGaps(
-            response.data.annotations,
-            fileInfo.content
-          );
-          setFetched(true);
-        })
-        .catch(function (err) {
-          console.log(err);
-        });
-    }
 
     // https://stackoverflow.com/a/61740188/13082658
     document.addEventListener("keydown", onEnter);
@@ -105,15 +152,18 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
 
   const resetMouseSelection = () => {
     if (window.getSelection) {
-      if (window.getSelection().empty) {  // Chrome
+      if (window.getSelection().empty) {
+        // Chrome
         window.getSelection().empty();
-      } else if (window.getSelection().removeAllRanges) {  // Firefox
+      } else if (window.getSelection().removeAllRanges) {
+        // Firefox
         window.getSelection().removeAllRanges();
       }
-    } else if (document.selection) {  // IE?
+    } else if (document.selection) {
+      // IE?
       document.selection.empty();
     }
-  }
+  };
 
   const handleMouseUp = (index) => {
     let selection = window.getSelection();
@@ -340,7 +390,7 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
 
     setTokenData(data);
     setTokensAndGaps(newTokensAndGaps);
-    window.tokensAndGaps = newTokensAndGaps
+    window.tokensAndGaps = newTokensAndGaps;
   };
 
   // Return manual tokens.
@@ -352,13 +402,13 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
           type_: token.type_,
           start_index: token.start_index,
           end_index: token.end_index,
-          provenance: 1
-        }
-        reservedTokens.push(t)
+          provenance: 1,
+        };
+        reservedTokens.push(t);
       }
     }
-    return reservedTokens
-  }
+    return reservedTokens;
+  };
 
   // Buttons
   const autoTokenise = () => {
@@ -368,7 +418,9 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
     window.sentFileI = fileInfo;
     window.sentFileF = JSON.stringify(fileInfo);
 
-    const post_auto_tokenize_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tokenise` : `https://${process.env.REACT_APP_HOST}/api/auto_tokenise`
+    const post_auto_tokenize_url = process.env.REACT_APP_PORT
+      ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/auto_tokenise`
+      : `https://${process.env.REACT_APP_HOST}/api/auto_tokenise`;
     axios
       .post(post_auto_tokenize_url, data, {
         headers: {
@@ -391,7 +443,9 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
       file_id: fileInfo.file_id,
     };
 
-    const post_tokens_url = process.env.REACT_APP_PORT ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations` : `https://${process.env.REACT_APP_HOST}/api/annotations`
+    const post_tokens_url = process.env.REACT_APP_PORT
+      ? `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/api/annotations`
+      : `https://${process.env.REACT_APP_HOST}/api/annotations`;
     axios
       .post(post_tokens_url, data, {
         headers: {
@@ -409,50 +463,69 @@ const Tokeniser = ({ fileInfo, setFileInfo, user, setUser }) => {
 
   return (
     <div>
-      <NavBar setUser={setUser} pages={[{ path: "/", name: "Home" }, { path: "/fileupload", name: "File Upload" }]} />
-      <NavBar main={false} pages={
-        [
-          { path: "/editor", name: "Text Editor" },
-          { path: activeLink, name: "Tokenisation" },
-          { path: "/identification", name: "Identification" },
-          { path: "/annotation", name: "Annotation" },
-          { path: `/tagging/${fileInfo.file_id}`, name: "POS Tagging" }
-        ]
-      } />
-      <div onKeyPress={onEnter} className="tokenise-area">
-        <div className="tokenise-text">
-          {fetched ? tokensAndGaps.map((token) => {
-            const text = fileInfo.content;
-            const tokenValue = text.substring(token.start_index, token.end_index)
-            return (
-              <Token
-                downHandler={handleMouseDown}
-                upHandler={handleMouseUp}
-                deselectHandler={deselect}
-                token={token}
-                value={tokenValue}
-              />
-            );
-          }) : "Loading..."}
+      {loading ? (
+        <Box sx={{ textAlign: "center", mt: 2 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <div className="remaining-box">
+          <Box
+            run
+            later
+            component="main"
+            sx={{
+              flexGrow: 1,
+              p: 3,
+              marginLeft: "240px", // Matches the Drawer width
+              border: 1,
+              borderColor: "grey.300",
+              borderRadius: 1,
+              boxShadow: 1,
+            }}
+          >
+            <div onKeyPress={onEnter} className="tokenise-area">
+              <div className="tokenise-text">
+                {fetched
+                  ? tokensAndGaps.map((token, i) => {
+                      const text = fileInfo.content;
+                      const tokenValue = text.substring(
+                        token.start_index,
+                        token.end_index
+                      );
+                      return (
+                        <Token
+                          key={i}
+                          downHandler={handleMouseDown}
+                          upHandler={handleMouseUp}
+                          deselectHandler={deselect}
+                          token={token}
+                          value={tokenValue}
+                        />
+                      );
+                    })
+                  : "Loading..."}
+              </div>
+            </div>
+          </Box>
+          <div className="tokenise-area buttons">
+            <div>
+              {selecting.mouseDown && !selecting.mouseUp ? (
+                <div>Selecting...</div>
+              ) : selecting.mouseDown && selecting.mouseUp ? (
+                <div>Text Selected!</div>
+              ) : (
+                <div>Nothing Selected!</div>
+              )}
+            </div>
+            <Button className="button" onClick={autoTokenise} variant="dark">
+              Auto-Tokenise
+            </Button>
+            <Button className="button" onClick={saveTokens} variant="dark">
+              Save
+            </Button>
+          </div>
         </div>
-      </div>
-      <div className="tokenise-area buttons">
-        <div>
-          {selecting.mouseDown && !selecting.mouseUp ? (
-            <div>Selecting...</div>
-          ) : selecting.mouseDown && selecting.mouseUp ? (
-            <div>Text Selected!</div>
-          ) : (
-            <div>Nothing Selected!</div>
-          )}
-        </div>
-        <Button className="button" onClick={autoTokenise} variant="dark">
-          Auto-Tokenise
-        </Button>
-        <Button className="button" onClick={saveTokens} variant="dark">
-          Save
-        </Button>
-      </div>
+      )}
     </div>
   );
 };

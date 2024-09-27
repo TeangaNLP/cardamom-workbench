@@ -3,11 +3,109 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
+.tag {
+  cursor: pointer;
+  position: relative; /* Ensure span is positioned relative for absolute cursor */
+}
 
+.cursor {
+  width: 1px;
+  height: 1em;
+  background-color: black;
+  position: absolute;
+}
 .auto {
-  background-color: #AED6F1;
+  background-color: #aed6f1;
 }
 
 .manual {
-  background-color: #82E0AA;
+  background-color: #82e0aa;
+}
+
+.tag {
+  box-sizing: border-box;
+
+  margin-bottom: 8px;
+  font-variant: tabular-nums;
+  list-style: none;
+  font-feature-settings: "tnum";
+  display: inline-block;
+  height: auto;
+  padding: 0 7px;
+  font-size: 12px;
+  line-height: 20px;
+  white-space: nowrap;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  opacity: 1;
+  transition: all 0.3s;
+}
+
+.tag.gap {
+  border: none;
+}
+.tag.cyan {
+  color: #08979c;
+  background: #e6fffb;
+  border-color: #87e8de;
+}
+
+.tag.green {
+  color: #389e0d;
+  background: #f6ffed;
+  border-color: #b7eb8f;
+}
+
+.tag.purple {
+  color: #531dab;
+  background: #f9f0ff;
+  border-color: #d3adf7;
+}
+
+.tag.geekblue {
+  color: #1d39c4;
+  background: #f0f5ff;
+  border-color: #adc6ff;
+}
+
+.tag.blue {
+  color: #096dd9;
+  background: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.tag.lime {
+  color: #7cb305;
+  background: #fcffe6;
+  border-color: #eaff8f;
+}
+
+.tag.magenta {
+  color: #c41d7f;
+  background: #fff0f6;
+  border-color: #ffadd2;
+}
+
+.tag.gold {
+  color: #d48806;
+  background: #fffbe6;
+  border-color: #ffe58f;
+}
+
+.tag.orange {
+  color: #d46b08;
+  background: #fff7e6;
+  border-color: #ffd591;
+}
+
+.tag.volcano {
+  color: #d4380d;
+  background: #fff2e8;
+  border-color: #ffbb96;
+}
+
+.tag.red {
+  color: #cf1322;
+  background: #fff1f0;
+  border-color: #ffa39e;
 }

@@ -1,3 +1,13 @@
 .secondary-bar {
-    background-color: #3D414B;
+  background-color: #3d414b;
+}
+.cardamom-logo-appbar {
+  width: 195px;
+  z-index: 5000;
+
+  margin-left: -24px;
+}
+
+.cardamom-anchor {
+  z-index: 5000;
 }

@@ -1,8 +1,3 @@
-body {
-  padding: 0px;
-  margin: 0px;
-}
-
 .tokenise-area {
   margin: 10px;
 }
@@ -10,7 +5,7 @@ body {
 .tokenise-text {
   text-align: left;
   overflow-y: scroll;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   width: 100%;
   flex-wrap: wrap;
   padding-bottom: 100px;
@@ -26,5 +21,9 @@ body {
 }
 
 .tokenise-text *::selection {
-  background: #F9E79F;
+  background: #f9e79f;
+}
+
+.remaining-box {
+  /* padding-left: 240px; */
 }
